@@ -22,7 +22,7 @@ const values = [
 const ValueProps = () => {
   return (
     <section 
-      className="py-12 sm:py-16 md:py-20"
+      className="py-12 sm:py-16 md:py-20 relative"
       style={{ 
         background: 'var(--gradient-sage-radial)',
       }}
