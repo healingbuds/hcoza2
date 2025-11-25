@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import newsAward from "@/assets/award-hq.jpg";
-import newsInhaler from "@/assets/medical-products-hq.jpg";
+import newsInhaler from "@/assets/medical-products-clean.png";
 import newsConference from "@/assets/conference-hq.jpg";
 
 const newsItems = [

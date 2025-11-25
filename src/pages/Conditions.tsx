@@ -6,7 +6,7 @@ import BackToTop from "@/components/BackToTop";
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import medicalProductsImage from "@/assets/medical-products-hq.jpg";
+import medicalProductsImage from "@/assets/medical-products-clean.png";
 
 const conditions = [
   { 
@@ -167,11 +167,11 @@ const Conditions = () => {
                       to={`/conditions/${condition.id}`}
                       className="group block bg-card rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-border/30"
                     >
-                      <div className="h-48 overflow-hidden">
+                      <div className="h-48 overflow-hidden bg-gradient-to-br from-muted/30 to-muted/10">
                         <img
                           src={condition.image}
                           alt={condition.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          className="w-full h-full object-contain p-6 group-hover:scale-105 transition-transform duration-500"
                         />
                       </div>
                       <div className="p-5">
