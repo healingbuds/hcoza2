@@ -22,12 +22,13 @@ const values = [
 const ValueProps = () => {
   return (
     <section 
-      className="py-12 sm:py-16 md:py-20 bg-background"
+      className="py-12 sm:py-16 md:py-20"
+      style={{ backgroundColor: 'hsl(var(--navbar-teal))' }}
     >
       <div className="container mx-auto px-3 sm:px-4 lg:px-6">
         <ScrollAnimation>
           <div className="text-center mb-12 sm:mb-16">
-            <h2 className="font-pharma text-3xl sm:text-4xl md:text-5xl font-normal text-foreground mb-4 px-4" style={{ letterSpacing: '0.02em', lineHeight: '1.5' }}>
+            <h2 className="font-pharma text-3xl sm:text-4xl md:text-5xl font-normal text-white mb-4 px-4" style={{ letterSpacing: '0.02em', lineHeight: '1.5' }}>
               Growing more than medicine
             </h2>
           </div>
@@ -40,14 +41,14 @@ const ValueProps = () => {
                 className="text-center group"
               >
               <div className="flex justify-center mb-6">
-                <div className="w-20 h-20 flex items-center justify-center rounded-2xl bg-secondary/30 group-hover:bg-secondary/40 transition-all duration-300 group-hover:scale-110">
-                  <value.icon className="w-12 h-12 text-foreground" strokeWidth={1.5} />
+                <div className="w-20 h-20 flex items-center justify-center rounded-2xl bg-white/10 group-hover:bg-white/15 transition-all duration-300 group-hover:scale-110">
+                  <value.icon className="w-12 h-12 text-white" strokeWidth={1.5} />
                 </div>
               </div>
-              <h3 className="font-pharma text-xl sm:text-2xl font-semibold text-foreground mb-4 tracking-tight">
+              <h3 className="font-pharma text-xl sm:text-2xl font-semibold text-white mb-4 tracking-tight">
                 {value.title}
               </h3>
-              <p className="font-body text-foreground/80 leading-relaxed text-sm sm:text-base">
+              <p className="font-body text-white/80 leading-relaxed text-sm sm:text-base">
                 {value.description}
               </p>
               </div>

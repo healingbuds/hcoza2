@@ -40,6 +40,7 @@ All colors MUST be HSL.
     --teal-deeper: 200 40% 8%;
     --teal-primary: 200 50% 15%;
     --teal-darker: 200 35% 8%;
+    --navbar-teal: 166 18% 20%;      /* Navbar dark teal */
 
     --primary: 155 60% 45%;         /* Deep green */
     --primary-foreground: 0 0% 100%;
