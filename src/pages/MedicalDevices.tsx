@@ -30,20 +30,20 @@ const MedicalDevices = () => {
         <Header />
         <main className="pt-24">
           {/* Hero Section with Parallax */}
-          <section ref={heroRef} className="relative h-[400px] overflow-hidden">
+          <section ref={heroRef} className="relative h-[500px] overflow-hidden">
             <motion.img 
               src={medicalProductsImage}
               alt="Medical cannabis devices" 
               className="absolute inset-0 w-full h-full object-cover"
               style={{ y, opacity }}
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/40 to-background" />
+            <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background" />
             <div className="relative container mx-auto px-3 sm:px-4 lg:px-6 h-full flex flex-col justify-center">
               <ScrollAnimation>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-white mb-3">
+                <h1 className="text-5xl md:text-6xl font-semibold text-foreground mb-4">
                   Medical Devices
                 </h1>
-                <p className="text-lg md:text-xl text-white/90 max-w-2xl">
+                <p className="text-xl text-muted-foreground/80 max-w-2xl">
                   Advanced delivery systems for precise medical cannabis administration across global markets
                 </p>
               </ScrollAnimation>
