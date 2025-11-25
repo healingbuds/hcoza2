@@ -228,11 +228,11 @@ const InteractiveMap = ({ selectedCountry, onCountrySelect }: InteractiveMapProp
         el.style.boxShadow = '0 4px 16px rgba(0,0,0,0.15)';
         el.style.border = '3px solid white';
         
-        // Premium color mapping with brand colors
+        // Pastel lime green color palette
         const colorMap: Record<LocationType, string> = {
-          'operations-sales': 'hsl(164, 80%, 38%)',    // Vibrant darker green for contrast
-          'export-only': 'hsl(178, 48%, 33%)',         // Secondary Green
-          'operations-only': 'hsl(171, 12%, 66%)',     // Light Gray
+          'operations-sales': 'hsl(82, 55%, 62%)',    // Vibrant pastel lime
+          'export-only': 'hsl(88, 48%, 58%)',         // Lime green with sage tone
+          'operations-only': 'hsl(85, 42%, 70%)',     // Light pastel lime
         };
         
         el.style.backgroundColor = colorMap[location.type];
@@ -321,8 +321,8 @@ const InteractiveMap = ({ selectedCountry, onCountrySelect }: InteractiveMapProp
             <div 
               className="w-3 h-3 rounded-full mr-2 border-2" 
               style={{ 
-                backgroundColor: activeLayer === 'operations-sales' ? 'white' : 'hsl(164, 80%, 38%)',
-                borderColor: activeLayer === 'operations-sales' ? 'white' : 'hsl(164, 80%, 38%)'
+                backgroundColor: activeLayer === 'operations-sales' ? 'white' : 'hsl(82, 55%, 62%)',
+                borderColor: activeLayer === 'operations-sales' ? 'white' : 'hsl(82, 55%, 62%)'
               }} 
             />
             Operations & Sales
@@ -336,8 +336,8 @@ const InteractiveMap = ({ selectedCountry, onCountrySelect }: InteractiveMapProp
             <div 
               className="w-3 h-3 rounded-full mr-2 border-2" 
               style={{ 
-                backgroundColor: activeLayer === 'export-only' ? 'white' : 'hsl(178, 48%, 33%)',
-                borderColor: activeLayer === 'export-only' ? 'white' : 'hsl(178, 48%, 33%)'
+                backgroundColor: activeLayer === 'export-only' ? 'white' : 'hsl(88, 48%, 58%)',
+                borderColor: activeLayer === 'export-only' ? 'white' : 'hsl(88, 48%, 58%)'
               }} 
             />
             Export Only
@@ -351,8 +351,8 @@ const InteractiveMap = ({ selectedCountry, onCountrySelect }: InteractiveMapProp
             <div 
               className="w-3 h-3 rounded-full mr-2 border-2" 
               style={{ 
-                backgroundColor: activeLayer === 'operations-only' ? 'white' : 'hsl(171, 12%, 66%)',
-                borderColor: activeLayer === 'operations-only' ? 'white' : 'hsl(171, 12%, 66%)'
+                backgroundColor: activeLayer === 'operations-only' ? 'white' : 'hsl(85, 42%, 70%)',
+                borderColor: activeLayer === 'operations-only' ? 'white' : 'hsl(85, 42%, 70%)'
               }} 
             />
             Operations Only
