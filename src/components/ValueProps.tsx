@@ -22,7 +22,7 @@ const values = [
 const ValueProps = () => {
   return (
     <section 
-      className="py-12 sm:py-16 md:py-20 bg-secondary/20"
+      className="py-12 sm:py-16 md:py-20 bg-background"
     >
       <div className="container mx-auto px-3 sm:px-4 lg:px-6">
         <ScrollAnimation>
