@@ -33,10 +33,7 @@ const Hero = () => {
   return (
     <section 
       ref={containerRef} 
-      className="relative min-h-screen flex items-center overflow-hidden pt-28 sm:pt-36 md:pt-44"
-      style={{ 
-        background: 'var(--gradient-sage-radial)',
-      }}
+      className="relative min-h-screen flex items-center overflow-hidden pt-28 sm:pt-36 md:pt-44 bg-background"
     >
       {/* Video Background with Parallax */}
       <motion.div 

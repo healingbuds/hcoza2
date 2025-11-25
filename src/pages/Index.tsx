@@ -7,7 +7,6 @@ import International from "@/components/International";
 import News from "@/components/News";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
-import WaveDivider from "@/components/WaveDivider";
 import { useState, useEffect } from "react";
 
 const Index = () => {
@@ -36,16 +35,9 @@ const Index = () => {
           style={{ opacity: scrollFade * 0.7 }}
         />
         <main>
-          <div className="relative">
-            <Hero />
-            <WaveDivider position="bottom" />
-          </div>
+          <Hero />
           <AboutHero />
-          <div className="relative">
-            <WaveDivider position="top" flip />
-            <ValueProps />
-            <WaveDivider position="bottom" />
-          </div>
+          <ValueProps />
           <Cultivation />
           <International />
           <News />
