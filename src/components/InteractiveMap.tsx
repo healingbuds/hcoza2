@@ -221,12 +221,23 @@ const InteractiveMap = ({ selectedCountry, onCountrySelect }: InteractiveMapProp
           el.style.transform = 'scale(1.5) translateY(-3px)';
           el.style.boxShadow = `0 0 32px ${colorMap[location.type]}, 0 8px 24px rgba(0,0,0,0.35), 0 0 0 3px white`;
           el.style.zIndex = '1000';
+          popup.addTo(map.current!);
+          
+          // Smooth fly to the hovered marker
+          map.current?.flyTo({
+            center: location.coordinates,
+            zoom: Math.max(map.current.getZoom(), 6),
+            duration: 800,
+            curve: 1.2,
+            essential: true,
+          });
         });
         
         el.addEventListener('mouseleave', () => {
           el.style.transform = 'scale(1)';
           el.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2), 0 0 0 2px white';
           el.style.zIndex = 'auto';
+          popup.remove();
         });
         
         el.addEventListener('click', () => {
@@ -267,15 +278,6 @@ const InteractiveMap = ({ selectedCountry, onCountrySelect }: InteractiveMapProp
           .setLngLat(location.coordinates)
           .setPopup(popup)
           .addTo(map.current!);
-
-        // Show popup on hover
-        el.addEventListener('mouseenter', () => {
-          popup.addTo(map.current!);
-        });
-        
-        el.addEventListener('mouseleave', () => {
-          popup.remove();
-        });
 
         markers.current.push(marker);
       });
