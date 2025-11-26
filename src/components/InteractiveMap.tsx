@@ -9,6 +9,9 @@ interface Location {
   name: string;
   coordinates: [number, number];
   type: LocationType;
+  cultivationArea?: string;
+  productionCapacity?: string;
+  certifications?: string[];
 }
 
 type CountryStatus = 'LIVE' | 'NEXT' | 'UPCOMING';
@@ -35,8 +38,22 @@ const countries: Record<string, Country> = {
     order: 1,
     description: 'Fully operational cultivation and distribution hub',
     locations: [
-      { name: 'Cape Town', coordinates: [18.4241, -33.9249], type: 'operations-sales' },
-      { name: 'Johannesburg', coordinates: [28.0473, -26.2041], type: 'operations-only' },
+      { 
+        name: 'Cape Town', 
+        coordinates: [18.4241, -33.9249], 
+        type: 'operations-sales',
+        cultivationArea: '15,000 m²',
+        productionCapacity: '2,500 kg/year',
+        certifications: ['GMP', 'EU-GMP', 'ISO 9001']
+      },
+      { 
+        name: 'Johannesburg', 
+        coordinates: [28.0473, -26.2041], 
+        type: 'operations-only',
+        cultivationArea: '8,000 m²',
+        productionCapacity: '1,200 kg/year',
+        certifications: ['GMP', 'ISO 9001']
+      },
     ],
   },
   portugal: {
@@ -47,8 +64,22 @@ const countries: Record<string, Country> = {
     order: 2,
     description: 'EU gateway for medical cannabis operations',
     locations: [
-      { name: 'Lisbon', coordinates: [-9.1393, 38.7223], type: 'operations-sales' },
-      { name: 'Porto', coordinates: [-8.6291, 41.1579], type: 'export-only' },
+      { 
+        name: 'Lisbon', 
+        coordinates: [-9.1393, 38.7223], 
+        type: 'operations-sales',
+        cultivationArea: '12,000 m²',
+        productionCapacity: '2,000 kg/year',
+        certifications: ['EU-GMP', 'ISO 22000', 'Organic Certified']
+      },
+      { 
+        name: 'Porto', 
+        coordinates: [-8.6291, 41.1579], 
+        type: 'export-only',
+        cultivationArea: 'N/A',
+        productionCapacity: 'N/A',
+        certifications: ['Export License']
+      },
     ],
   },
   uk: {
@@ -59,8 +90,22 @@ const countries: Record<string, Country> = {
     order: 3,
     description: 'Strategic UK market expansion',
     locations: [
-      { name: 'London', coordinates: [-0.1276, 51.5074], type: 'operations-sales' },
-      { name: 'Manchester', coordinates: [-2.2426, 53.4808], type: 'export-only' },
+      { 
+        name: 'London', 
+        coordinates: [-0.1276, 51.5074], 
+        type: 'operations-sales',
+        cultivationArea: '10,000 m²',
+        productionCapacity: '1,800 kg/year',
+        certifications: ['GMP', 'MHRA Approved']
+      },
+      { 
+        name: 'Manchester', 
+        coordinates: [-2.2426, 53.4808], 
+        type: 'export-only',
+        cultivationArea: 'N/A',
+        productionCapacity: 'N/A',
+        certifications: ['Export License']
+      },
     ],
   },
 };
@@ -255,22 +300,50 @@ const InteractiveMap = ({ selectedCountry, onCountrySelect }: InteractiveMapProp
           'operations-only': 'Operations Only',
         };
 
+        const certificationsHtml = location.certifications && location.certifications.length > 0
+          ? location.certifications.map(cert => 
+              `<span style="display: inline-block; background: hsl(142, 76%, 96%); color: hsl(142, 76%, 36%); padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 600; border: 1px solid hsl(142, 76%, 88%); margin-right: 4px; margin-bottom: 4px;">${cert}</span>`
+            ).join('')
+          : '<span style="font-size: 12px; color: hsl(215, 16%, 47%); font-style: italic;">None specified</span>';
+
         const popup = new maplibregl.Popup({ 
           offset: 35, 
           className: 'map-popup',
           closeButton: false,
-          maxWidth: '300px',
+          maxWidth: '340px',
           closeOnClick: false,
         })
           .setHTML(`
-            <div style="padding: 18px 20px; font-family: 'Inter', system-ui, -apple-system, sans-serif; background: hsl(0, 0%, 100%); border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.15), 0 0 1px rgba(0,0,0,0.1);">
+            <div style="padding: 20px 22px; font-family: 'Inter', system-ui, -apple-system, sans-serif; background: hsl(0, 0%, 100%); border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.15), 0 0 1px rgba(0,0,0,0.1);">
               <div style="font-weight: 700; font-size: 18px; margin-bottom: 6px; color: hsl(142, 76%, 36%); letter-spacing: -0.4px; line-height: 1.2;">${countryData.name}</div>
-              <div style="font-size: 15px; color: hsl(215, 16%, 47%); margin-bottom: 12px; font-weight: 500;">${location.name}</div>
-              <div style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: hsl(142, 76%, 36%); background: hsl(142, 76%, 96%); padding: 6px 12px; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700; margin-bottom: 12px; border: 1px solid hsl(142, 76%, 88%);">
+              <div style="font-size: 15px; color: hsl(215, 16%, 47%); margin-bottom: 14px; font-weight: 500;">${location.name}</div>
+              <div style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: hsl(142, 76%, 36%); background: hsl(142, 76%, 96%); padding: 6px 12px; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700; margin-bottom: 14px; border: 1px solid hsl(142, 76%, 88%);">
                 <div style="width: 6px; height: 6px; border-radius: 50%; background: hsl(142, 76%, 36%);"></div>
                 ${typeLabels[location.type]}
               </div>
-              <div style="margin-top: 12px; padding-top: 12px; border-top: 1.5px solid hsl(215, 20%, 94%); display: flex; align-items: center; justify-content: space-between;">
+              
+              ${location.cultivationArea ? `
+              <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1.5px solid hsl(215, 20%, 94%);">
+                <div style="font-size: 10px; color: hsl(215, 16%, 47%); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px;">Cultivation Area</div>
+                <div style="font-size: 14px; color: hsl(222.2, 84%, 4.9%); font-weight: 700;">${location.cultivationArea}</div>
+              </div>
+              ` : ''}
+              
+              ${location.productionCapacity ? `
+              <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1.5px solid hsl(215, 20%, 94%);">
+                <div style="font-size: 10px; color: hsl(215, 16%, 47%); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px;">Production Capacity</div>
+                <div style="font-size: 14px; color: hsl(222.2, 84%, 4.9%); font-weight: 700;">${location.productionCapacity}</div>
+              </div>
+              ` : ''}
+              
+              <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1.5px solid hsl(215, 20%, 94%);">
+                <div style="font-size: 10px; color: hsl(215, 16%, 47%); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px;">Certifications</div>
+                <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                  ${certificationsHtml}
+                </div>
+              </div>
+              
+              <div style="display: flex; align-items: center; justify-content: space-between;">
                 <span style="font-size: 11px; color: hsl(215, 16%, 47%); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;">Status</span>
                 <span style="font-size: 13px; color: hsl(142, 76%, 36%); font-weight: 700; letter-spacing: 0.2px;">${countryData.status}</span>
               </div>
