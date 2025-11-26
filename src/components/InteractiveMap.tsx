@@ -127,11 +127,12 @@ const InteractiveMap = ({ selectedCountry, onCountrySelect }: InteractiveMapProp
       ]
     };
     
+    // Start zoomed into South Africa (first live location)
     map.current = new maplibregl.Map({
       container: mapContainer.current,
       style: style as any,
-      center: [20, 20],
-      zoom: 2,
+      center: [24.9916, -28.4793], // South Africa center
+      zoom: 5,
       attributionControl: false,
     });
 
@@ -145,11 +146,6 @@ const InteractiveMap = ({ selectedCountry, onCountrySelect }: InteractiveMapProp
 
     map.current.on('load', () => {
       setIsLoaded(true);
-      
-      map.current?.easeTo({
-        zoom: 2,
-        duration: 1200,
-      });
     });
 
     return () => {
@@ -248,28 +244,38 @@ const InteractiveMap = ({ selectedCountry, onCountrySelect }: InteractiveMapProp
           'operations-only': 'Operations Only',
         };
 
+        const popup = new maplibregl.Popup({ 
+          offset: 30, 
+          className: 'map-popup',
+          closeButton: false,
+          maxWidth: '280px',
+          closeOnClick: false,
+        })
+          .setHTML(`
+            <div style="padding: 14px; font-family: system-ui, -apple-system, sans-serif; background: white; border-radius: 12px;">
+              <div style="font-weight: 700; font-size: 17px; margin-bottom: 5px; color: #111827; letter-spacing: -0.3px;">${countryData.name}</div>
+              <div style="font-size: 14px; color: #6B7280; margin-bottom: 8px; font-weight: 500;">${location.name}</div>
+              <div style="display: inline-block; font-size: 11px; color: #059669; background: #D1FAE5; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 8px;">${typeLabels[location.type]}</div>
+              <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #E5E7EB; display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-size: 10px; color: #9CA3AF; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;">Status</span>
+                <span style="font-size: 12px; color: #059669; font-weight: 700; letter-spacing: 0.3px;">${countryData.status}</span>
+              </div>
+            </div>
+          `);
+
         const marker = new maplibregl.Marker(el)
           .setLngLat(location.coordinates)
-          .setPopup(
-            new maplibregl.Popup({ 
-              offset: 30, 
-              className: 'map-popup',
-              closeButton: false,
-              maxWidth: '280px',
-            })
-              .setHTML(`
-                <div style="padding: 14px; font-family: system-ui, -apple-system, sans-serif; background: white; border-radius: 12px;">
-                  <div style="font-weight: 700; font-size: 17px; margin-bottom: 5px; color: #111827; letter-spacing: -0.3px;">${countryData.name}</div>
-                  <div style="font-size: 14px; color: #6B7280; margin-bottom: 8px; font-weight: 500;">${location.name}</div>
-                  <div style="display: inline-block; font-size: 11px; color: #059669; background: #D1FAE5; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 8px;">${typeLabels[location.type]}</div>
-                  <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #E5E7EB; display: flex; align-items: center; justify-content: space-between;">
-                    <span style="font-size: 10px; color: #9CA3AF; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;">Status</span>
-                    <span style="font-size: 12px; color: #059669; font-weight: 700; letter-spacing: 0.3px;">${countryData.status}</span>
-                  </div>
-                </div>
-              `)
-          )
+          .setPopup(popup)
           .addTo(map.current!);
+
+        // Show popup on hover
+        el.addEventListener('mouseenter', () => {
+          popup.addTo(map.current!);
+        });
+        
+        el.addEventListener('mouseleave', () => {
+          popup.remove();
+        });
 
         markers.current.push(marker);
       });
