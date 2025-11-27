@@ -4,7 +4,6 @@ import PageTransition from "@/components/PageTransition";
 import ScrollAnimation from "@/components/ScrollAnimation";
 import BackToTop from "@/components/BackToTop";
 import International from "@/components/International";
-import BlockchainTraceability from "@/components/BlockchainTraceability";
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import productionFacility from "@/assets/production-facility-hq.jpg";
@@ -186,9 +185,6 @@ const ManufactureDistribution = () => {
               </div>
             </div>
           </section>
-
-          {/* Blockchain Traceability Section */}
-          <BlockchainTraceability />
 
           {/* Distribution Section */}
           <section className="py-20 md:py-32 bg-background">

@@ -3,7 +3,6 @@ import Hero from "@/components/Hero";
 import AboutHero from "@/components/AboutHero";
 import ValueProps from "@/components/ValueProps";
 import Cultivation from "@/components/Cultivation";
-import International from "@/components/International";
 import News from "@/components/News";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
@@ -41,7 +40,6 @@ const Index = () => {
           <AboutHero />
           <ValueProps />
           <Cultivation />
-          <International />
           <News />
         </main>
         <Footer />
