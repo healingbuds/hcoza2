@@ -1,16 +1,22 @@
-import { Link, useLocation } from "react-router-dom";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { ChevronDown, Menu, X, LogOut } from "lucide-react";
 import hbLogoWhite from "@/assets/hb-logo-white-new.png";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import EligibilityDialog from "./EligibilityDialog";
 import { motion, useScroll, useSpring } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
+import { useToast } from "@/hooks/use-toast";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [whatWeDoOpen, setWhatWeDoOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [eligibilityDialogOpen, setEligibilityDialogOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const location = useLocation();
   
   // Scroll progress tracking
@@ -29,6 +35,29 @@ const Header = () => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast({
+      title: "Signed out",
+      description: "You have been successfully signed out.",
+    });
+    navigate("/");
+  };
 
   const isActive = (path: string) => location.pathname === path;
   
@@ -202,18 +231,36 @@ const Header = () => {
               >
                 Check Eligibility
               </button>
-              <button
-                className={cn(
-                  "font-body font-semibold px-6 py-2.5 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-2xl",
-                  "backdrop-blur-2xl bg-gradient-to-br from-white/20 via-white/15 to-white/10",
-                  "dark:from-white/15 dark:via-white/10 dark:to-white/5",
-                  "border border-white/30 shadow-lg hover:border-white/50",
-                  "text-foreground hover:bg-white/25",
-                  scrolled ? "text-sm" : "text-sm"
-                )}
-              >
-                Patient Login
-              </button>
+              {user ? (
+                <button
+                  onClick={handleLogout}
+                  className={cn(
+                    "font-body font-semibold px-6 py-2.5 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-2xl",
+                    "backdrop-blur-2xl bg-gradient-to-br from-white/20 via-white/15 to-white/10",
+                    "dark:from-white/15 dark:via-white/10 dark:to-white/5",
+                    "border border-white/30 shadow-lg hover:border-white/50",
+                    "text-foreground hover:bg-white/25 flex items-center gap-2",
+                    scrolled ? "text-sm" : "text-sm"
+                  )}
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </button>
+              ) : (
+                <Link
+                  to="/auth"
+                  className={cn(
+                    "font-body font-semibold px-6 py-2.5 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-2xl",
+                    "backdrop-blur-2xl bg-gradient-to-br from-white/20 via-white/15 to-white/10",
+                    "dark:from-white/15 dark:via-white/10 dark:to-white/5",
+                    "border border-white/30 shadow-lg hover:border-white/50",
+                    "text-foreground hover:bg-white/25",
+                    scrolled ? "text-sm" : "text-sm"
+                  )}
+                >
+                  Patient Login
+                </Link>
+              )}
             </div>
           </nav>
 
