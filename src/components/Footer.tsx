@@ -27,8 +27,8 @@ const Footer = () => {
               <div className="flex items-start gap-2 text-white/60 text-xs mb-2">
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
                 <span className="font-body">
-                  Av. Fco. Sá Carneiro, Edf. Golfinho, Lj. 3<br />
-                  Quarteira, Faro, 812 5148, Portugal
+                  Avenida D. João II, 98 A<br />
+                  1990-100 Lisboa, Portugal
                 </span>
               </div>
               <div className="flex items-center gap-2 text-white/60 text-xs">
@@ -78,13 +78,13 @@ const Footer = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link to="/research" className="font-body text-sm text-white/60 hover:text-white transition-colors inline-block">
-                      Healthcare Professionals
+                    <Link to="/conditions" className="font-body text-sm text-white/60 hover:text-white transition-colors inline-block">
+                      Conditions Treated
                     </Link>
                   </li>
                   <li>
-                    <Link to="/#news" className="font-body text-sm text-white/60 hover:text-white transition-colors inline-block">
-                      News & Updates
+                    <Link to="/research" className="font-body text-sm text-white/60 hover:text-white transition-colors inline-block">
+                      Research & Innovation
                     </Link>
                   </li>
                 </ul>

@@ -81,13 +81,11 @@ const Contact = () => {
                     <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
                       <MapPin className="w-6 h-6 text-white" />
                     </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-foreground mb-2 tracking-tight">Locations</h3>
-                      <p className="text-muted-foreground/80 text-sm mb-1">Canada & Portugal</p>
-                      <p className="text-xs text-muted-foreground/70">
-                        Visit our facilities in both locations
-                      </p>
-                    </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2 tracking-tight">Location</h3>
+                    <p className="text-muted-foreground/80 text-sm mb-1">Avenida D. João II, 98 A</p>
+                    <p className="text-muted-foreground/80 text-sm mb-1">1990-100 Lisboa, Portugal</p>
+                  </div>
                   </div>
                 </div>
                 </div>

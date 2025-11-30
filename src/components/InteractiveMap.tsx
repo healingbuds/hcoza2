@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Button } from './ui/button';
+import { Sparkles, ChevronDown, Play, Pause, Filter } from 'lucide-react';
+import { Badge } from './ui/badge';
 
 type LocationType = 'operations-sales' | 'export-only' | 'operations-only';
 
@@ -144,6 +146,12 @@ const InteractiveMap = ({ selectedCountry, onCountrySelect }: InteractiveMapProp
   const markers = useRef<maplibregl.Marker[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [activeLayer, setActiveLayer] = useState<LayerFilter>('all');
+  const [isCardExpanded, setIsCardExpanded] = useState(false);
+  const [selectedCertifications, setSelectedCertifications] = useState<string[]>([]);
+  const [showCertFilter, setShowCertFilter] = useState(false);
+  const [isAutoTourActive, setIsAutoTourActive] = useState(false);
+  const [currentTourIndex, setCurrentTourIndex] = useState(0);
+  const tourIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -222,8 +230,90 @@ const InteractiveMap = ({ selectedCountry, onCountrySelect }: InteractiveMapProp
       markers.current.forEach(marker => marker.remove());
       markers.current = [];
       map.current?.remove();
+      if (tourIntervalRef.current) {
+        clearInterval(tourIntervalRef.current);
+      }
     };
   }, []);
+
+  // Auto-tour functionality
+  useEffect(() => {
+    if (!isAutoTourActive || !isLoaded) {
+      if (tourIntervalRef.current) {
+        clearInterval(tourIntervalRef.current);
+        tourIntervalRef.current = null;
+      }
+      return;
+    }
+
+    // Collect all locations from all countries
+    const allLocations: Array<{ location: Location; country: Country }> = [];
+    Object.values(countries).forEach(country => {
+      country.locations.forEach(location => {
+        allLocations.push({ location, country });
+      });
+    });
+
+    if (allLocations.length === 0) return;
+
+    // Start tour
+    const cycleTour = () => {
+      setCurrentTourIndex(prev => {
+        const nextIndex = (prev + 1) % allLocations.length;
+        const { location, country } = allLocations[nextIndex];
+        
+        if (map.current) {
+          map.current.flyTo({
+            center: location.coordinates,
+            zoom: 7,
+            duration: 2000,
+            curve: 1.2,
+            essential: true,
+          });
+        }
+        
+        return nextIndex;
+      });
+    };
+
+    // Initial location
+    const { location } = allLocations[currentTourIndex];
+    if (map.current) {
+      map.current.flyTo({
+        center: location.coordinates,
+        zoom: 7,
+        duration: 2000,
+        curve: 1.2,
+        essential: true,
+      });
+    }
+
+    tourIntervalRef.current = setInterval(cycleTour, 4000);
+
+    return () => {
+      if (tourIntervalRef.current) {
+        clearInterval(tourIntervalRef.current);
+        tourIntervalRef.current = null;
+      }
+    };
+  }, [isAutoTourActive, isLoaded, currentTourIndex]);
+
+  const toggleAutoTour = () => {
+    setIsAutoTourActive(!isAutoTourActive);
+    if (isAutoTourActive) {
+      setCurrentTourIndex(0);
+    }
+  };
+
+  const availableCertifications = ['GMP', 'EU-GMP', 'ISO 9001', 'ISO 22000', 'Organic Certified'];
+
+  const toggleCertification = (cert: string) => {
+    setSelectedCertifications(prev => 
+      prev.includes(cert) 
+        ? prev.filter(c => c !== cert)
+        : [...prev, cert]
+    );
+  };
 
   useEffect(() => {
     if (!map.current || !isLoaded) return;
@@ -260,6 +350,16 @@ const InteractiveMap = ({ selectedCountry, onCountrySelect }: InteractiveMapProp
         // Filter by active layer
         if (activeLayer !== 'all' && location.type !== activeLayer) return;
 
+        // Filter by certifications
+        if (selectedCertifications.length > 0) {
+          const hasCertification = selectedCertifications.some(cert => 
+            location.certifications?.some(locationCert => 
+              locationCert.includes(cert) || cert.includes(locationCert)
+            )
+          );
+          if (!hasCertification) return;
+        }
+
         const el = document.createElement('div');
         el.className = 'marker';
         el.style.width = '32px';
@@ -286,31 +386,150 @@ const InteractiveMap = ({ selectedCountry, onCountrySelect }: InteractiveMapProp
         
         el.style.opacity = '0';
         el.style.transform = 'scale(0)';
+
+        // Quick stats tooltip
+        const quickTooltip = new maplibregl.Popup({ 
+          offset: 15,
+          className: 'map-quick-tooltip',
+          closeButton: false,
+          maxWidth: '220px',
+          closeOnClick: false,
+        })
+          .setHTML(`
+            <div style="padding: 8px 12px; font-family: 'Inter', system-ui, -apple-system, sans-serif; background: rgba(0, 0, 0, 0.9); backdrop-blur-md; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+              <div style="font-weight: 700; font-size: 12px; margin-bottom: 4px; color: ${colorMap[location.type]}; letter-spacing: -0.2px;">${location.name}</div>
+              <div style="font-size: 10px; color: rgba(255, 255, 255, 0.7); margin-bottom: 6px;">${countryData.name}</div>
+              ${location.cultivationArea ? `
+                <div style="display: flex; justify-content: space-between; font-size: 9px; margin-bottom: 3px;">
+                  <span style="color: rgba(255, 255, 255, 0.6);">Area:</span>
+                  <span style="color: white; font-weight: 600;">${location.cultivationArea}</span>
+                </div>
+              ` : ''}
+              ${location.productionCapacity ? `
+                <div style="display: flex; justify-content: space-between; font-size: 9px; margin-bottom: 3px;">
+                  <span style="color: rgba(255, 255, 255, 0.6);">Capacity:</span>
+                  <span style="color: white; font-weight: 600;">${location.productionCapacity}</span>
+                </div>
+              ` : ''}
+              ${location.certifications && location.certifications.length > 0 ? `
+                <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                  <div style="font-size: 8px; color: rgba(255, 255, 255, 0.5); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">Certifications</div>
+                  <div style="display: flex; flex-wrap: wrap; gap: 3px;">
+                    ${location.certifications.slice(0, 3).map(cert => 
+                      `<span style="display: inline-block; background: ${colorMap[location.type]}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 8px; font-weight: 600;">${cert}</span>`
+                    ).join('')}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+          `);
         
         el.addEventListener('mouseenter', () => {
           el.style.transform = 'scale(1.4) translateY(-4px)';
           el.style.boxShadow = `0 0 40px ${colorMap[location.type]}, 0 12px 32px rgba(0,0,0,0.3), 0 0 0 4px white`;
           el.style.zIndex = '1000';
-          popup.addTo(map.current!);
+          quickTooltip.addTo(map.current!);
           
           // Smooth fly to the hovered marker
-          map.current?.flyTo({
-            center: location.coordinates,
-            zoom: Math.max(map.current.getZoom(), 6),
-            duration: 800,
-            curve: 1.2,
-            essential: true,
-          });
+          if (!isAutoTourActive) {
+            map.current?.flyTo({
+              center: location.coordinates,
+              zoom: Math.max(map.current.getZoom(), 6),
+              duration: 800,
+              curve: 1.2,
+              essential: true,
+            });
+          }
         });
         
         el.addEventListener('mouseleave', () => {
           el.style.transform = 'scale(1)';
           el.style.boxShadow = '0 4px 20px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.1), 0 0 0 3px white';
           el.style.zIndex = 'auto';
-          popup.remove();
+          quickTooltip.remove();
         });
         
-        el.addEventListener('click', () => {
+        // Enhanced click interaction - show detailed popup
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          
+          // Create detailed popup
+          const detailedPopup = new maplibregl.Popup({ 
+            offset: 35,
+            className: 'map-popup-detailed',
+            closeButton: true,
+            maxWidth: '420px',
+            closeOnClick: true,
+          })
+            .setLngLat(location.coordinates)
+            .setHTML(`
+              <div style="padding: 24px; font-family: 'Inter', system-ui, -apple-system, sans-serif; background: hsl(0, 0%, 100%); border-radius: 16px;">
+                <div style="display: flex; items-center: gap: 12px; margin-bottom: 16px;">
+                  <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, ${colorMap[location.type]}, ${colorMap[location.type]}dd); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                      <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 style="font-size: 20px; font-weight: 700; color: hsl(240, 10%, 3.9%); margin: 0; line-height: 1.2;">${location.name}</h3>
+                    <p style="font-size: 13px; color: hsl(240, 3.8%, 46.1%); margin: 4px 0 0 0;">${countryData.name}</p>
+                  </div>
+                </div>
+
+                <div style="background: hsl(240, 4.8%, 95.9%); padding: 12px; border-radius: 10px; margin-bottom: 16px;">
+                  <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: hsl(240, 3.8%, 46.1%); font-weight: 600; margin-bottom: 6px;">Facility Type</div>
+                  <div style="font-size: 13px; font-weight: 600; color: ${colorMap[location.type]};">${typeLabels[location.type]}</div>
+                </div>
+
+                ${location.cultivationArea || location.productionCapacity ? `
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                    ${location.cultivationArea ? `
+                      <div>
+                        <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: hsl(240, 3.8%, 46.1%); font-weight: 600; margin-bottom: 4px;">Cultivation Area</div>
+                        <div style="font-size: 16px; font-weight: 700; color: hsl(240, 10%, 3.9%);">${location.cultivationArea}</div>
+                      </div>
+                    ` : ''}
+                    ${location.productionCapacity ? `
+                      <div>
+                        <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: hsl(240, 3.8%, 46.1%); font-weight: 600; margin-bottom: 4px;">Production Capacity</div>
+                        <div style="font-size: 16px; font-weight: 700; color: hsl(240, 10%, 3.9%);">${location.productionCapacity}</div>
+                      </div>
+                    ` : ''}
+                  </div>
+                ` : ''}
+
+                ${location.certifications && location.certifications.length > 0 ? `
+                  <div style="margin-bottom: 16px;">
+                    <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: hsl(240, 3.8%, 46.1%); font-weight: 600; margin-bottom: 8px;">Certifications</div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                      ${location.certifications.map(cert => 
+                        `<span style="display: inline-flex; background: linear-gradient(135deg, hsl(142, 76%, 96%), hsl(142, 76%, 92%)); color: hsl(142, 76%, 36%); padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; border: 1.5px solid hsl(142, 76%, 88%); box-shadow: 0 2px 4px rgba(0,0,0,0.05);">${cert}</span>`
+                      ).join('')}
+                    </div>
+                  </div>
+                ` : ''}
+
+                ${location.licensedPartner ? `
+                  <div style="padding-top: 16px; border-top: 1px solid hsl(240, 4.8%, 95.9%);">
+                    <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: hsl(240, 3.8%, 46.1%); font-weight: 600; margin-bottom: 4px;">Licensed Partner</div>
+                    <div style="font-size: 12px; color: hsl(240, 10%, 3.9%); font-weight: 500; line-height: 1.5;">${location.licensedPartner}</div>
+                  </div>
+                ` : ''}
+              </div>
+            `)
+            .addTo(map.current!);
+
+          // Fly to location with smooth animation
+          map.current?.flyTo({
+            center: location.coordinates,
+            zoom: 8,
+            duration: 1500,
+            curve: 1.42,
+            essential: true,
+          });
+
+          // Optional: Still trigger country selection callback
           if (onCountrySelect) {
             const countryId = Object.keys(countries).find(
               key => countries[key].name === countryData.name
@@ -409,29 +628,108 @@ const InteractiveMap = ({ selectedCountry, onCountrySelect }: InteractiveMapProp
           .setLngLat(location.coordinates)
           .setPopup(popup)
           .addTo(map.current!);
+        
+        marker.getElement().dataset.tooltip = 'true';
 
         markers.current.push(marker);
       });
     });
-  }, [selectedCountry, isLoaded, activeLayer]);
+  }, [selectedCountry, isLoaded, activeLayer, selectedCertifications, isAutoTourActive]);
 
   return (
     <div className="relative w-full h-full">
-      {/* Compliance Disclaimer Banner */}
-      <div className="absolute top-6 right-6 z-20 bg-background/98 backdrop-blur-sm rounded-xl shadow-xl border-2 border-primary/30 p-4 max-w-xs hidden sm:block">
-        <div className="flex items-start gap-3">
-          <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="text-primary">
-              <path d="M6 0L7.34709 4.14589H11.7063L8.17963 6.70823L9.52671 10.8541L6 8.29177L2.47329 10.8541L3.82037 6.70823L0.293661 4.14589H4.65291L6 0Z" fill="currentColor"/>
-            </svg>
-          </div>
-          <div>
-            <div className="text-xs font-bold text-foreground mb-1.5">Licensed Partner Network</div>
-            <p className="text-[10px] text-muted-foreground leading-relaxed">
-              All facilities operate under licensed partners with full regulatory compliance. Digital Key holders earn blockchain-verified rewards without handling cannabis products.
-            </p>
+      {/* Compliance Disclaimer Banner - Positioned Below Zoom Controls */}
+      <div className="absolute top-28 right-4 sm:right-6 z-20 max-w-xs hidden sm:block">
+        {/* Glass card with enhanced glossy effect and pulsing glow */}
+        <div 
+          className="relative bg-gradient-to-br from-white/30 via-white/20 to-white/10 dark:from-white/20 dark:via-white/10 dark:to-white/5 backdrop-blur-2xl rounded-2xl shadow-[0_8px_32px_0_rgba(31,38,135,0.37),0_2px_8px_0_rgba(0,0,0,0.1)] border border-white/50 dark:border-white/30 p-4 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-[0_8px_32px_0_rgba(31,38,135,0.5),0_2px_8px_0_rgba(0,0,0,0.2)] animate-pulse-glow"
+          onClick={() => setIsCardExpanded(!isCardExpanded)}
+        >
+          {/* Top glossy highlight */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/10 to-transparent pointer-events-none rounded-2xl" />
+          
+          {/* Shimmer effect */}
+          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/20 to-transparent pointer-events-none rounded-2xl opacity-60" style={{ transform: 'translateX(-100%)', animation: 'shimmer 3s infinite' }} />
+          
+          {/* Content */}
+          <div className="relative z-10">
+            <div className="flex items-start gap-3">
+              <Sparkles className="w-5 h-5 text-teal-400 flex-shrink-0 mt-0.5 drop-shadow-[0_0_8px_rgba(20,184,166,0.6)] animate-pulse" />
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="text-xs font-bold text-white drop-shadow-md">Licensed Partner Network</div>
+                  <ChevronDown 
+                    className={`w-4 h-4 text-white/80 transition-transform duration-300 ${isCardExpanded ? 'rotate-180' : ''}`}
+                  />
+                </div>
+                <p className="text-[10px] text-white/90 leading-relaxed drop-shadow-md">
+                  All facilities operate under licensed partners with full regulatory compliance. Digital Key holders earn blockchain-verified rewards without handling cannabis products.
+                </p>
+              </div>
+            </div>
+            
+            {/* Expanded content */}
+            <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isCardExpanded ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
+              <div className="pt-4 border-t border-white/30 space-y-3">
+                <div>
+                  <div className="text-[10px] font-bold text-white/80 mb-1.5 uppercase tracking-wide drop-shadow-md">Key Features</div>
+                  <ul className="space-y-1.5 text-[10px] text-white/90 drop-shadow-md">
+                    <li className="flex items-start gap-2">
+                      <span className="text-teal-400 mt-0.5">•</span>
+                      <span>Blockchain-verified seed-to-sale traceability</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-teal-400 mt-0.5">•</span>
+                      <span>Licensed partners in multiple regulated markets</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-teal-400 mt-0.5">•</span>
+                      <span>GMP & EU-GMP certified facilities</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-teal-400 mt-0.5">•</span>
+                      <span>Full regulatory compliance in all jurisdictions</span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <div className="text-[10px] font-bold text-white/80 mb-1.5 uppercase tracking-wide drop-shadow-md">Active Regions</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    <span className="px-2 py-1 bg-white/20 text-white text-[9px] rounded-md font-semibold backdrop-blur-sm border border-white/30">South Africa</span>
+                    <span className="px-2 py-1 bg-white/20 text-white text-[9px] rounded-md font-semibold backdrop-blur-sm border border-white/30">Portugal</span>
+                    <span className="px-2 py-1 bg-white/20 text-white text-[9px] rounded-md font-semibold backdrop-blur-sm border border-white/30">UK (Coming)</span>
+                  </div>
+                </div>
+                
+                <div className="pt-2 text-[9px] text-white/70 italic leading-relaxed drop-shadow-md">
+                  Digital Key NFT holders participate in revenue-sharing without direct product handling. All operations maintained by fully licensed entities.
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* Auto-Tour Control */}
+      <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 z-30">
+        <Button
+          size="lg"
+          onClick={toggleAutoTour}
+          className="gap-2 font-semibold shadow-2xl hover:shadow-[0_0_30px_rgba(77,191,161,0.4)] transition-all duration-300"
+        >
+          {isAutoTourActive ? (
+            <>
+              <Pause className="w-5 h-5" />
+              <span className="hidden sm:inline">Stop Tour</span>
+            </>
+          ) : (
+            <>
+              <Play className="w-5 h-5" />
+              <span className="hidden sm:inline">Auto Tour</span>
+            </>
+          )}
+        </Button>
       </div>
 
       {/* Layer Toggle Controls */}
@@ -496,6 +794,48 @@ const InteractiveMap = ({ selectedCountry, onCountrySelect }: InteractiveMapProp
             <span className="hidden sm:inline">Operations Only</span>
             <span className="sm:hidden">Operations</span>
           </Button>
+          
+          {/* Certification Filter Toggle */}
+          <div className="mt-3 pt-3 border-t border-border/40">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setShowCertFilter(!showCertFilter)}
+              className="justify-between text-sm h-9 w-full"
+            >
+              <span className="flex items-center gap-2">
+                <Filter className="w-3.5 h-3.5" />
+                Certifications
+              </span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showCertFilter ? 'rotate-180' : ''}`} />
+            </Button>
+            
+            {/* Certification Badges */}
+            <div className={`overflow-hidden transition-all duration-300 ${showCertFilter ? 'max-h-64 opacity-100 mt-2' : 'max-h-0 opacity-0'}`}>
+              <div className="flex flex-col gap-1.5 px-2">
+                {availableCertifications.map(cert => (
+                  <Badge
+                    key={cert}
+                    variant={selectedCertifications.includes(cert) ? 'default' : 'outline'}
+                    className="cursor-pointer justify-center text-xs py-1.5 transition-all hover:scale-105"
+                    onClick={() => toggleCertification(cert)}
+                  >
+                    {cert}
+                  </Badge>
+                ))}
+                {selectedCertifications.length > 0 && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setSelectedCertifications([])}
+                    className="text-xs h-7 mt-1"
+                  >
+                    Clear All
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

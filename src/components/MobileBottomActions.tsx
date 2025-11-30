@@ -18,17 +18,14 @@ const MobileBottomActions = () => {
           <div className="flex gap-3">
             <button 
               onClick={() => setEligibilityDialogOpen(true)}
-              className="flex-1 font-body font-semibold text-white px-6 py-3.5 rounded-full transition-all duration-300 active:scale-95 shadow-lg hover:shadow-xl"
-              style={{ 
-                background: 'linear-gradient(135deg, hsl(164, 48%, 53%), hsl(178, 48%, 33%))',
-              }}
+              className="flex-1 font-body font-semibold px-6 py-3.5 rounded-full transition-all duration-300 active:scale-95 shadow-lg hover:shadow-2xl backdrop-blur-2xl bg-gradient-to-br from-white/30 via-white/20 to-white/10 dark:from-white/20 dark:via-white/10 dark:to-white/5 border border-white/40 hover:border-white/60 text-white hover:bg-white/30"
             >
               Check Eligibility
             </button>
             <button 
-              className="flex-1 font-body font-semibold text-foreground px-6 py-3.5 rounded-full transition-all duration-300 active:scale-95 border-2 border-primary/50 bg-background/90 hover:bg-primary/10 shadow-lg hover:shadow-xl"
+              className="flex-1 font-body font-semibold px-6 py-3.5 rounded-full transition-all duration-300 active:scale-95 shadow-lg hover:shadow-2xl backdrop-blur-2xl bg-gradient-to-br from-white/20 via-white/15 to-white/10 dark:from-white/15 dark:via-white/10 dark:to-white/5 border border-white/30 hover:border-white/50 text-foreground hover:bg-white/25"
             >
-              Login
+              Patient Login
             </button>
           </div>
         </div>
