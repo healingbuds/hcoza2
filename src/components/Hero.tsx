@@ -3,10 +3,12 @@ import hbLogoSquare from "@/assets/hb-logo-square.png";
 import heroVideoBg from "@/assets/hero-video-bg.jpg";
 import { ChevronDown } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 const Hero = () => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const containerRef = React.useRef<HTMLElement>(null);
+  const { t } = useTranslation('home');
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -68,8 +70,8 @@ const Hero = () => {
             transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.4, 0.25, 1] }}
             className="font-pharma text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold text-white mb-6 sm:mb-8 leading-[1.1] tracking-tight drop-shadow-lg"
           >
-            Welcome to{" "}
-            <span className="block mt-3">Healing Buds</span>
+            {t('hero.welcome')}{" "}
+            <span className="block mt-3">{t('hero.healingBuds')}</span>
           </motion.h1>
           
           {/* Transparent logo overlay - subtle without pulsing */}
@@ -88,7 +90,7 @@ const Hero = () => {
             transition={{ duration: 0.8, delay: 0.5, ease: [0.25, 0.4, 0.25, 1] }}
             className="font-body text-lg sm:text-xl md:text-2xl text-white/90 mb-8 max-w-2xl font-light leading-relaxed drop-shadow-md"
           >
-            Pioneering tomorrow's medical cannabis solutions
+            {t('hero.tagline')}
           </motion.p>
         </div>
       </motion.div>

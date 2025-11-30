@@ -8,6 +8,8 @@ import { motion, useScroll, useSpring } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -18,6 +20,7 @@ const Header = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const location = useLocation();
+  const { t } = useTranslation('common');
   
   // Scroll progress tracking
   const { scrollYProgress } = useScroll();
@@ -93,7 +96,7 @@ const Header = () => {
             "flex items-center justify-between transition-all duration-500 ease-out",
             scrolled ? "h-16 md:h-20" : "h-20 md:h-28"
           )}>
-          <Link to="/" className="flex items-center flex-shrink-0 group">
+            <Link to="/" className="flex items-center flex-shrink-0 group">
             <img 
               src={hbLogoWhite} 
               alt="Healing Buds Logo" 
@@ -123,7 +126,7 @@ const Header = () => {
                     : "text-white/70 hover:text-white hover:bg-white/5"
                 )}
               >
-                What We Do
+                {t('nav.whatWeDo')}
                 <ChevronDown className={cn("w-4 h-4 transition-transform duration-150", whatWeDoOpen && "rotate-180")} />
               </button>
               
@@ -139,32 +142,32 @@ const Header = () => {
                   className="block px-4 py-3 text-foreground hover:bg-muted transition-colors border-b border-border"
                   onClick={() => setWhatWeDoOpen(false)}
                 >
-                  <div className="font-medium">Cultivating & Processing</div>
-                  <div className="text-sm text-muted-foreground">Pharmaceutical-grade cultivation</div>
+                  <div className="font-medium">{t('dropdown.cultivating')}</div>
+                  <div className="text-sm text-muted-foreground">{t('dropdown.cultivatingDesc')}</div>
                 </Link>
                 <Link
                   to="/manufacture-distribution"
                   className="block px-4 py-3 text-foreground hover:bg-muted transition-colors border-b border-border"
                   onClick={() => setWhatWeDoOpen(false)}
                 >
-                  <div className="font-medium">Manufacture & Distribution</div>
-                  <div className="text-sm text-muted-foreground">Global supply chain excellence</div>
+                  <div className="font-medium">{t('dropdown.manufacture')}</div>
+                  <div className="text-sm text-muted-foreground">{t('dropdown.manufactureDesc')}</div>
                 </Link>
                 <Link
                   to="/medical-clinics"
                   className="block px-4 py-3 text-foreground hover:bg-muted transition-colors border-b border-border"
                   onClick={() => setWhatWeDoOpen(false)}
                 >
-                  <div className="font-medium">Medical Cannabis Clinics</div>
-                  <div className="text-sm text-muted-foreground">Patient-centered care</div>
+                  <div className="font-medium">{t('dropdown.clinics')}</div>
+                  <div className="text-sm text-muted-foreground">{t('dropdown.clinicsDesc')}</div>
                 </Link>
                 <Link
                   to="/online-pharmacy"
                   className="block px-4 py-3 text-foreground hover:bg-muted transition-colors"
                   onClick={() => setWhatWeDoOpen(false)}
                 >
-                  <div className="font-medium">Online Medical Cannabis Pharmacy</div>
-                  <div className="text-sm text-muted-foreground">Convenient access to care</div>
+                  <div className="font-medium">{t('dropdown.pharmacy')}</div>
+                  <div className="text-sm text-muted-foreground">{t('dropdown.pharmacyDesc')}</div>
                 </Link>
               </div>
             </div>
@@ -178,7 +181,7 @@ const Header = () => {
                   : "text-white/70 hover:text-white hover:bg-white/5"
               )}
             >
-              Research
+              {t('nav.research')}
             </Link>
             <Link 
               to="/the-wire" 
@@ -190,7 +193,7 @@ const Header = () => {
                   : "text-white/70 hover:text-white hover:bg-white/5"
               )}
             >
-              The Wire
+              {t('nav.theWire')}
             </Link>
             <div 
               className="relative"
@@ -206,7 +209,7 @@ const Header = () => {
                     : "text-white/70 hover:text-white hover:bg-white/5"
                 )}
               >
-                About Us
+                {t('nav.aboutUs')}
                 <ChevronDown className={cn("w-4 h-4 transition-transform duration-150", aboutUsOpen && "rotate-180")} />
               </button>
               
@@ -222,16 +225,16 @@ const Header = () => {
                   className="block px-4 py-3 text-foreground hover:bg-muted transition-colors border-b border-border"
                   onClick={() => setAboutUsOpen(false)}
                 >
-                  <div className="font-medium">About Healing Buds</div>
-                  <div className="text-sm text-muted-foreground">Our story, values & facilities</div>
+                  <div className="font-medium">{t('dropdown.aboutHealing')}</div>
+                  <div className="text-sm text-muted-foreground">{t('dropdown.aboutHealingDesc')}</div>
                 </Link>
                 <Link
                   to="/blockchain-technology"
                   className="block px-4 py-3 text-foreground hover:bg-muted transition-colors"
                   onClick={() => setAboutUsOpen(false)}
                 >
-                  <div className="font-medium">Blockchain Technology</div>
-                  <div className="text-sm text-muted-foreground">Seed-to-patient traceability</div>
+                  <div className="font-medium">{t('dropdown.blockchain')}</div>
+                  <div className="text-sm text-muted-foreground">{t('dropdown.blockchainDesc')}</div>
                 </Link>
               </div>
             </div>
@@ -245,8 +248,11 @@ const Header = () => {
                   : "text-white/70 hover:text-white hover:bg-white/5"
               )}
             >
-              Contact Us
+              {t('nav.contactUs')}
             </Link>
+
+            {/* Language Switcher */}
+            <LanguageSwitcher scrolled={scrolled} />
 
             {/* Desktop Action Buttons */}
             <div className="flex items-center gap-3 ml-4">
@@ -261,7 +267,7 @@ const Header = () => {
                   scrolled ? "text-sm" : "text-sm"
                 )}
               >
-                Check Eligibility
+                {t('nav.checkEligibility')}
               </button>
               {user ? (
                 <button
@@ -276,7 +282,7 @@ const Header = () => {
                   )}
                 >
                   <LogOut className="w-4 h-4" />
-                  Sign Out
+                  {t('nav.signOut')}
                 </button>
               ) : (
                 <Link
@@ -290,7 +296,7 @@ const Header = () => {
                     scrolled ? "text-sm" : "text-sm"
                   )}
                 >
-                  Patient Login
+                  {t('nav.patientLogin')}
                 </Link>
               )}
             </div>
@@ -329,7 +335,7 @@ const Header = () => {
                 "font-normal text-sm py-1.5 font-semibold",
                 isWhatWeDoActive ? "text-white" : "text-white/80"
               )}>
-                What We Do
+                {t('nav.whatWeDo')}
               </div>
               <div className="pl-3 space-y-1 border-l-2 border-white/20">
                 <Link 
@@ -337,28 +343,28 @@ const Header = () => {
                   className="block text-xs text-white/80 hover:text-white py-1 transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Cultivating & Processing
+                  {t('dropdown.cultivating')}
                 </Link>
                 <Link 
                   to="/manufacture-distribution" 
                   className="block text-xs text-white/80 hover:text-white py-1 transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Manufacture & Distribution
+                  {t('dropdown.manufacture')}
                 </Link>
                 <Link 
                   to="/medical-clinics" 
                   className="block text-xs text-white/80 hover:text-white py-1 transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Medical Cannabis Clinics
+                  {t('dropdown.clinics')}
                 </Link>
                 <Link 
                   to="/online-pharmacy" 
                   className="block text-xs text-white/80 hover:text-white py-1 transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Online Medical Cannabis Pharmacy
+                  {t('dropdown.pharmacy')}
                 </Link>
               </div>
             </div>
@@ -370,7 +376,7 @@ const Header = () => {
               )}
               onClick={() => setMobileMenuOpen(false)}
             >
-              Research
+              {t('nav.research')}
             </Link>
             <Link 
               to="/the-wire" 
@@ -380,14 +386,14 @@ const Header = () => {
               )}
               onClick={() => setMobileMenuOpen(false)}
             >
-              The Wire
+              {t('nav.theWire')}
             </Link>
             <div className="space-y-1.5">
               <div className={cn(
                 "font-normal text-sm py-1.5 font-semibold",
                 isAboutUsActive ? "text-white" : "text-white/80"
               )}>
-                About Us
+                {t('nav.aboutUs')}
               </div>
               <div className="pl-3 space-y-1 border-l-2 border-white/20">
                 <Link 
@@ -395,14 +401,14 @@ const Header = () => {
                   className="block text-xs text-white/80 hover:text-white py-1 transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  About Healing Buds
+                  {t('dropdown.aboutHealing')}
                 </Link>
                 <Link 
                   to="/blockchain-technology" 
                   className="block text-xs text-white/80 hover:text-white py-1 transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Blockchain Technology
+                  {t('dropdown.blockchain')}
                 </Link>
               </div>
             </div>
@@ -414,15 +420,18 @@ const Header = () => {
               )}
               onClick={() => setMobileMenuOpen(false)}
             >
-              Contact Us
+              {t('nav.contactUs')}
             </Link>
-            
-            {/* Mobile Action Buttons - Removed, moved to bottom */}
+
+            {/* Mobile Language Switcher */}
+            <div className="pt-2 border-t border-white/10">
+              <LanguageSwitcher scrolled={scrolled} />
+            </div>
           </div>
         </nav>
-      </div>
-    </header>
-  </>
+        </div>
+      </header>
+    </>
   );
 };
 

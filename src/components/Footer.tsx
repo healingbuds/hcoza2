@@ -1,9 +1,11 @@
 import hbLogoWhite from "@/assets/hb-logo-white-new.png";
 import { Link } from "react-router-dom";
 import { Mail, MapPin } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const { t } = useTranslation('common');
   
   return (
     <footer id="contact" className="text-white" style={{ backgroundColor: 'hsl(var(--section-color))' }}>
@@ -22,7 +24,7 @@ const Footer = () => {
                 />
               </Link>
               <p className="font-body text-white/60 text-sm leading-relaxed mb-4">
-                Shaping the future of cannabis through research and excellence.
+                {t('footer.tagline')}
               </p>
               <div className="flex items-start gap-2 text-white/60 text-xs mb-2">
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
@@ -45,27 +47,27 @@ const Footer = () => {
               {/* Company */}
               <div>
                 <h4 className="font-pharma font-semibold text-sm uppercase tracking-wider mb-4 text-white/90">
-                  Company
+                  {t('footer.company')}
                 </h4>
                 <ul className="space-y-2.5">
                   <li>
                     <Link to="/about-us" className="font-body text-sm text-white/60 hover:text-white transition-colors inline-block">
-                      About Us
+                      {t('footer.aboutUs')}
                     </Link>
                   </li>
                   <li>
                     <Link to="/what-we-do" className="font-body text-sm text-white/60 hover:text-white transition-colors inline-block">
-                      Our Standards
+                      {t('footer.ourStandards')}
                     </Link>
                   </li>
                   <li>
                     <Link to="/research" className="font-body text-sm text-white/60 hover:text-white transition-colors inline-block">
-                      Research
+                      {t('footer.research')}
                     </Link>
                   </li>
                   <li>
                     <Link to="/the-wire" className="font-body text-sm text-white/60 hover:text-white transition-colors inline-block">
-                      The Wire
+                      {t('footer.theWire')}
                     </Link>
                   </li>
                 </ul>
@@ -74,22 +76,22 @@ const Footer = () => {
               {/* Resources */}
               <div>
                 <h4 className="font-pharma font-semibold text-sm uppercase tracking-wider mb-4 text-white/90">
-                  Resources
+                  {t('footer.resources')}
                 </h4>
                 <ul className="space-y-2.5">
                   <li>
                     <Link to="/contact" className="font-body text-sm text-white/60 hover:text-white transition-colors inline-block">
-                      Patient Access
+                      {t('footer.patientAccess')}
                     </Link>
                   </li>
                   <li>
                     <Link to="/conditions" className="font-body text-sm text-white/60 hover:text-white transition-colors inline-block">
-                      Conditions Treated
+                      {t('footer.conditionsTreated')}
                     </Link>
                   </li>
                   <li>
                     <Link to="/franchise-opportunity" className="font-body text-sm text-white/60 hover:text-white transition-colors inline-block">
-                      Franchise Opportunities
+                      {t('footer.franchiseOpportunities')}
                     </Link>
                   </li>
                 </ul>
@@ -98,22 +100,22 @@ const Footer = () => {
               {/* Legal */}
               <div>
                 <h4 className="font-pharma font-semibold text-sm uppercase tracking-wider mb-4 text-white/90">
-                  Legal
+                  {t('footer.legal')}
                 </h4>
                 <ul className="space-y-2.5">
                   <li>
                     <Link to="/privacy-policy" className="font-body text-sm text-white/60 hover:text-white transition-colors inline-block">
-                      Privacy Policy
+                      {t('footer.privacyPolicy')}
                     </Link>
                   </li>
                   <li>
                     <Link to="/terms-of-service" className="font-body text-sm text-white/60 hover:text-white transition-colors inline-block">
-                      Terms of Service
+                      {t('footer.termsOfService')}
                     </Link>
                   </li>
                   <li>
                     <Link to="/contact" className="font-body text-sm text-white/60 hover:text-white transition-colors inline-block">
-                      Compliance
+                      {t('footer.compliance')}
                     </Link>
                   </li>
                 </ul>
@@ -127,10 +129,10 @@ const Footer = () => {
         <div className="py-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="font-body text-white/50 text-xs">
-              © {currentYear} Healing Buds Global. All rights reserved.
+              {t('footer.copyright', { year: currentYear })}
             </p>
             <p className="font-body text-white/40 text-xs">
-              Committed to advancing global cannabis medicine
+              {t('footer.commitment')}
             </p>
           </div>
         </div>

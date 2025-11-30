@@ -12,21 +12,7 @@ import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import { Mail, Lock, User as UserIcon, ArrowRight, Loader2 } from "lucide-react";
 import hbLogoWhite from "@/assets/hb-logo-white-new.png";
-
-const loginSchema = z.object({
-  email: z.string().trim().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-});
-
-const signupSchema = z.object({
-  email: z.string().trim().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-  confirmPassword: z.string(),
-  fullName: z.string().trim().min(2, { message: "Please enter your full name" }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-});
+import { useTranslation } from "react-i18next";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -43,9 +29,24 @@ const Auth = () => {
   
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation('auth');
+
+  const loginSchema = z.object({
+    email: z.string().trim().email({ message: t('validationErrors.invalidEmail') }),
+    password: z.string().min(6, { message: t('validationErrors.passwordMin') }),
+  });
+
+  const signupSchema = z.object({
+    email: z.string().trim().email({ message: t('validationErrors.invalidEmail') }),
+    password: z.string().min(6, { message: t('validationErrors.passwordMin') }),
+    confirmPassword: z.string(),
+    fullName: z.string().trim().min(2, { message: t('validationErrors.fullNameMin') }),
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: t('validationErrors.passwordMatch'),
+    path: ["confirmPassword"],
+  });
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
@@ -53,7 +54,6 @@ const Auth = () => {
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -62,7 +62,6 @@ const Auth = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Redirect if already logged in
   useEffect(() => {
     if (user) {
       navigate("/");
@@ -108,14 +107,14 @@ const Auth = () => {
     setLoading(false);
 
     if (error) {
-      let message = "An error occurred during login";
+      let message = t('loginError');
       if (error.message.includes("Invalid login credentials")) {
-        message = "Invalid email or password. Please try again.";
+        message = t('invalidCredentials');
       } else if (error.message.includes("Email not confirmed")) {
-        message = "Please confirm your email before logging in.";
+        message = t('emailNotConfirmed');
       }
       toast({
-        title: "Login Failed",
+        title: t('loginFailed'),
         description: message,
         variant: "destructive",
       });
@@ -123,8 +122,8 @@ const Auth = () => {
     }
 
     toast({
-      title: "Welcome back!",
-      description: "You have successfully logged in.",
+      title: t('welcomeBackToast'),
+      description: t('loginSuccess'),
     });
     navigate("/");
   };
@@ -152,14 +151,14 @@ const Auth = () => {
     setLoading(false);
 
     if (error) {
-      let message = "An error occurred during sign up";
+      let message = t('signupError');
       if (error.message.includes("User already registered")) {
-        message = "This email is already registered. Please log in instead.";
+        message = t('emailRegistered');
       } else if (error.message.includes("Password should be")) {
-        message = "Password does not meet requirements.";
+        message = t('passwordRequirements');
       }
       toast({
-        title: "Sign Up Failed",
+        title: t('signupFailed'),
         description: message,
         variant: "destructive",
       });
@@ -167,8 +166,8 @@ const Auth = () => {
     }
 
     toast({
-      title: "Account Created!",
-      description: "You can now log in with your credentials.",
+      title: t('accountCreated'),
+      description: t('accountCreatedDesc'),
     });
     setIsLogin(true);
     setPassword("");
@@ -179,7 +178,7 @@ const Auth = () => {
     e.preventDefault();
     setErrors({});
 
-    const emailValidation = z.string().trim().email({ message: "Please enter a valid email address" });
+    const emailValidation = z.string().trim().email({ message: t('validationErrors.invalidEmail') });
     const result = emailValidation.safeParse(email);
     
     if (!result.success) {
@@ -199,7 +198,7 @@ const Auth = () => {
 
     if (error) {
       toast({
-        title: "Error",
+        title: t('error'),
         description: error.message,
         variant: "destructive",
       });
@@ -208,8 +207,8 @@ const Auth = () => {
 
     setResetEmailSent(true);
     toast({
-      title: "Check your email",
-      description: "We've sent you a password reset link.",
+      title: t('checkEmail'),
+      description: t('resetLinkSentToast'),
     });
   };
 
@@ -231,14 +230,14 @@ const Auth = () => {
                   />
                 </div>
                 <h1 className="font-display text-2xl font-bold text-foreground mb-2">
-                  {isForgotPassword ? "Reset Password" : isLogin ? "Welcome Back" : "Create Account"}
+                  {isForgotPassword ? t('resetPassword') : isLogin ? t('welcomeBack') : t('createAccount')}
                 </h1>
                 <p className="text-muted-foreground text-sm">
                   {isForgotPassword 
-                    ? "Enter your email to receive a reset link"
+                    ? t('resetDescription')
                     : isLogin 
-                      ? "Sign in to access your patient portal" 
-                      : "Join Healing Buds for personalized care"}
+                      ? t('loginDescription')
+                      : t('signupDescription')}
                 </p>
               </div>
 
@@ -249,9 +248,9 @@ const Auth = () => {
                     <div className="text-center space-y-4">
                       <div className="bg-primary/10 text-primary p-4 rounded-lg">
                         <Mail className="w-8 h-8 mx-auto mb-2" />
-                        <p className="font-medium">Check your inbox</p>
+                        <p className="font-medium">{t('checkInbox')}</p>
                         <p className="text-sm text-muted-foreground mt-1">
-                          We've sent a password reset link to {email}
+                          {t('resetLinkSent', { email })}
                         </p>
                       </div>
                       <Button
@@ -264,19 +263,19 @@ const Auth = () => {
                           setEmail("");
                         }}
                       >
-                        Back to Sign In
+                        {t('backToSignIn')}
                       </Button>
                     </div>
                   ) : (
                     <form onSubmit={handleForgotPassword} className="space-y-5">
                       <div className="space-y-2">
-                        <Label htmlFor="resetEmail" className="text-foreground">Email</Label>
+                        <Label htmlFor="resetEmail" className="text-foreground">{t('email')}</Label>
                         <div className="relative">
                           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                           <Input
                             id="resetEmail"
                             type="email"
-                            placeholder="you@example.com"
+                            placeholder={t('emailPlaceholder')}
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="pl-10"
@@ -296,7 +295,7 @@ const Auth = () => {
                         {loading ? (
                           <Loader2 className="w-4 h-4 animate-spin mr-2" />
                         ) : null}
-                        Send Reset Link
+                        {t('sendResetLink')}
                         {!loading && <ArrowRight className="w-4 h-4 ml-2" />}
                       </Button>
 
@@ -310,7 +309,7 @@ const Auth = () => {
                           className="text-primary hover:underline text-sm font-medium"
                           disabled={loading}
                         >
-                          Back to Sign In
+                          {t('backToSignIn')}
                         </button>
                       </div>
                     </form>
@@ -321,13 +320,13 @@ const Auth = () => {
                 <form onSubmit={isLogin ? handleLogin : handleSignup} className="p-8 space-y-5">
                   {!isLogin && (
                     <div className="space-y-2">
-                      <Label htmlFor="fullName" className="text-foreground">Full Name</Label>
+                      <Label htmlFor="fullName" className="text-foreground">{t('fullName')}</Label>
                       <div className="relative">
                         <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                           id="fullName"
                           type="text"
-                          placeholder="John Doe"
+                          placeholder={t('fullNamePlaceholder')}
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
                           className="pl-10"
@@ -341,13 +340,13 @@ const Auth = () => {
                   )}
 
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-foreground">Email</Label>
+                    <Label htmlFor="email" className="text-foreground">{t('email')}</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
                         id="email"
                         type="email"
-                        placeholder="you@example.com"
+                        placeholder={t('emailPlaceholder')}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="pl-10"
@@ -361,7 +360,7 @@ const Auth = () => {
 
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <Label htmlFor="password" className="text-foreground">Password</Label>
+                      <Label htmlFor="password" className="text-foreground">{t('password')}</Label>
                       {isLogin && (
                         <button
                           type="button"
@@ -372,7 +371,7 @@ const Auth = () => {
                           }}
                           className="text-xs text-primary hover:underline"
                         >
-                          Forgot password?
+                          {t('forgotPassword')}
                         </button>
                       )}
                     </div>
@@ -395,7 +394,7 @@ const Auth = () => {
 
                   {!isLogin && (
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword" className="text-foreground">Confirm Password</Label>
+                      <Label htmlFor="confirmPassword" className="text-foreground">{t('confirmPassword')}</Label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
@@ -422,13 +421,13 @@ const Auth = () => {
                     {loading ? (
                       <Loader2 className="w-4 h-4 animate-spin mr-2" />
                     ) : null}
-                    {isLogin ? "Sign In" : "Create Account"}
+                    {isLogin ? t('signIn') : t('createAccount')}
                     {!loading && <ArrowRight className="w-4 h-4 ml-2" />}
                   </Button>
 
                   <div className="text-center pt-4 border-t border-border">
                     <p className="text-muted-foreground text-sm">
-                      {isLogin ? "Don't have an account?" : "Already have an account?"}
+                      {isLogin ? t('noAccount') : t('hasAccount')}
                       <button
                         type="button"
                         onClick={() => {
@@ -440,7 +439,7 @@ const Auth = () => {
                         className="text-primary hover:underline ml-1 font-medium"
                         disabled={loading}
                       >
-                        {isLogin ? "Sign up" : "Sign in"}
+                        {isLogin ? t('signUp') : t('signIn')}
                       </button>
                     </p>
                   </div>
