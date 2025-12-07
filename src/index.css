@@ -163,45 +163,64 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground antialiased font-geist;
-    letter-spacing: -0.015em;
+    @apply bg-background text-foreground antialiased font-jakarta;
+    letter-spacing: -0.01em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-pharma;
+    @apply font-jakarta;
     font-weight: 600;
-    letter-spacing: -0.01em;
-    line-height: 1.4;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
   }
   
   h1 {
     @apply text-4xl md:text-5xl lg:text-6xl;
+    line-height: 1.1;
   }
   
   h2 {
     @apply text-3xl md:text-4xl lg:text-5xl;
+    line-height: 1.15;
   }
   
   h3 {
     @apply text-2xl md:text-3xl;
+    line-height: 1.25;
+  }
+  
+  h4 {
+    @apply text-xl md:text-2xl;
   }
   
   p {
-    line-height: 1.6;
-    @apply font-geist;
+    line-height: 1.7;
+    @apply font-jakarta text-base md:text-lg;
+    letter-spacing: 0.01em;
   }
   
-  /* Cards use Geist for modern, clean look */
+  /* Cards use Jakarta for modern, clean look */
   .card, [class*="card-"] {
-    @apply font-geist;
+    @apply font-jakarta;
   }
   
   /* Buttons and interactive elements */
   button, .btn {
-    @apply font-geist;
-    letter-spacing: -0.01em;
+    @apply font-jakarta font-medium;
+    letter-spacing: 0em;
+  }
+  
+  /* Form elements */
+  label {
+    @apply font-jakarta font-medium text-sm;
+    letter-spacing: 0.01em;
+  }
+  
+  input, textarea, select {
+    @apply font-jakarta;
+    letter-spacing: 0em;
   }
 }
 
@@ -239,19 +258,28 @@ All colors MUST be HSL.
   
   /* Clean button styles with accent green */
   .btn-primary {
-    @apply px-5 py-2.5 rounded-lg font-medium transition-all duration-300 bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-lg hover:scale-105;
+    @apply px-5 py-2.5 rounded-xl font-medium transition-all duration-300 bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-lg hover:scale-[1.02] active:scale-[0.97];
   }
   
   .btn-secondary {
-    @apply px-5 py-2.5 rounded-lg font-medium transition-all duration-300 bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:shadow-md;
+    @apply px-5 py-2.5 rounded-xl font-medium transition-all duration-300 bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:shadow-md active:scale-[0.97];
   }
   
   .btn-outline {
-    @apply px-5 py-2.5 rounded-lg font-medium transition-all duration-300 border-2 border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50 hover:shadow-md;
+    @apply px-5 py-2.5 rounded-xl font-medium transition-all duration-300 border-2 border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50 hover:shadow-md active:scale-[0.98];
   }
   
   .btn-ghost {
-    @apply px-5 py-2.5 rounded-lg font-medium transition-all duration-300 text-primary hover:bg-primary/10;
+    @apply px-5 py-2.5 rounded-xl font-medium transition-all duration-300 text-primary hover:bg-primary/10 active:bg-primary/20;
+  }
+  
+  /* Glass button utility */
+  .btn-glass {
+    @apply px-5 py-2.5 rounded-2xl font-semibold transition-all duration-300 backdrop-blur-2xl bg-gradient-to-br from-white/30 via-white/20 to-white/10 border border-white/40 text-white hover:border-white/60 hover:from-white/40 hover:via-white/30 hover:to-white/20 hover:shadow-xl active:scale-[0.97] shadow-lg;
+  }
+  
+  .btn-glass-secondary {
+    @apply px-5 py-2.5 rounded-2xl font-semibold transition-all duration-300 backdrop-blur-2xl bg-gradient-to-br from-white/20 via-white/15 to-white/10 border border-white/30 text-white hover:border-white/50 hover:from-white/30 hover:via-white/25 hover:to-white/20 hover:shadow-lg active:scale-[0.97] shadow-lg;
   }
   
   /* Subtle shadow utilities */
@@ -277,6 +305,30 @@ All colors MUST be HSL.
   .glow-accent-strong {
     @apply shadow-xl;
     box-shadow: 0 0 30px rgba(77, 191, 161, 0.5);
+  }
+  
+  /* Safe area for iOS devices */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  
+  /* Uniform CTA width utility */
+  .cta-uniform {
+    @apply min-w-[140px] sm:min-w-[160px];
+  }
+  
+  /* Focus visible states for accessibility */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+  
+  /* Premium micro-interaction */
+  .interactive-scale {
+    @apply transition-transform duration-200 ease-out hover:scale-[1.02] active:scale-[0.98];
   }
 }
 

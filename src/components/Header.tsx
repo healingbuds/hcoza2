@@ -1,17 +1,31 @@
-import { Link, useLocation } from "react-router-dom";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { ChevronDown, Menu, X, LogOut } from "lucide-react";
 import hbLogoWhite from "@/assets/hb-logo-white-new.png";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import EligibilityDialog from "./EligibilityDialog";
-import { motion, useScroll, useSpring } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
+import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
+import ThemeToggle from "./ThemeToggle";
 
-const Header = () => {
+interface HeaderProps {
+  onMenuStateChange?: (isOpen: boolean) => void;
+}
+
+const Header = ({ onMenuStateChange }: HeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [whatWeDoOpen, setWhatWeDoOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [eligibilityDialogOpen, setEligibilityDialogOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const location = useLocation();
+  const { t } = useTranslation('common');
   
   // Scroll progress tracking
   const { scrollYProgress } = useScroll();
@@ -30,9 +44,40 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Notify parent of menu state changes
+  useEffect(() => {
+    onMenuStateChange?.(mobileMenuOpen);
+  }, [mobileMenuOpen, onMenuStateChange]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast({
+      title: "Signed out",
+      description: "You have been successfully signed out.",
+    });
+    setMobileMenuOpen(false);
+    navigate("/");
+  };
+
   const isActive = (path: string) => location.pathname === path;
   
   const isWhatWeDoActive = ['/what-we-do', '/cultivating-processing', '/manufacture-distribution', '/medical-clinics', '/online-pharmacy'].includes(location.pathname);
+  const isAboutUsActive = ['/about-us', '/blockchain-technology'].includes(location.pathname);
+  const [aboutUsOpen, setAboutUsOpen] = useState(false);
 
   return (
     <>
@@ -62,7 +107,7 @@ const Header = () => {
             "flex items-center justify-between transition-all duration-500 ease-out",
             scrolled ? "h-16 md:h-20" : "h-20 md:h-28"
           )}>
-          <Link to="/" className="flex items-center flex-shrink-0 group">
+            <Link to="/" className="flex items-center flex-shrink-0 group">
             <img 
               src={hbLogoWhite} 
               alt="Healing Buds Logo" 
@@ -75,7 +120,7 @@ const Header = () => {
           
           {/* Desktop Navigation */}
           <nav className={cn(
-            "hidden md:flex items-center transition-all duration-500 ease-out",
+            "hidden lg:flex items-center transition-all duration-500 ease-out",
             scrolled ? "space-x-4" : "space-x-6"
           )}>
             <div 
@@ -92,48 +137,48 @@ const Header = () => {
                     : "text-white/70 hover:text-white hover:bg-white/5"
                 )}
               >
-                What We Do
+                {t('nav.whatWeDo')}
                 <ChevronDown className={cn("w-4 h-4 transition-transform duration-150", whatWeDoOpen && "rotate-180")} />
               </button>
               
               {/* Dropdown Menu - Linear style */}
               <div 
                 className={cn(
-                  "absolute top-full left-0 mt-2 w-72 bg-background rounded-xl shadow-card border border-border/40 overflow-hidden transition-all duration-150 z-50",
+                  "absolute top-full left-0 mt-2 w-72 bg-card rounded-xl shadow-card border border-border/40 overflow-hidden transition-all duration-150 z-50",
                   whatWeDoOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-1"
                 )}
               >
                 <Link
                   to="/cultivating-processing"
-                  className="block px-4 py-3 text-foreground hover:bg-muted transition-colors border-b border-border"
+                  className="block px-4 py-3 text-card-foreground hover:bg-muted transition-colors border-b border-border"
                   onClick={() => setWhatWeDoOpen(false)}
                 >
-                  <div className="font-medium">Cultivating & Processing</div>
-                  <div className="text-sm text-muted-foreground">Pharmaceutical-grade cultivation</div>
+                  <div className="font-medium">{t('dropdown.cultivating')}</div>
+                  <div className="text-sm text-muted-foreground">{t('dropdown.cultivatingDesc')}</div>
                 </Link>
                 <Link
                   to="/manufacture-distribution"
-                  className="block px-4 py-3 text-foreground hover:bg-muted transition-colors border-b border-border"
+                  className="block px-4 py-3 text-card-foreground hover:bg-muted transition-colors border-b border-border"
                   onClick={() => setWhatWeDoOpen(false)}
                 >
-                  <div className="font-medium">Manufacture & Distribution</div>
-                  <div className="text-sm text-muted-foreground">Global supply chain excellence</div>
+                  <div className="font-medium">{t('dropdown.manufacture')}</div>
+                  <div className="text-sm text-muted-foreground">{t('dropdown.manufactureDesc')}</div>
                 </Link>
                 <Link
                   to="/medical-clinics"
-                  className="block px-4 py-3 text-foreground hover:bg-muted transition-colors border-b border-border"
+                  className="block px-4 py-3 text-card-foreground hover:bg-muted transition-colors border-b border-border"
                   onClick={() => setWhatWeDoOpen(false)}
                 >
-                  <div className="font-medium">Medical Cannabis Clinics</div>
-                  <div className="text-sm text-muted-foreground">Patient-centered care</div>
+                  <div className="font-medium">{t('dropdown.clinics')}</div>
+                  <div className="text-sm text-muted-foreground">{t('dropdown.clinicsDesc')}</div>
                 </Link>
                 <Link
                   to="/online-pharmacy"
-                  className="block px-4 py-3 text-foreground hover:bg-muted transition-colors"
+                  className="block px-4 py-3 text-card-foreground hover:bg-muted transition-colors"
                   onClick={() => setWhatWeDoOpen(false)}
                 >
-                  <div className="font-medium">Online Medical Cannabis Pharmacy</div>
-                  <div className="text-sm text-muted-foreground">Convenient access to care</div>
+                  <div className="font-medium">{t('dropdown.pharmacy')}</div>
+                  <div className="text-sm text-muted-foreground">{t('dropdown.pharmacyDesc')}</div>
                 </Link>
               </div>
             </div>
@@ -147,21 +192,63 @@ const Header = () => {
                   : "text-white/70 hover:text-white hover:bg-white/5"
               )}
             >
-              Research
+              {t('nav.research')}
             </Link>
             <Link 
-              to="/about-us" 
+              to="/the-wire" 
               className={cn(
-                "font-body flex items-center gap-1 font-medium transition-all duration-300 ease-out rounded-md hover:scale-105",
+                "font-body font-medium transition-all duration-300 ease-out rounded-md hover:scale-105",
                 scrolled ? "text-sm px-2.5 py-1.5" : "text-sm px-3 py-1.5",
-                isActive("/about-us") 
+                isActive("/the-wire") || location.pathname.startsWith("/the-wire/")
                   ? "text-white bg-white/10" 
                   : "text-white/70 hover:text-white hover:bg-white/5"
               )}
             >
-              About Us
-              <ChevronDown className="w-4 h-4" />
+              {t('nav.theWire')}
             </Link>
+            <div 
+              className="relative"
+              onMouseEnter={() => setAboutUsOpen(true)}
+              onMouseLeave={() => setAboutUsOpen(false)}
+            >
+              <button 
+                className={cn(
+                  "font-body flex items-center gap-1 font-medium transition-all duration-300 ease-out relative rounded-md hover:scale-105",
+                  scrolled ? "text-sm px-2.5 py-1.5" : "text-sm px-3 py-1.5",
+                  isAboutUsActive
+                    ? "text-white bg-white/10" 
+                    : "text-white/70 hover:text-white hover:bg-white/5"
+                )}
+              >
+                {t('nav.aboutUs')}
+                <ChevronDown className={cn("w-4 h-4 transition-transform duration-150", aboutUsOpen && "rotate-180")} />
+              </button>
+              
+              {/* Dropdown Menu */}
+              <div 
+                className={cn(
+                  "absolute top-full left-0 mt-2 w-72 bg-card rounded-xl shadow-card border border-border/40 overflow-hidden transition-all duration-150 z-50",
+                  aboutUsOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-1"
+                )}
+              >
+                <Link
+                  to="/about-us"
+                  className="block px-4 py-3 text-card-foreground hover:bg-muted transition-colors border-b border-border"
+                  onClick={() => setAboutUsOpen(false)}
+                >
+                  <div className="font-medium">{t('dropdown.aboutHealing')}</div>
+                  <div className="text-sm text-muted-foreground">{t('dropdown.aboutHealingDesc')}</div>
+                </Link>
+                <Link
+                  to="/blockchain-technology"
+                  className="block px-4 py-3 text-card-foreground hover:bg-muted transition-colors"
+                  onClick={() => setAboutUsOpen(false)}
+                >
+                  <div className="font-medium">{t('dropdown.blockchain')}</div>
+                  <div className="text-sm text-muted-foreground">{t('dropdown.blockchainDesc')}</div>
+                </Link>
+              </div>
+            </div>
             <Link 
               to="/contact" 
               className={cn(
@@ -172,8 +259,14 @@ const Header = () => {
                   : "text-white/70 hover:text-white hover:bg-white/5"
               )}
             >
-              Contact Us
+              {t('nav.contactUs')}
             </Link>
+
+            {/* Language Switcher */}
+            <LanguageSwitcher scrolled={scrolled} />
+
+            {/* Theme Toggle */}
+            <ThemeToggle />
 
             {/* Desktop Action Buttons */}
             <div className="flex items-center gap-3 ml-4">
@@ -188,126 +281,236 @@ const Header = () => {
                   scrolled ? "text-sm" : "text-sm"
                 )}
               >
-                Check Eligibility
+                {t('nav.checkEligibility')}
               </button>
-              <button
-                className={cn(
-                  "font-body font-semibold px-6 py-2.5 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-2xl",
-                  "backdrop-blur-2xl bg-gradient-to-br from-white/20 via-white/15 to-white/10",
-                  "dark:from-white/15 dark:via-white/10 dark:to-white/5",
-                  "border border-white/30 shadow-lg hover:border-white/50",
-                  "text-foreground hover:bg-white/25",
-                  scrolled ? "text-sm" : "text-sm"
-                )}
-              >
-                Patient Login
-              </button>
+              {user ? (
+                <button
+                  onClick={handleLogout}
+                  className={cn(
+                    "font-body font-semibold px-6 py-2.5 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-2xl",
+                    "backdrop-blur-2xl bg-gradient-to-br from-white/20 via-white/15 to-white/10",
+                    "dark:from-white/15 dark:via-white/10 dark:to-white/5",
+                    "border border-white/30 shadow-lg hover:border-white/50",
+                    "text-white hover:bg-white/25 flex items-center gap-2",
+                    scrolled ? "text-sm" : "text-sm"
+                  )}
+                >
+                  <LogOut className="w-4 h-4" />
+                  {t('nav.signOut')}
+                </button>
+              ) : (
+                <Link
+                  to="/auth"
+                  className={cn(
+                    "font-body font-semibold px-6 py-2.5 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-2xl",
+                    "backdrop-blur-2xl bg-gradient-to-br from-white/20 via-white/15 to-white/10",
+                    "dark:from-white/15 dark:via-white/10 dark:to-white/5",
+                    "border border-white/30 shadow-lg hover:border-white/50",
+                    "text-white hover:bg-white/25",
+                    scrolled ? "text-sm" : "text-sm"
+                  )}
+                >
+                  {t('nav.patientLogin')}
+                </Link>
+              )}
             </div>
           </nav>
 
           {/* Eligibility Dialog */}
           <EligibilityDialog open={eligibilityDialogOpen} onOpenChange={setEligibilityDialogOpen} />
 
-          {/* Mobile Menu Button */}
-          <button
-            className={cn(
-              "md:hidden text-white p-2 transition-all duration-300 hover:scale-110 active:scale-95",
-              scrolled && "p-1.5"
-            )}
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? (
-              <X className={cn("transition-all duration-300", scrolled ? "w-5 h-5" : "w-6 h-6")} />
-            ) : (
-              <Menu className={cn("transition-all duration-300", scrolled ? "w-5 h-5" : "w-6 h-6")} />
-            )}
-          </button>
+          {/* Mobile Menu Button & Theme Toggle */}
+          <div className="lg:hidden flex items-center gap-2">
+            <ThemeToggle />
+            <button
+              className={cn(
+                "text-white p-2 transition-all duration-300 hover:scale-110 active:scale-95",
+                scrolled && "p-1.5"
+              )}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? (
+                <X className={cn("transition-all duration-300", scrolled ? "w-5 h-5" : "w-6 h-6")} />
+              ) : (
+                <Menu className={cn("transition-all duration-300", scrolled ? "w-5 h-5" : "w-6 h-6")} />
+              )}
+            </button>
+          </div>
         </div>
 
-        {/* Mobile Navigation */}
-        <nav 
-          className={cn(
-            "md:hidden overflow-y-auto max-h-[calc(100vh-140px)] transition-all duration-300 ease-in-out border-t border-white/10",
-            mobileMenuOpen ? "py-4 opacity-100" : "max-h-0 py-0 opacity-0"
+        {/* Mobile Navigation - Full Height Slide-in */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="lg:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-[-1]"
+                onClick={() => setMobileMenuOpen(false)}
+              />
+              <motion.nav 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="lg:hidden overflow-hidden border-t border-white/10"
+              >
+                <div className="flex flex-col py-6 px-5 max-h-[calc(100vh-140px)] overflow-y-auto">
+                  {/* Navigation Links */}
+                  <div className="flex flex-col space-y-2">
+                    {/* What We Do Section */}
+                    <div className="space-y-2">
+                      <div className={cn(
+                        "font-semibold text-sm py-3 px-4 rounded-xl",
+                        isWhatWeDoActive ? "text-white bg-white/10" : "text-white/90"
+                      )}>
+                        {t('nav.whatWeDo')}
+                      </div>
+                      <div className="pl-4 space-y-1 border-l-2 border-white/20 ml-4">
+                        <Link 
+                          to="/cultivating-processing" 
+                          className="block text-sm text-white/70 hover:text-white hover:bg-white/5 py-3 px-4 rounded-xl transition-all"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          {t('dropdown.cultivating')}
+                        </Link>
+                        <Link 
+                          to="/manufacture-distribution" 
+                          className="block text-sm text-white/70 hover:text-white hover:bg-white/5 py-3 px-4 rounded-xl transition-all"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          {t('dropdown.manufacture')}
+                        </Link>
+                        <Link 
+                          to="/medical-clinics" 
+                          className="block text-sm text-white/70 hover:text-white hover:bg-white/5 py-3 px-4 rounded-xl transition-all"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          {t('dropdown.clinics')}
+                        </Link>
+                        <Link 
+                          to="/online-pharmacy" 
+                          className="block text-sm text-white/70 hover:text-white hover:bg-white/5 py-3 px-4 rounded-xl transition-all"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          {t('dropdown.pharmacy')}
+                        </Link>
+                      </div>
+                    </div>
+
+                    <Link 
+                      to="/research" 
+                      className={cn(
+                        "text-sm transition-all duration-200 py-3 px-4 rounded-xl",
+                        isActive("/research") ? "text-white font-semibold bg-white/10" : "text-white/70 hover:text-white hover:bg-white/5"
+                      )}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {t('nav.research')}
+                    </Link>
+
+                    <Link 
+                      to="/the-wire" 
+                      className={cn(
+                        "text-sm transition-all duration-200 py-3 px-4 rounded-xl",
+                        isActive("/the-wire") || location.pathname.startsWith("/the-wire/") ? "text-white font-semibold bg-white/10" : "text-white/70 hover:text-white hover:bg-white/5"
+                      )}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {t('nav.theWire')}
+                    </Link>
+
+                    {/* About Us Section */}
+                    <div className="space-y-2">
+                      <div className={cn(
+                        "font-semibold text-sm py-3 px-4 rounded-xl",
+                        isAboutUsActive ? "text-white bg-white/10" : "text-white/90"
+                      )}>
+                        {t('nav.aboutUs')}
+                      </div>
+                      <div className="pl-4 space-y-1 border-l-2 border-white/20 ml-4">
+                        <Link 
+                          to="/about-us" 
+                          className="block text-sm text-white/70 hover:text-white hover:bg-white/5 py-3 px-4 rounded-xl transition-all"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          {t('dropdown.aboutHealing')}
+                        </Link>
+                        <Link 
+                          to="/blockchain-technology" 
+                          className="block text-sm text-white/70 hover:text-white hover:bg-white/5 py-3 px-4 rounded-xl transition-all"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          {t('dropdown.blockchain')}
+                        </Link>
+                      </div>
+                    </div>
+
+                    <Link 
+                      to="/contact" 
+                      className={cn(
+                        "text-sm transition-all duration-200 py-3 px-4 rounded-xl",
+                        isActive("/contact") ? "text-white font-semibold bg-white/10" : "text-white/70 hover:text-white hover:bg-white/5"
+                      )}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {t('nav.contactUs')}
+                    </Link>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="my-6 border-t border-white/10" />
+
+                  {/* Mobile CTAs inside menu */}
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => {
+                        setEligibilityDialogOpen(true);
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full font-body font-semibold px-6 py-4 rounded-2xl transition-all duration-300 ease-out active:scale-[0.96] shadow-lg backdrop-blur-2xl bg-gradient-to-br from-white/30 via-white/20 to-white/10 border border-white/40 text-white text-sm hover:from-white/40 hover:via-white/30 hover:to-white/20 hover:border-white/60 hover:shadow-xl focus-ring"
+                    >
+                      {t('nav.checkEligibility')}
+                    </button>
+                    {user ? (
+                      <button
+                        onClick={handleLogout}
+                        className="w-full font-body font-semibold px-6 py-4 rounded-2xl transition-all duration-300 ease-out active:scale-[0.96] shadow-lg backdrop-blur-2xl bg-gradient-to-br from-white/20 via-white/15 to-white/10 border border-white/30 text-white text-sm flex items-center justify-center gap-2 hover:from-white/30 hover:via-white/25 hover:to-white/20 hover:border-white/50 hover:shadow-xl focus-ring"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        {t('nav.signOut')}
+                      </button>
+                    ) : (
+                      <Link
+                        to="/auth"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block w-full text-center font-body font-semibold px-6 py-4 rounded-2xl transition-all duration-300 ease-out active:scale-[0.96] shadow-lg backdrop-blur-2xl bg-gradient-to-br from-white/20 via-white/15 to-white/10 border border-white/30 text-white text-sm hover:from-white/30 hover:via-white/25 hover:to-white/20 hover:border-white/50 hover:shadow-xl focus-ring"
+                      >
+                        {t('nav.patientLogin')}
+                      </Link>
+                    )}
+                  </div>
+
+                  {/* Divider */}
+                  <div className="my-6 border-t border-white/10" />
+
+                  {/* Bottom Section: Language & Theme */}
+                  <div className="flex items-center justify-between gap-4 px-2">
+                    <LanguageSwitcher scrolled={scrolled} />
+                    <ThemeToggle variant="button" className="flex-1" />
+                  </div>
+                </div>
+              </motion.nav>
+            </>
           )}
-        >
-          <div className="flex flex-col space-y-3 px-2">
-            <div className="space-y-1.5">
-              <div className={cn(
-                "font-normal text-sm py-1.5 font-semibold",
-                isWhatWeDoActive ? "text-white" : "text-white/80"
-              )}>
-                What We Do
-              </div>
-              <div className="pl-3 space-y-1 border-l-2 border-white/20">
-                <Link 
-                  to="/cultivating-processing" 
-                  className="block text-xs text-white/80 hover:text-white py-1 transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Cultivating & Processing
-                </Link>
-                <Link 
-                  to="/manufacture-distribution" 
-                  className="block text-xs text-white/80 hover:text-white py-1 transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Manufacture & Distribution
-                </Link>
-                <Link 
-                  to="/medical-clinics" 
-                  className="block text-xs text-white/80 hover:text-white py-1 transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Medical Cannabis Clinics
-                </Link>
-                <Link 
-                  to="/online-pharmacy" 
-                  className="block text-xs text-white/80 hover:text-white py-1 transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Online Medical Cannabis Pharmacy
-                </Link>
-              </div>
-            </div>
-            <Link 
-              to="/research" 
-              className={cn(
-                "font-normal text-sm transition-all duration-200 py-1.5",
-                isActive("/research") ? "text-white font-semibold" : "text-white/80 hover:text-white"
-              )}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Research
-            </Link>
-            <Link 
-              to="/about-us" 
-              className={cn(
-                "font-normal text-sm transition-all duration-200 py-1.5",
-                isActive("/about-us") ? "text-white font-semibold" : "text-white/80 hover:text-white"
-              )}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              About Us
-            </Link>
-            <Link 
-              to="/contact" 
-              className={cn(
-                "font-normal text-sm transition-all duration-200 py-1.5",
-                isActive("/contact") ? "text-white font-semibold" : "text-white/80 hover:text-white"
-              )}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Contact Us
-            </Link>
-            
-            {/* Mobile Action Buttons - Removed, moved to bottom */}
-          </div>
-        </nav>
-      </div>
-    </header>
-  </>
+        </AnimatePresence>
+        </div>
+      </header>
+    </>
   );
 };
 

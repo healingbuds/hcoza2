@@ -1,16 +1,22 @@
+import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import ScrollAnimation from "@/components/ScrollAnimation";
 import BackToTop from "@/components/BackToTop";
-import { Mail, Phone, MapPin } from "lucide-react";
+import MobileBottomActions from "@/components/MobileBottomActions";
+import { Mail } from "lucide-react";
 import greenhouseImage from "@/assets/greenhouse-rows.png";
+import { useState } from "react";
 
 const Contact = () => {
+  const { t } = useTranslation('contact');
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <PageTransition>
-      <div className="min-h-screen bg-background">
-        <Header />
+      <div className="min-h-screen bg-background pb-24 lg:pb-0">
+        <Header onMenuStateChange={setMenuOpen} />
       <main className="pt-28 md:pt-32">
         {/* Hero Section - Linear style */}
         <section className="bg-background py-16 md:py-20">
@@ -18,10 +24,10 @@ const Contact = () => {
             <ScrollAnimation>
               <div className="max-w-5xl">
                 <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 tracking-tight leading-[1.1]">
-                  Contact Us
+                  {t('hero.title')}
                 </h1>
                 <p className="text-xl md:text-2xl text-muted-foreground/80 max-w-3xl font-light">
-                  Get in touch with our team
+                  {t('hero.subtitle')}
                 </p>
               </div>
             </ScrollAnimation>
@@ -50,42 +56,19 @@ const Contact = () => {
               <ScrollAnimation>
                 <div>
                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground mb-8 tracking-tight">
-                  Let's Connect
+                  {t('connect.title')}
                 </h2>
                 <p className="text-base md:text-lg text-muted-foreground/80 mb-12 leading-relaxed">
-                  Whether you're a patient, healthcare provider, or potential partner, we're here to help. Reach out to us through any of the channels below.
+                  {t('connect.subtitle')}
                 </p>
                 
-                <div className="space-y-8">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-foreground mb-2 tracking-tight">Email</h3>
-                      <p className="text-muted-foreground/80 text-sm">info@healingbuds.com</p>
-                    </div>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Mail className="w-6 h-6 text-white" />
                   </div>
-                  
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Phone className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-foreground mb-2 tracking-tight">Phone</h3>
-                      <p className="text-muted-foreground/80 text-sm">+1 (555) 123-4567</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-6 h-6 text-white" />
-                    </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2 tracking-tight">Location</h3>
-                    <p className="text-muted-foreground/80 text-sm mb-1">Avenida D. João II, 98 A</p>
-                    <p className="text-muted-foreground/80 text-sm mb-1">1990-100 Lisboa, Portugal</p>
-                  </div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2 tracking-tight">{t('connect.email')}</h3>
+                    <p className="text-muted-foreground/80 text-sm">info@healingbuds.com</p>
                   </div>
                 </div>
                 </div>
@@ -95,54 +78,54 @@ const Contact = () => {
               <ScrollAnimation delay={0.2}>
                 <div className="card-linear p-8">
                 <h3 className="text-2xl font-semibold text-foreground mb-6 tracking-tight">
-                  Send us a message
+                  {t('form.title')}
                 </h3>
                 <form className="space-y-5">
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
-                      Name
+                      {t('form.name')}
                     </label>
                     <input
                       type="text"
                       id="name"
                       className="w-full px-4 py-2.5 rounded-lg bg-background border border-border/40 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
-                      placeholder="Your name"
+                      placeholder={t('form.namePlaceholder')}
                     />
                   </div>
                   
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
-                      Email
+                      {t('form.email')}
                     </label>
                     <input
                       type="email"
                       id="email"
                       className="w-full px-4 py-2.5 rounded-lg bg-background border border-border/40 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
-                      placeholder="your@email.com"
+                      placeholder={t('form.emailPlaceholder')}
                     />
                   </div>
                   
                   <div>
                     <label htmlFor="subject" className="block text-sm font-medium text-foreground mb-2">
-                      Subject
+                      {t('form.subject')}
                     </label>
                     <input
                       type="text"
                       id="subject"
                       className="w-full px-4 py-2.5 rounded-lg bg-background border border-border/40 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
-                      placeholder="What is this about?"
+                      placeholder={t('form.subjectPlaceholder')}
                     />
                   </div>
                   
                   <div>
                     <label htmlFor="message" className="block text-sm font-medium text-foreground mb-2">
-                      Message
+                      {t('form.message')}
                     </label>
                     <textarea
                       id="message"
                       rows={5}
                       className="w-full px-4 py-2.5 rounded-lg bg-background border border-border/40 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary resize-none transition-all duration-200"
-                      placeholder="Your message..."
+                      placeholder={t('form.messagePlaceholder')}
                     />
                   </div>
                   
@@ -150,7 +133,7 @@ const Contact = () => {
                     type="submit"
                     className="w-full btn-primary"
                   >
-                    Send Message
+                    {t('form.submit')}
                   </button>
                 </form>
                 </div>
@@ -161,6 +144,7 @@ const Contact = () => {
       </main>
       <Footer />
       <BackToTop />
+      <MobileBottomActions menuOpen={menuOpen} />
       </div>
     </PageTransition>
   );

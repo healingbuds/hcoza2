@@ -1,14 +1,25 @@
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import BackToTop from "@/components/BackToTop";
+import MobileBottomActions from "@/components/MobileBottomActions";
 import { FileText, AlertCircle, Scale, Users, Shield, Coins } from "lucide-react";
 
 const TermsOfService = () => {
+  const { t, i18n } = useTranslation("legal");
+  const [menuOpen, setMenuOpen] = useState(false);
+  
+  const formatDate = () => {
+    const locale = i18n.language === 'pt' ? 'pt-PT' : 'en-US';
+    return new Date().toLocaleDateString(locale, { month: 'long', day: 'numeric', year: 'numeric' });
+  };
+
   return (
     <PageTransition>
-      <div className="min-h-screen bg-background">
-        <Header />
+      <div className="min-h-screen bg-background pb-24 lg:pb-0">
+        <Header onMenuStateChange={setMenuOpen} />
         <main className="pt-24 pb-16">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
             {/* Header */}
@@ -17,10 +28,10 @@ const TermsOfService = () => {
                 <FileText className="w-16 h-16 text-primary" />
               </div>
               <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
-                Terms of Service
+                {t("terms.title")}
               </h1>
               <p className="text-muted-foreground text-lg">
-                Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                {t("terms.lastUpdated")} {formatDate()}
               </p>
             </div>
 
@@ -29,51 +40,48 @@ const TermsOfService = () => {
               <section>
                 <div className="flex items-center gap-3 mb-4">
                   <AlertCircle className="w-6 h-6 text-primary" />
-                  <h2 className="font-display text-2xl font-bold">Agreement to Terms</h2>
+                  <h2 className="font-display text-2xl font-bold">{t("terms.agreement.title")}</h2>
                 </div>
                 <p className="leading-relaxed mb-4">
-                  By accessing or using Dr. Green NFT's platform and services, you agree to be bound by these Terms of Service. If you do not agree to these terms, you may not access or use our services.
+                  {t("terms.agreement.content")}
                 </p>
               </section>
 
               <section>
                 <div className="flex items-center gap-3 mb-4">
                   <Users className="w-6 h-6 text-primary" />
-                  <h2 className="font-display text-2xl font-bold">Eligibility</h2>
+                  <h2 className="font-display text-2xl font-bold">{t("terms.eligibility.title")}</h2>
                 </div>
                 <p className="leading-relaxed mb-4">
-                  To use our services, you must:
+                  {t("terms.eligibility.intro")}
                 </p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Be at least 18 years old or the legal age for cannabis use in your jurisdiction</li>
-                  <li>Have legal authorization to use medical cannabis in your region</li>
-                  <li>Provide accurate medical documentation and eligibility verification</li>
-                  <li>Comply with all applicable local, state, and federal laws regarding cannabis</li>
-                  <li>Have a valid cryptocurrency wallet for NFT transactions</li>
+                  {(t("terms.eligibility.items", { returnObjects: true }) as string[]).map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
                 </ul>
               </section>
 
               <section>
                 <div className="flex items-center gap-3 mb-4">
                   <Coins className="w-6 h-6 text-primary" />
-                  <h2 className="font-display text-2xl font-bold">NFT Keys and Access</h2>
+                  <h2 className="font-display text-2xl font-bold">{t("terms.nftKeys.title")}</h2>
                 </div>
                 <div className="space-y-4">
                   <div>
-                    <h3 className="font-semibold text-lg mb-2">NFT Ownership</h3>
+                    <h3 className="font-semibold text-lg mb-2">{t("terms.nftKeys.ownership.title")}</h3>
                     <ul className="list-disc list-inside space-y-2 ml-4">
-                      <li>NFT Keys (Standard, Gold, Platinum) grant access to our cannabis fulfillment platform</li>
-                      <li>Each NFT is an ERC-721 token on the blockchain</li>
-                      <li>You retain ownership and can trade NFTs on secondary markets</li>
-                      <li>NFT value is determined by blockchain activity and market demand</li>
+                      {(t("terms.nftKeys.ownership.items", { returnObjects: true }) as string[]).map((item, index) => (
+                        <li key={index}>{item}</li>
+                      ))}
                     </ul>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg mb-2">Key Tiers</h3>
+                    <h3 className="font-semibold text-lg mb-2">{t("terms.nftKeys.tiers.title")}</h3>
                     <ul className="list-disc list-inside space-y-2 ml-4">
-                      <li><strong>Standard Key:</strong> Access to one planet with basic features</li>
-                      <li><strong>Gold Key:</strong> Access to multiple planets with enhanced benefits</li>
-                      <li><strong>Platinum Key:</strong> Access to all 20 planets and custom strain creation</li>
+                      {(t("terms.nftKeys.tiers.items", { returnObjects: true }) as Array<{ label: string; desc: string }>).map((item, index) => (
+                        <li key={index}><strong>{item.label}</strong> {item.desc}</li>
+                      ))}
                     </ul>
                   </div>
                 </div>
@@ -82,116 +90,106 @@ const TermsOfService = () => {
               <section>
                 <div className="flex items-center gap-3 mb-4">
                   <Scale className="w-6 h-6 text-primary" />
-                  <h2 className="font-display text-2xl font-bold">Regulatory Compliance</h2>
+                  <h2 className="font-display text-2xl font-bold">{t("terms.compliance.title")}</h2>
                 </div>
                 <p className="leading-relaxed mb-4">
-                  Our platform operates in accordance with regulated cannabis markets:
+                  {t("terms.compliance.intro")}
                 </p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>All cannabis products are cultivated and distributed by licensed partners</li>
-                  <li>Full seed-to-sale blockchain traceability ensures compliance</li>
-                  <li>Currently licensed in Portugal with planned global expansion</li>
-                  <li>Users must comply with their local jurisdiction's cannabis laws</li>
-                  <li>We reserve the right to verify eligibility and deny service</li>
+                  {(t("terms.compliance.items", { returnObjects: true }) as string[]).map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
                 </ul>
               </section>
 
               <section>
-                <h2 className="font-display text-2xl font-bold mb-4">Use of Services</h2>
-                <p className="leading-relaxed mb-4">You agree to:</p>
+                <h2 className="font-display text-2xl font-bold mb-4">{t("terms.useServices.title")}</h2>
+                <p className="leading-relaxed mb-4">{t("terms.useServices.intro")}</p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Use services only for lawful purposes</li>
-                  <li>Provide accurate and complete information</li>
-                  <li>Maintain the security of your account and wallet</li>
-                  <li>Not engage in fraud, manipulation, or illegal activities</li>
-                  <li>Not attempt to circumvent our eligibility verification</li>
-                  <li>Respect intellectual property rights</li>
+                  {(t("terms.useServices.items", { returnObjects: true }) as string[]).map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
                 </ul>
               </section>
 
               <section>
                 <div className="flex items-center gap-3 mb-4">
                   <Shield className="w-6 h-6 text-primary" />
-                  <h2 className="font-display text-2xl font-bold">Risks and Disclaimers</h2>
+                  <h2 className="font-display text-2xl font-bold">{t("terms.risks.title")}</h2>
                 </div>
                 <div className="bg-destructive/10 border border-destructive/20 p-6 rounded-lg mb-4">
-                  <p className="font-semibold mb-2">Important Risks:</p>
+                  <p className="font-semibold mb-2">{t("terms.risks.warning")}</p>
                   <ul className="list-disc list-inside space-y-2 ml-4">
-                    <li><strong>Regulatory Risk:</strong> Cannabis laws vary by jurisdiction and may change</li>
-                    <li><strong>Market Volatility:</strong> NFT resale values may fluctuate significantly</li>
-                    <li><strong>Operational Risk:</strong> Service depends on licensed partners' performance</li>
-                    <li><strong>Blockchain Risk:</strong> Transactions are irreversible; wallet security is your responsibility</li>
+                    {(t("terms.risks.items", { returnObjects: true }) as Array<{ label: string; desc: string }>).map((item, index) => (
+                      <li key={index}><strong>{item.label}</strong> {item.desc}</li>
+                    ))}
                   </ul>
                 </div>
               </section>
 
               <section>
-                <h2 className="font-display text-2xl font-bold mb-4">Blockchain and Traceability</h2>
+                <h2 className="font-display text-2xl font-bold mb-4">{t("terms.blockchainTraceability.title")}</h2>
                 <p className="leading-relaxed mb-4">
-                  Our platform uses blockchain technology for:
+                  {t("terms.blockchainTraceability.intro")}
                 </p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Transparent seed-to-sale product tracking</li>
-                  <li>Immutable record of all transactions and fulfillments</li>
-                  <li>Verification of product authenticity and regulatory compliance</li>
-                  <li>Prevention of counterfeit products</li>
+                  {(t("terms.blockchainTraceability.items", { returnObjects: true }) as string[]).map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
                 </ul>
                 <p className="leading-relaxed mt-4">
-                  Please note: Blockchain data is public and permanent. Once recorded, information cannot be modified or deleted.
+                  {t("terms.blockchainTraceability.note")}
                 </p>
               </section>
 
               <section>
-                <h2 className="font-display text-2xl font-bold mb-4">Intellectual Property</h2>
+                <h2 className="font-display text-2xl font-bold mb-4">{t("terms.intellectualProperty.title")}</h2>
                 <p className="leading-relaxed">
-                  All content, trademarks, and intellectual property on our platform are owned by Dr. Green NFT or our licensors. You may not use, reproduce, or distribute any content without our express written permission.
+                  {t("terms.intellectualProperty.content")}
                 </p>
               </section>
 
               <section>
-                <h2 className="font-display text-2xl font-bold mb-4">Limitation of Liability</h2>
+                <h2 className="font-display text-2xl font-bold mb-4">{t("terms.liability.title")}</h2>
                 <p className="leading-relaxed mb-4">
-                  To the fullest extent permitted by law, Dr. Green NFT shall not be liable for:
+                  {t("terms.liability.intro")}
                 </p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Indirect, incidental, or consequential damages</li>
-                  <li>Loss of profits, data, or business opportunities</li>
-                  <li>Changes in cannabis laws or regulations</li>
-                  <li>NFT market value fluctuations</li>
-                  <li>Third-party actions or failures</li>
-                  <li>Blockchain network issues or wallet security breaches</li>
+                  {(t("terms.liability.items", { returnObjects: true }) as string[]).map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
                 </ul>
               </section>
 
               <section>
-                <h2 className="font-display text-2xl font-bold mb-4">Termination</h2>
+                <h2 className="font-display text-2xl font-bold mb-4">{t("terms.termination.title")}</h2>
                 <p className="leading-relaxed">
-                  We reserve the right to suspend or terminate your access to our services at any time, with or without cause, including for violation of these terms or applicable laws. Upon termination, your NFT ownership rights remain, but platform access may be revoked.
+                  {t("terms.termination.content")}
                 </p>
               </section>
 
               <section>
-                <h2 className="font-display text-2xl font-bold mb-4">Governing Law</h2>
+                <h2 className="font-display text-2xl font-bold mb-4">{t("terms.governingLaw.title")}</h2>
                 <p className="leading-relaxed">
-                  These Terms shall be governed by and construed in accordance with the laws of Portugal, where we currently hold our primary license. Disputes shall be resolved through arbitration in accordance with applicable arbitration rules.
+                  {t("terms.governingLaw.content")}
                 </p>
               </section>
 
               <section>
-                <h2 className="font-display text-2xl font-bold mb-4">Changes to Terms</h2>
+                <h2 className="font-display text-2xl font-bold mb-4">{t("terms.changesTerms.title")}</h2>
                 <p className="leading-relaxed">
-                  We may modify these Terms at any time. Material changes will be notified via email or platform notification. Continued use of services after changes constitutes acceptance of modified terms.
+                  {t("terms.changesTerms.content")}
                 </p>
               </section>
 
               <section className="bg-card p-6 rounded-lg border border-border">
-                <h2 className="font-display text-2xl font-bold mb-4">Contact Us</h2>
+                <h2 className="font-display text-2xl font-bold mb-4">{t("terms.contact.title")}</h2>
                 <p className="leading-relaxed mb-4">
-                  For questions about these Terms of Service, please contact us at:
+                  {t("terms.contact.content")}
                 </p>
                 <div className="space-y-2">
-                  <p><strong>Email:</strong> legal@drgreennft.com</p>
-                  <p><strong>Address:</strong> Dr. Green NFT Headquarters</p>
+                  <p><strong>{t("terms.contact.email")}</strong> legal@healingbuds.com</p>
+                  <p><strong>{t("terms.contact.address")}</strong> {t("terms.contact.addressValue")}</p>
                 </div>
               </section>
             </div>
@@ -199,6 +197,7 @@ const TermsOfService = () => {
         </main>
         <Footer />
         <BackToTop />
+        <MobileBottomActions menuOpen={menuOpen} />
       </div>
     </PageTransition>
   );

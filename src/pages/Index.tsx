@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
 
 const Index = () => {
   const [scrollFade, setScrollFade] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,11 +29,11 @@ const Index = () => {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-background pb-20 md:pb-0">
-        <Header />
+      <div className="min-h-screen bg-background pb-20 lg:pb-0">
+        <Header onMenuStateChange={setMenuOpen} />
         {/* Dynamic scroll-based fade overlay from hero bottom */}
         <div 
-          className="fixed bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background/30 via-background/15 to-transparent z-40 pointer-events-none transition-opacity duration-500 ease-out"
+          className="fixed bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background/30 via-background/15 to-transparent z-30 pointer-events-none transition-opacity duration-500 ease-out"
           style={{ opacity: scrollFade * 0.4 }}
         />
         <main>
@@ -44,7 +45,7 @@ const Index = () => {
         </main>
         <Footer />
         <BackToTop />
-        <MobileBottomActions />
+        <MobileBottomActions menuOpen={menuOpen} />
       </div>
     </PageTransition>
   );

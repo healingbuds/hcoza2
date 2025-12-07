@@ -4,9 +4,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import ScrollToTop from "@/components/ScrollToTop";
 import Index from "./pages/Index";
 import WhatWeDo from "./pages/WhatWeDo";
+import TheWire from "./pages/TheWire";
+import NewsArticle from "./pages/NewsArticle";
+import ScottFranchiseStory from "./pages/ScottFranchiseStory";
 import CultivatingProcessing from "./pages/CultivatingProcessing";
 import ManufactureDistribution from "./pages/ManufactureDistribution";
 import Conditions from "./pages/Conditions";
@@ -15,10 +19,12 @@ import MedicalClinics from "./pages/MedicalClinics";
 import OnlinePharmacy from "./pages/OnlinePharmacy";
 import Research from "./pages/Research";
 import AboutUs from "./pages/AboutUs";
+import BlockchainTechnology from "./pages/BlockchainTechnology";
 import Contact from "./pages/Contact";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
+import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +35,7 @@ const AnimatedRoutes = () => {
     <AnimatePresence mode="wait" initial={false}>
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Index />} />
+        <Route path="/auth" element={<Auth />} />
         <Route path="/what-we-do" element={<WhatWeDo />} />
         <Route path="/cultivating-processing" element={<CultivatingProcessing />} />
         <Route path="/manufacture-distribution" element={<ManufactureDistribution />} />
@@ -38,6 +45,10 @@ const AnimatedRoutes = () => {
         <Route path="/online-pharmacy" element={<OnlinePharmacy />} />
         <Route path="/research" element={<Research />} />
         <Route path="/about-us" element={<AboutUs />} />
+        <Route path="/blockchain-technology" element={<BlockchainTechnology />} />
+        <Route path="/the-wire" element={<TheWire />} />
+        <Route path="/the-wire/:articleId" element={<NewsArticle />} />
+        <Route path="/franchise-opportunity" element={<ScottFranchiseStory />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
@@ -49,16 +60,18 @@ const AnimatedRoutes = () => {
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <ScrollToTop />
-        <AnimatedRoutes />
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ThemeProvider defaultTheme="dark" storageKey="healing-buds-theme">
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <ScrollToTop />
+          <AnimatedRoutes />
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;
