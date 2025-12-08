@@ -1,4 +1,5 @@
 import hbLogoWhite from "@/assets/hb-logo-white-new.png";
+import flowerLine from "@/assets/flower-line.png";
 import { Link } from "react-router-dom";
 import { Mail, MapPin, Leaf } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -9,151 +10,13 @@ const Footer = () => {
   
   return (
     <footer id="contact" className="text-white relative overflow-hidden" style={{ backgroundColor: 'hsl(var(--section-color))' }}>
-      {/* Continuous single-line cannabis leaf - exact match to reference */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 opacity-[0.06] pointer-events-none">
-        <svg 
-          viewBox="0 0 400 140" 
-          fill="none" 
-          className="w-[600px] md:w-[800px] h-auto text-white"
-        >
-          {/* Flowing horizontal line from left */}
-          <path 
-            d="M0 120 
-               Q30 118 60 115
-               Q90 112 110 105
-               Q130 98 145 90"
-            stroke="currentColor" 
-            strokeWidth="1.2" 
-            strokeLinecap="round"
-            fill="none"
-          />
-          
-          {/* Decorative curl/loop at start of leaf */}
-          <path 
-            d="M145 90
-               Q135 95 130 105
-               Q128 115 135 120
-               Q145 125 155 118
-               Q165 110 160 95
-               Q158 85 165 80"
-            stroke="currentColor" 
-            strokeWidth="1.2" 
-            strokeLinecap="round"
-            fill="none"
-          />
-          
-          {/* 7-fingered cannabis leaf - continuous line with serrated edges */}
-          {/* Left outer leaflet (finger 1) */}
-          <path 
-            d="M165 80
-               Q155 75 145 60
-               Q142 55 140 48
-               Q138 42 142 38
-               Q145 35 148 38
-               Q152 42 155 50
-               Q158 58 168 65"
-            stroke="currentColor" 
-            strokeWidth="1.2" 
-            strokeLinecap="round"
-            fill="none"
-          />
-          
-          {/* Left middle leaflet (finger 2) */}
-          <path 
-            d="M168 65
-               Q160 55 155 40
-               Q152 30 155 22
-               Q158 16 162 20
-               Q166 26 170 38
-               Q174 50 180 58"
-            stroke="currentColor" 
-            strokeWidth="1.2" 
-            strokeLinecap="round"
-            fill="none"
-          />
-          
-          {/* Left inner leaflet (finger 3) */}
-          <path 
-            d="M180 58
-               Q175 45 178 28
-               Q180 18 185 12
-               Q190 8 194 14
-               Q198 22 196 38
-               Q194 52 195 60"
-            stroke="currentColor" 
-            strokeWidth="1.2" 
-            strokeLinecap="round"
-            fill="none"
-          />
-          
-          {/* Center leaflet (finger 4 - tallest) */}
-          <path 
-            d="M195 60
-               Q195 42 200 22
-               Q203 10 208 5
-               Q213 2 218 8
-               Q223 16 222 32
-               Q220 48 225 58"
-            stroke="currentColor" 
-            strokeWidth="1.2" 
-            strokeLinecap="round"
-            fill="none"
-          />
-          
-          {/* Right inner leaflet (finger 5) */}
-          <path 
-            d="M225 58
-               Q228 45 235 28
-               Q240 18 248 14
-               Q254 10 258 18
-               Q260 28 255 45
-               Q250 58 252 65"
-            stroke="currentColor" 
-            strokeWidth="1.2" 
-            strokeLinecap="round"
-            fill="none"
-          />
-          
-          {/* Right middle leaflet (finger 6) */}
-          <path 
-            d="M252 65
-               Q258 50 268 38
-               Q275 28 282 26
-               Q288 24 290 32
-               Q290 42 282 55
-               Q275 65 272 72"
-            stroke="currentColor" 
-            strokeWidth="1.2" 
-            strokeLinecap="round"
-            fill="none"
-          />
-          
-          {/* Right outer leaflet (finger 7) */}
-          <path 
-            d="M272 72
-               Q280 62 290 55
-               Q298 50 305 52
-               Q310 56 308 64
-               Q304 72 295 78
-               Q285 84 278 85"
-            stroke="currentColor" 
-            strokeWidth="1.2" 
-            strokeLinecap="round"
-            fill="none"
-          />
-          
-          {/* Stem connecting to right flowing line */}
-          <path 
-            d="M278 85
-               Q285 92 295 100
-               Q310 110 330 115
-               Q360 120 400 120"
-            stroke="currentColor" 
-            strokeWidth="1.2" 
-            strokeLinecap="round"
-            fill="none"
-          />
-        </svg>
+      {/* Decorative flower line image */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 opacity-[0.15] pointer-events-none">
+        <img 
+          src={flowerLine}
+          alt=""
+          className="w-[600px] md:w-[800px] h-auto"
+        />
       </div>
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

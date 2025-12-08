@@ -13,6 +13,7 @@ import productionImage from "@/assets/production.jpg";
 import indoorCultivation from "@/assets/indoor-cultivation.png";
 import productionFacility from "@/assets/production-facility-hq.jpg";
 import researchLab from "@/assets/research-lab-hq.jpg";
+import { Badge } from "@/components/ui/badge";
 
 const CultivatingProcessing = () => {
   const [activeTab, setActiveTab] = useState<"southafrica" | "uk" | "thailand" | "portugal">("southafrica");
@@ -297,7 +298,10 @@ const CultivatingProcessing = () => {
                 <ScrollAnimation>
                   <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center max-w-6xl mx-auto">
                     <div className="order-2 md:order-1 space-y-6">
-                      <h3 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground tracking-tight">South Africa</h3>
+                      <div className="flex items-center gap-3">
+                        <h3 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground tracking-tight">South Africa</h3>
+                        <Badge className="bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/30 text-xs font-medium">Live</Badge>
+                      </div>
                       <p className="text-base md:text-lg text-muted-foreground/80 leading-relaxed">
                         Our flagship South African facility represents the cornerstone of our African operations. Leveraging the region's favorable climate and progressive regulatory framework, we've established a sophisticated cultivation center that serves as our primary launch market. The facility employs advanced greenhouse technology optimized for the local environment, ensuring year-round production of premium medical cannabis.
                       </p>
