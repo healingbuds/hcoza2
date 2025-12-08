@@ -8,86 +8,86 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Brand Color Palette */
-    --primary-green: 178 48% 21%;       /* #1C4F4D - Primary Green */
-    --secondary-green: 178 48% 33%;     /* #2C7D7A - Secondary Green */
-    --accent-green: 164 48% 53%;        /* #4DBFA1 - Accent Light Green */
-    --lime-green: 84 81% 44%;           /* #84CC16 - Lime Green */
-    --deep-teal: 180 84% 32%;           /* #0D9488 - Deep Teal */
-    --text-light: 0 0% 98%;             /* #F9F9F9 - Text Color */
-    --light-gray: 171 12% 66%;          /* #A0B3B0 - Light Gray */
-    --subtle-dark: 176 39% 17%;         /* #1A3C3A - Subtle Dark */
+    /* Brand Color Palette - Olive/Sage from HB Logo */
+    --primary-green: 72 22% 46%;          /* #7A8266 - Olive Green (logo background) */
+    --secondary-green: 72 22% 38%;        /* #666E54 - Darker Olive */
+    --accent-green: 72 25% 65%;           /* #B3BB9A - Light Sage */
+    --lime-green: 72 30% 55%;             /* #97A275 - Muted Lime */
+    --deep-teal: 72 22% 32%;              /* #545A45 - Deep Olive */
+    --text-light: 72 15% 95%;             /* #F5F6F2 - Off-white with warm tint */
+    --light-gray: 72 10% 70%;             /* #B3B6AB - Warm Gray */
+    --subtle-dark: 72 20% 22%;            /* #3A3E30 - Dark Olive */
 
     /* Application Colors */
-    --background: 0 0% 98%;             /* Light background */
-    --foreground: 176 39% 17%;          /* Dark text */
-    --off-white: 160 20% 99%;
+    --background: 60 10% 98%;             /* Light warm background */
+    --foreground: 72 20% 22%;             /* Dark olive text */
+    --off-white: 60 15% 99%;
 
     --card: 0 0% 100%;
-    --card-foreground: 176 39% 17%;
+    --card-foreground: 72 20% 22%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 176 39% 17%;
+    --popover-foreground: 72 20% 22%;
 
     /* Primary & Secondary using brand colors */
-    --primary: 164 48% 53%;             /* Accent Light Green */
-    --primary-foreground: 0 0% 98%;
+    --primary: 72 22% 46%;                /* Olive Green */
+    --primary-foreground: 72 15% 95%;
 
-    --secondary: 178 48% 33%;           /* Secondary Green */
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 72 22% 38%;              /* Darker Olive */
+    --secondary-foreground: 72 15% 95%;
 
-    --muted: 171 12% 94%;
-    --muted-foreground: 171 12% 46%;
+    --muted: 72 10% 94%;
+    --muted-foreground: 72 15% 45%;
 
-    --accent: 164 48% 88%;
-    --accent-foreground: 176 39% 17%;
+    --accent: 72 20% 88%;
+    --accent-foreground: 72 20% 22%;
 
     --destructive: 0 70% 65%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 171 12% 88%;
-    --input: 171 12% 96%;
-    --ring: 164 48% 53%;
+    --border: 72 10% 88%;
+    --input: 72 10% 96%;
+    --ring: 72 22% 46%;
 
     --radius: 0.75rem;
 
     /* Semantic tokens for sections */
-    --navbar-teal: 178 48% 21%;         /* Primary Green for navbar */
-    --section-color: 178 48% 21%;       /* Primary Green for colored sections */
+    --navbar-teal: 72 22% 46%;            /* Olive for navbar */
+    --section-color: 72 22% 46%;          /* Olive for colored sections */
     
-    /* Legacy teal tokens (mapped to new palette) */
-    --teal-midnight: 178 48% 21%;
-    --teal-deep: 178 48% 33%;
-    --teal-deeper: 176 39% 17%;
-    --teal-primary: 164 48% 53%;
-    --teal-darker: 176 39% 17%;
+    /* Legacy teal tokens (mapped to olive palette) */
+    --teal-midnight: 72 22% 32%;
+    --teal-deep: 72 22% 38%;
+    --teal-deeper: 72 20% 22%;
+    --teal-primary: 72 22% 46%;
+    --teal-darker: 72 20% 22%;
     
-    /* Sage tokens (mapped to grays) */
-    --sage-dark: 171 12% 66%;
-    --sage-deeper: 171 12% 60%;
-    --sage-medium: 171 12% 75%;
-    --sage-forest: 171 12% 50%;
+    /* Sage tokens */
+    --sage-dark: 72 10% 60%;
+    --sage-deeper: 72 12% 55%;
+    --sage-medium: 72 15% 70%;
+    --sage-forest: 72 18% 45%;
     
-    /* Pharma colors (mapped to brand) */
-    --pharma-charcoal: 176 39% 25%;
-    --pharma-grey: 171 12% 60%;
-    --pharma-grey-light: 171 12% 92%;
-    --pharma-green: 164 48% 53%;
-    --pharma-green-dark: 178 48% 33%;
-    --pharma-blue: 178 48% 33%;
-    --pharma-blue-light: 171 12% 94%;
+    /* Pharma colors (mapped to olive brand) */
+    --pharma-charcoal: 72 15% 28%;
+    --pharma-grey: 72 10% 55%;
+    --pharma-grey-light: 72 8% 92%;
+    --pharma-green: 72 22% 46%;
+    --pharma-green-dark: 72 22% 38%;
+    --pharma-blue: 72 22% 38%;
+    --pharma-blue-light: 72 10% 94%;
 
     /* Custom design tokens - Brand Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(164 48% 53%), hsl(178 48% 33%));
-    --gradient-sage-teal: linear-gradient(135deg, hsl(171 12% 75%), hsl(164 48% 53%));
-    --gradient-teal-midnight: linear-gradient(135deg, hsl(178 48% 33%), hsl(178 48% 21%));
-    --gradient-sage-forest: linear-gradient(135deg, hsl(171 12% 75%), hsl(171 12% 50%));
-    --gradient-hero: linear-gradient(180deg, rgba(77, 191, 161, 0.2), rgba(44, 125, 122, 0.15));
-    --gradient-accent: linear-gradient(135deg, hsl(164 48% 75%), hsl(178 48% 45%));
-    --gradient-warm: linear-gradient(135deg, hsl(164 48% 80%), hsl(171 12% 75%));
+    --gradient-primary: linear-gradient(135deg, hsl(72 22% 46%), hsl(72 22% 38%));
+    --gradient-sage-teal: linear-gradient(135deg, hsl(72 15% 70%), hsl(72 22% 46%));
+    --gradient-teal-midnight: linear-gradient(135deg, hsl(72 22% 38%), hsl(72 22% 32%));
+    --gradient-sage-forest: linear-gradient(135deg, hsl(72 15% 70%), hsl(72 18% 45%));
+    --gradient-hero: linear-gradient(180deg, rgba(122, 130, 102, 0.2), rgba(102, 110, 84, 0.15));
+    --gradient-accent: linear-gradient(135deg, hsl(72 20% 75%), hsl(72 22% 50%));
+    --gradient-warm: linear-gradient(135deg, hsl(72 20% 80%), hsl(72 15% 70%));
     
     /* Radial Gradient */
-    --gradient-sage-radial: radial-gradient(ellipse at center top, hsl(171 12% 92%) 0%, hsl(171 12% 85%) 25%, hsl(178 48% 40%) 60%, hsl(178 48% 33%) 100%);
+    --gradient-sage-radial: radial-gradient(ellipse at center top, hsl(72 10% 92%) 0%, hsl(72 12% 85%) 25%, hsl(72 20% 50%) 60%, hsl(72 22% 46%) 100%);
     
     /* Linear-inspired ultra-clean shadows */
     --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
@@ -127,33 +127,33 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 150 20% 8%;
-    --foreground: 150 10% 95%;
+    --background: 72 15% 10%;
+    --foreground: 72 10% 95%;
 
-    --card: 150 18% 12%;
-    --card-foreground: 150 10% 95%;
+    --card: 72 15% 14%;
+    --card-foreground: 72 10% 95%;
 
-    --popover: 150 18% 12%;
-    --popover-foreground: 150 10% 95%;
+    --popover: 72 15% 14%;
+    --popover-foreground: 72 10% 95%;
 
-    --primary: 155 60% 45%;
+    --primary: 72 25% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 45 80% 50%;
-    --secondary-foreground: 150 15% 15%;
+    --secondary: 50 60% 50%;
+    --secondary-foreground: 72 15% 15%;
 
-    --muted: 150 15% 18%;
-    --muted-foreground: 150 10% 60%;
+    --muted: 72 12% 20%;
+    --muted-foreground: 72 10% 60%;
 
-    --accent: 155 40% 20%;
-    --accent-foreground: 155 60% 45%;
+    --accent: 72 20% 22%;
+    --accent-foreground: 72 25% 55%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 150 15% 20%;
-    --input: 150 15% 20%;
-    --ring: 155 60% 45%;
+    --border: 72 12% 22%;
+    --input: 72 12% 22%;
+    --ring: 72 25% 50%;
   }
 }
 
@@ -313,15 +313,15 @@ All colors MUST be HSL.
     @apply bg-background/50 backdrop-blur-sm border border-border/30 rounded-xl;
   }
   
-  /* Accent green glow effects */
+  /* Accent olive glow effects */
   .glow-accent {
     @apply shadow-lg;
-    box-shadow: 0 0 20px rgba(77, 191, 161, 0.3);
+    box-shadow: 0 0 20px rgba(122, 130, 102, 0.3);
   }
   
   .glow-accent-strong {
     @apply shadow-xl;
-    box-shadow: 0 0 30px rgba(77, 191, 161, 0.5);
+    box-shadow: 0 0 30px rgba(122, 130, 102, 0.5);
   }
   
   /* Safe area for iOS devices */
@@ -426,8 +426,8 @@ All colors MUST be HSL.
   backdrop-filter: blur(12px);
   padding: 0;
   border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(77, 191, 161, 0.15);
-  border: 1px solid rgba(77, 191, 161, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(122, 130, 102, 0.15);
+  border: 1px solid rgba(122, 130, 102, 0.2);
 }
 
 .map-quick-tooltip .maplibregl-popup-tip {
@@ -447,10 +447,10 @@ All colors MUST be HSL.
 /* Pulsing glow animation for glass cards */
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37), 0 2px 8px 0 rgba(0, 0, 0, 0.1), 0 0 20px rgba(20, 184, 166, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37), 0 2px 8px 0 rgba(0, 0, 0, 0.1), 0 0 20px rgba(122, 130, 102, 0.3);
   }
   50% {
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.5), 0 2px 8px 0 rgba(0, 0, 0, 0.15), 0 0 30px rgba(20, 184, 166, 0.5);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.5), 0 2px 8px 0 rgba(0, 0, 0, 0.15), 0 0 30px rgba(122, 130, 102, 0.5);
   }
 }
 
