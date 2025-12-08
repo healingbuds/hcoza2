@@ -77,9 +77,10 @@ All colors MUST be HSL.
     --pharma-blue: 178 48% 33%;
     --pharma-blue-light: 171 12% 94%;
     
-    /* Map-specific olive colors */
-    --map-olive: 72 22% 46%;
-    --map-olive-light: 72 25% 65%;
+    /* Map-specific sage colors */
+    --map-sage: 79 51% 52%;              /* #a2b756 - Primary sage green */
+    --map-sage-light: 79 55% 70%;        /* Lighter sage for hover states */
+    --map-sage-dark: 79 45% 40%;         /* Darker sage for active states */
 
     /* Custom design tokens - Brand Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(164 48% 53%), hsl(178 48% 33%));

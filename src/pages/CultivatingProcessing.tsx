@@ -15,7 +15,7 @@ import productionFacility from "@/assets/production-facility-hq.jpg";
 import researchLab from "@/assets/research-lab-hq.jpg";
 
 const CultivatingProcessing = () => {
-  const [activeTab, setActiveTab] = useState<"southafrica" | "uk">("southafrica");
+  const [activeTab, setActiveTab] = useState<"southafrica" | "uk" | "thailand">("southafrica");
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -248,7 +248,7 @@ const CultivatingProcessing = () => {
 
               {/* Tabs - Linear style */}
               <ScrollAnimation variant="fade" delay={0.1}>
-                <div className="flex justify-center gap-1 mb-12 md:mb-16">
+                <div className="flex justify-center gap-1 mb-12 md:mb-16 flex-wrap">
                   <button
                     onClick={() => setActiveTab("southafrica")}
                     className={`px-6 md:px-8 py-2.5 font-medium transition-all duration-200 rounded-lg ${
@@ -258,6 +258,16 @@ const CultivatingProcessing = () => {
                     }`}
                   >
                     South Africa
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("thailand")}
+                    className={`px-6 md:px-8 py-2.5 font-medium transition-all duration-200 rounded-lg ${
+                      activeTab === "thailand"
+                        ? "text-foreground bg-foreground/5"
+                        : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+                    }`}
+                  >
+                    Thailand
                   </button>
                   <button
                     onClick={() => setActiveTab("uk")}
@@ -293,19 +303,49 @@ const CultivatingProcessing = () => {
                 </ScrollAnimation>
               )}
 
-              {activeTab === "uk" && (
+              {activeTab === "thailand" && (
                 <ScrollAnimation>
                   <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center max-w-6xl mx-auto">
                     <div className="order-2 md:order-1 space-y-6">
-                      <h3 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground tracking-tight">United Kingdom & Thailand</h3>
+                      <h3 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground tracking-tight">Thailand</h3>
                       <p className="text-base md:text-lg text-muted-foreground/80 leading-relaxed">
-                        Following our South African success, we've expanded operations to the United Kingdom and Thailand markets. These facilities combine local agricultural expertise with our proven cultivation methodologies, adapted to meet each jurisdiction's unique regulatory requirements and market demands. Our Thai operations benefit from traditional cannabis cultivation knowledge, while our UK facility serves the European medical market with GMP-certified production capabilities.
+                        Our Thai operations leverage Thailand's progressive cannabis regulations and deep-rooted cultivation traditions. Through strategic partnerships with local manufacturing facilities, we tap into generations of expertise while implementing our rigorous quality standards. The region's tropical climate provides ideal growing conditions, enabling year-round production of premium cannabis cultivars for the Asian and global markets.
                       </p>
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                          Factory Operations
+                        </span>
+                      </div>
                     </div>
                     <div className="rounded-xl overflow-hidden shadow-card order-1 md:order-2 border border-border/30 hover-lift">
                       <img 
                         src={productionImage} 
-                        alt="UK and Thailand cultivation facilities" 
+                        alt="Thailand partner manufacturing facility" 
+                        className="w-full h-64 md:h-96 object-cover hover:scale-105 transition-transform duration-500 ease-out"
+                      />
+                    </div>
+                  </div>
+                </ScrollAnimation>
+              )}
+
+              {activeTab === "uk" && (
+                <ScrollAnimation>
+                  <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center max-w-6xl mx-auto">
+                    <div className="order-2 md:order-1 space-y-6">
+                      <h3 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground tracking-tight">United Kingdom</h3>
+                      <p className="text-base md:text-lg text-muted-foreground/80 leading-relaxed">
+                        Our UK facility serves the European medical market with GMP-certified production capabilities. Combining local agricultural expertise with our proven cultivation methodologies, we're positioned to meet the stringent regulatory requirements and growing market demands across Europe. The UK operations are launching soon, establishing a strong presence in one of the world's most regulated cannabis markets.
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                          Coming Soon
+                        </span>
+                      </div>
+                    </div>
+                    <div className="rounded-xl overflow-hidden shadow-card order-1 md:order-2 border border-border/30 hover-lift">
+                      <img 
+                        src={indoorCultivation} 
+                        alt="UK cultivation facility" 
                         className="w-full h-64 md:h-96 object-cover hover:scale-105 transition-transform duration-500 ease-out"
                       />
                     </div>
