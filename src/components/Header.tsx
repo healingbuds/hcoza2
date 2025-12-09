@@ -19,6 +19,8 @@ interface HeaderProps {
 const Header = ({ onMenuStateChange }: HeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [whatWeDoOpen, setWhatWeDoOpen] = useState(false);
+  const [mobileWhatWeDoOpen, setMobileWhatWeDoOpen] = useState(false);
+  const [mobileAboutUsOpen, setMobileAboutUsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [eligibilityDialogOpen, setEligibilityDialogOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -367,44 +369,60 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
                 <div className="flex flex-col py-6 px-5 max-h-[calc(100vh-140px)] overflow-y-auto">
                   {/* Navigation Links */}
                   <div className="flex flex-col space-y-2">
-                    {/* What We Do Section */}
+                    {/* What We Do Section - Collapsible */}
                     <div className="space-y-2">
-                      <div className={cn(
-                        "font-semibold text-sm py-3 px-4 rounded-xl",
-                        isWhatWeDoActive ? "text-white bg-white/10" : "text-white/90"
-                      )}>
+                      <button 
+                        onClick={() => setMobileWhatWeDoOpen(!mobileWhatWeDoOpen)}
+                        className={cn(
+                          "w-full font-semibold text-sm py-3 px-4 rounded-xl flex items-center justify-between transition-all",
+                          isWhatWeDoActive ? "text-white bg-white/10" : "text-white/90 hover:bg-white/5"
+                        )}
+                      >
                         {t('nav.whatWeDo')}
-                      </div>
-                      <div className="pl-4 space-y-1 border-l-2 border-white/20 ml-4">
-                        <Link 
-                          to="/cultivating-processing" 
-                          className="block text-sm text-white/70 hover:text-white hover:bg-white/5 py-3 px-4 rounded-xl transition-all"
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          {t('dropdown.cultivating')}
-                        </Link>
-                        <Link 
-                          to="/manufacture-distribution" 
-                          className="block text-sm text-white/70 hover:text-white hover:bg-white/5 py-3 px-4 rounded-xl transition-all"
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          {t('dropdown.manufacture')}
-                        </Link>
-                        <Link 
-                          to="/medical-clinics" 
-                          className="block text-sm text-white/70 hover:text-white hover:bg-white/5 py-3 px-4 rounded-xl transition-all"
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          {t('dropdown.clinics')}
-                        </Link>
-                        <Link 
-                          to="/online-pharmacy" 
-                          className="block text-sm text-white/70 hover:text-white hover:bg-white/5 py-3 px-4 rounded-xl transition-all"
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          {t('dropdown.pharmacy')}
-                        </Link>
-                      </div>
+                        <ChevronDown className={cn("w-4 h-4 transition-transform duration-200", mobileWhatWeDoOpen && "rotate-180")} />
+                      </button>
+                      <AnimatePresence>
+                        {mobileWhatWeDoOpen && (
+                          <motion.div 
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden pl-4 border-l-2 border-white/20 ml-4"
+                          >
+                            <div className="space-y-1 py-1">
+                              <Link 
+                                to="/cultivating-processing" 
+                                className="block text-sm text-white/70 hover:text-white hover:bg-white/5 py-3 px-4 rounded-xl transition-all"
+                                onClick={() => setMobileMenuOpen(false)}
+                              >
+                                {t('dropdown.cultivating')}
+                              </Link>
+                              <Link 
+                                to="/manufacture-distribution" 
+                                className="block text-sm text-white/70 hover:text-white hover:bg-white/5 py-3 px-4 rounded-xl transition-all"
+                                onClick={() => setMobileMenuOpen(false)}
+                              >
+                                {t('dropdown.manufacture')}
+                              </Link>
+                              <Link 
+                                to="/medical-clinics" 
+                                className="block text-sm text-white/70 hover:text-white hover:bg-white/5 py-3 px-4 rounded-xl transition-all"
+                                onClick={() => setMobileMenuOpen(false)}
+                              >
+                                {t('dropdown.clinics')}
+                              </Link>
+                              <Link 
+                                to="/online-pharmacy" 
+                                className="block text-sm text-white/70 hover:text-white hover:bg-white/5 py-3 px-4 rounded-xl transition-all"
+                                onClick={() => setMobileMenuOpen(false)}
+                              >
+                                {t('dropdown.pharmacy')}
+                              </Link>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
 
                     <Link 
@@ -429,30 +447,46 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
                       {t('nav.theWire')}
                     </Link>
 
-                    {/* About Us Section */}
+                    {/* About Us Section - Collapsible */}
                     <div className="space-y-2">
-                      <div className={cn(
-                        "font-semibold text-sm py-3 px-4 rounded-xl",
-                        isAboutUsActive ? "text-white bg-white/10" : "text-white/90"
-                      )}>
+                      <button 
+                        onClick={() => setMobileAboutUsOpen(!mobileAboutUsOpen)}
+                        className={cn(
+                          "w-full font-semibold text-sm py-3 px-4 rounded-xl flex items-center justify-between transition-all",
+                          isAboutUsActive ? "text-white bg-white/10" : "text-white/90 hover:bg-white/5"
+                        )}
+                      >
                         {t('nav.aboutUs')}
-                      </div>
-                      <div className="pl-4 space-y-1 border-l-2 border-white/20 ml-4">
-                        <Link 
-                          to="/about-us" 
-                          className="block text-sm text-white/70 hover:text-white hover:bg-white/5 py-3 px-4 rounded-xl transition-all"
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          {t('dropdown.aboutHealing')}
-                        </Link>
-                        <Link 
-                          to="/blockchain-technology" 
-                          className="block text-sm text-white/70 hover:text-white hover:bg-white/5 py-3 px-4 rounded-xl transition-all"
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          {t('dropdown.blockchain')}
-                        </Link>
-                      </div>
+                        <ChevronDown className={cn("w-4 h-4 transition-transform duration-200", mobileAboutUsOpen && "rotate-180")} />
+                      </button>
+                      <AnimatePresence>
+                        {mobileAboutUsOpen && (
+                          <motion.div 
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden pl-4 border-l-2 border-white/20 ml-4"
+                          >
+                            <div className="space-y-1 py-1">
+                              <Link 
+                                to="/about-us" 
+                                className="block text-sm text-white/70 hover:text-white hover:bg-white/5 py-3 px-4 rounded-xl transition-all"
+                                onClick={() => setMobileMenuOpen(false)}
+                              >
+                                {t('dropdown.aboutHealing')}
+                              </Link>
+                              <Link 
+                                to="/blockchain-technology" 
+                                className="block text-sm text-white/70 hover:text-white hover:bg-white/5 py-3 px-4 rounded-xl transition-all"
+                                onClick={() => setMobileMenuOpen(false)}
+                              >
+                                {t('dropdown.blockchain')}
+                              </Link>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
 
                     <Link 
