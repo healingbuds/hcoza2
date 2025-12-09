@@ -37,20 +37,17 @@ jobs:
         env:
           NODE_ENV: production
 
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.CPANEL_SSH_KEY }}" > ~/.ssh/cpanel_key
-          chmod 600 ~/.ssh/cpanel_key
-          ssh-keyscan -H ${{ secrets.CPANEL_HOST }} >> ~/.ssh/known_hosts
+      - name: Deploy to cPanel via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp.healingbuds.pt
+          username: ${{ secrets.CPANEL_USER }}
+          password: ${{ secrets.CPANEL_PASSWORD }}
+          local-dir: ./dist/
+          server-dir: /public_html/
+          dangerous-clean-slate: true
 
-      - name: Deploy to cPanel via rsync
+      - name: Deployment Complete
         run: |
-          rsync -avz --delete \
-            -e "ssh -i ~/.ssh/cpanel_key -o StrictHostKeyChecking=no" \
-            dist/ \
-            ${{ secrets.CPANEL_USER }}@${{ secrets.CPANEL_HOST }}:public_html/
-
-      - name: Cleanup
-        if: always()
-        run: rm -f ~/.ssh/cpanel_key
+          echo "✅ Deployment successful!"
+          echo "Site is live at: https://healingbuds.pt"
