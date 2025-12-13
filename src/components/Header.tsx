@@ -353,16 +353,16 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
             <ThemeToggle />
 
             {/* Desktop Action Buttons */}
-            <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+            <div className="flex items-center gap-1.5 lg:gap-2 ml-1 lg:ml-2 flex-shrink-0 flex-wrap justify-end">
               <button
                 onClick={() => setEligibilityDialogOpen(true)}
                 className={cn(
-                  "font-body font-semibold px-3 xl:px-5 py-2 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-xl relative z-10 whitespace-nowrap",
+                  "font-body font-semibold px-2 lg:px-3 xl:px-4 py-1.5 lg:py-2 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-xl relative z-10 whitespace-nowrap",
                   "backdrop-blur-2xl bg-gradient-to-br from-white/35 via-white/25 to-white/15",
                   "dark:from-white/25 dark:via-white/15 dark:to-white/10",
                   "border border-white/50 shadow-lg hover:border-white/70",
                   "text-white hover:bg-white/35",
-                  scrolled ? "text-xs xl:text-sm" : "text-xs xl:text-sm"
+                  "text-[10px] lg:text-xs xl:text-sm"
                 )}
               >
                 <span className="hidden xl:inline">{t('nav.checkEligibility')}</span>
@@ -372,28 +372,28 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
                 <button
                   onClick={handleLogout}
                   className={cn(
-                    "font-body font-semibold px-3 xl:px-5 py-2 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-xl relative z-10 whitespace-nowrap",
+                    "font-body font-semibold px-2 lg:px-3 xl:px-4 py-1.5 lg:py-2 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-xl relative z-10 whitespace-nowrap",
                     "backdrop-blur-2xl bg-gradient-to-br from-white/25 via-white/18 to-white/12",
                     "dark:from-white/20 dark:via-white/12 dark:to-white/8",
                     "border border-white/40 shadow-lg hover:border-white/60",
-                    "text-white hover:bg-white/30 flex items-center gap-1.5",
-                    scrolled ? "text-xs xl:text-sm" : "text-xs xl:text-sm"
+                    "text-white hover:bg-white/30 flex items-center gap-1",
+                    "text-[10px] lg:text-xs xl:text-sm"
                   )}
                 >
-                  <LogOut className="w-3.5 h-3.5" />
+                  <LogOut className="w-3 h-3 lg:w-3.5 lg:h-3.5" />
                   <span className="hidden xl:inline">{t('nav.signOut')}</span>
-                  <span className="xl:hidden">Sign Out</span>
+                  <span className="xl:hidden">Out</span>
                 </button>
               ) : (
                 <Link
                   to="/auth"
                   className={cn(
-                    "font-body font-semibold px-3 xl:px-5 py-2 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-xl relative z-10 whitespace-nowrap",
+                    "font-body font-semibold px-2 lg:px-3 xl:px-4 py-1.5 lg:py-2 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-xl relative z-10 whitespace-nowrap",
                     "backdrop-blur-2xl bg-gradient-to-br from-white/25 via-white/18 to-white/12",
                     "dark:from-white/20 dark:via-white/12 dark:to-white/8",
                     "border border-white/40 shadow-lg hover:border-white/60",
                     "text-white hover:bg-white/30",
-                    scrolled ? "text-xs xl:text-sm" : "text-xs xl:text-sm"
+                    "text-[10px] lg:text-xs xl:text-sm"
                   )}
                 >
                   <span className="hidden xl:inline">{t('nav.patientLogin')}</span>
