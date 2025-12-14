@@ -92,18 +92,27 @@ export default function Shop() {
               {/* Eligibility status */}
               {drGreenClient && (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm ${
+                  initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                  className={`inline-flex items-center gap-3 px-5 py-3 rounded-xl text-sm font-medium shadow-lg ${
                     isEligible
-                      ? 'bg-primary/10 text-primary'
-                      : 'bg-yellow-500/10 text-yellow-600'
+                      ? 'bg-gradient-to-r from-primary/20 via-primary/15 to-primary/20 text-primary border-2 border-primary/40 shadow-primary/20'
+                      : 'bg-gradient-to-r from-yellow-500/20 via-yellow-500/15 to-yellow-500/20 text-yellow-600 dark:text-yellow-500 border-2 border-yellow-500/40 shadow-yellow-500/20'
                   }`}
                 >
-                  <ShieldCheck className="h-4 w-4" />
-                  {isEligible
-                    ? 'Verified Medical Patient'
-                    : 'Verification Pending'}
+                  <motion.div
+                    animate={isEligible ? { scale: [1, 1.15, 1] } : {}}
+                    transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                    className={`p-1.5 rounded-lg ${isEligible ? 'bg-primary/20' : 'bg-yellow-500/20'}`}
+                  >
+                    <ShieldCheck className="h-5 w-5" />
+                  </motion.div>
+                  <span className="tracking-wide">
+                    {isEligible
+                      ? 'Verified Medical Patient'
+                      : 'Verification Pending'}
+                  </span>
                 </motion.div>
               )}
             </motion.div>
