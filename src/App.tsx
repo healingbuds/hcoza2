@@ -39,6 +39,7 @@ const Orders = lazy(() => import("./pages/Orders"));
 const PatientDashboard = lazy(() => import("./pages/PatientDashboard"));
 const AdminPrescriptions = lazy(() => import("./pages/AdminPrescriptions"));
 const AdminStrains = lazy(() => import("./pages/AdminStrains"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const AnimatedRoutes = () => {
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<PatientDashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/prescriptions" element={<AdminPrescriptions />} />
           <Route path="/admin/strains" element={<AdminStrains />} />
           <Route path="/shop" element={<Shop />} />
