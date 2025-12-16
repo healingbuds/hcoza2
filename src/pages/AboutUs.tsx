@@ -8,81 +8,55 @@ import MobileBottomActions from "@/components/MobileBottomActions";
 import StatisticsSection from "@/components/StatisticsSection";
 import { Target, Heart, Globe, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
-import facilityImage from "@/assets/production-facility-hq.jpg";
-import { useState, useRef, useEffect } from "react";
+import researchLabImage from "@/assets/research-lab-hq.jpg";
+import { useState } from "react";
 
 const AboutUs = () => {
   const { t } = useTranslation('aboutUs');
   const [menuOpen, setMenuOpen] = useState(false);
-  const [videoLoaded, setVideoLoaded] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {
-        // Video autoplay failed, show fallback image
-        setVideoLoaded(false);
-      });
-    }
-  }, []);
 
   return (
     <PageTransition>
       <div className="min-h-screen bg-background pb-24 lg:pb-0">
         <Header onMenuStateChange={setMenuOpen} />
-      <main className="pt-28 md:pt-32">
-        {/* Hero Section - Linear style */}
-        <section className="bg-background py-16 md:py-20">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <ScrollAnimation>
-              <div className="max-w-5xl">
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 tracking-tight leading-[1.1]">
-                  {t('hero.title')}
-                </h1>
-                <p className="text-xl md:text-2xl text-muted-foreground/80 max-w-3xl font-light">
-                  {t('hero.subtitle')}
-                </p>
-              </div>
-            </ScrollAnimation>
-          </div>
-        </section>
+        <main className="pt-28 md:pt-32 relative z-0">
+          {/* Hero Section */}
+          <section className="bg-background py-16 md:py-20 relative z-10">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+              <ScrollAnimation>
+                <div className="max-w-5xl">
+                  <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 tracking-tight leading-[1.1]">
+                    {t('hero.title')}
+                  </h1>
+                  <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl font-light">
+                    {t('hero.subtitle')}
+                  </p>
+                </div>
+              </ScrollAnimation>
+            </div>
+          </section>
 
-        {/* Hero Video */}
-        <section className="container mx-auto px-4 sm:px-6 lg:px-8 pb-16 md:pb-20">
-          <div className="relative h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden rounded-xl border border-border/30">
-            {/* Video background */}
-            <video
-              ref={videoRef}
-              autoPlay
-              muted
-              loop
-              playsInline
-              onLoadedData={() => setVideoLoaded(true)}
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
-            >
-              <source src="/hero-video.mp4" type="video/mp4" />
-            </video>
-            
-            {/* Fallback image */}
-            <img 
-              src={facilityImage} 
-              alt="Healing Buds production facility" 
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${videoLoaded ? 'opacity-0' : 'opacity-100'}`}
-            />
-            
-            {/* Overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-background/20" />
-            
-            {/* Ethos overlay text */}
-            <div className="absolute inset-0 flex items-end justify-start p-6 md:p-10">
-              <div className="max-w-lg">
-                <p className="text-white/90 text-sm md:text-base font-medium tracking-wide drop-shadow-lg">
+          {/* Hero Image - Research Lab */}
+          <section className="container mx-auto px-4 sm:px-6 lg:px-8 pb-16 md:pb-20 relative z-10">
+            <div className="relative h-[350px] md:h-[450px] lg:h-[550px] overflow-hidden rounded-xl border border-border/20 shadow-lg">
+              <img 
+                src={researchLabImage} 
+                alt="Healing Buds research laboratory" 
+                className="absolute inset-0 w-full h-full object-cover"
+                loading="eager"
+              />
+              
+              {/* Subtle gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
+              
+              {/* Ethos text */}
+              <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                <p className="text-white text-sm md:text-base font-medium tracking-wide max-w-xl">
                   Excellence in cultivation • Patient-centered care • Global standards
                 </p>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
         {/* Our Story - Linear style */}
         <section className="py-20 md:py-32 bg-background">
