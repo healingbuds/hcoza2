@@ -18,20 +18,25 @@ const currencySymbols: Record<string, string> = {
 };
 
 export function getCurrencyForCountry(countryCode: string): string {
-  return currencyMap[countryCode] || 'EUR';
+  return currencyMap[countryCode] || 'ZAR'; // Default to ZAR for South Africa
 }
 
 export function getCurrencySymbol(currencyCode: string): string {
-  return currencySymbols[currencyCode] || currencyCode;
+  return currencySymbols[currencyCode] || 'R';
 }
 
 export function formatPrice(
   amount: number,
-  countryCode: string = 'PT',
+  countryCode: string = 'ZA',
   options?: { showSymbol?: boolean }
 ): string {
   const currency = getCurrencyForCountry(countryCode);
   const { showSymbol = true } = options || {};
+  
+  // Handle invalid amounts
+  if (isNaN(amount) || amount === null || amount === undefined) {
+    amount = 0;
+  }
   
   try {
     // Use Intl.NumberFormat for locale-aware formatting
@@ -58,5 +63,5 @@ function getLocaleForCountry(countryCode: string): string {
     TH: 'th-TH',
     US: 'en-US',
   };
-  return localeMap[countryCode] || 'en-GB';
+  return localeMap[countryCode] || 'en-ZA'; // Default to South Africa locale
 }

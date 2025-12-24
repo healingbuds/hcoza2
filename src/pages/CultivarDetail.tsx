@@ -206,18 +206,23 @@ export default function CultivarDetail() {
                 transition={{ duration: 0.5 }}
                 className="relative"
               >
-                <div className={`relative aspect-square rounded-3xl bg-gradient-to-br from-slate-900/60 to-slate-900/90 border border-white/10 overflow-hidden ${styles.ring} ring-2`}>
+                <div className={`relative aspect-square rounded-3xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900/60 dark:to-slate-900/90 border border-white/10 overflow-hidden ${styles.ring} ring-2`}>
                   {/* Ambient glow */}
                   <div className="absolute inset-[15%] rounded-full bg-gradient-radial from-white/10 via-white/3 to-transparent blur-3xl" />
                   
-                  <img
-                    src={product.imageUrl}
-                    alt={product.name}
-                    className="w-[80%] h-[80%] object-contain absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                    style={{ 
-                      filter: 'drop-shadow(0 30px 60px rgba(0,0,0,0.6)) drop-shadow(0 12px 24px rgba(0,0,0,0.4))',
-                    }}
-                  />
+                  {/* Centered image container */}
+                  <div className="absolute inset-0 flex items-center justify-center p-8">
+                    <img
+                      src={product.imageUrl}
+                      alt={product.name}
+                      className="w-full h-full object-contain"
+                      style={{ 
+                        filter: 'drop-shadow(0 30px 60px rgba(0,0,0,0.6)) drop-shadow(0 12px 24px rgba(0,0,0,0.4))',
+                        maxWidth: '85%',
+                        maxHeight: '85%',
+                      }}
+                    />
+                  </div>
                   
                   {/* Badges */}
                   <Badge 
@@ -226,16 +231,17 @@ export default function CultivarDetail() {
                     {product.category}
                   </Badge>
 
-                  {product.thcContent >= 25 && (
+                  {product.thcContent >= 25 && product.availability && (
                     <div className="absolute bottom-6 left-6 flex items-center gap-2 px-3 py-2 rounded-full bg-amber-500/20 backdrop-blur-sm border border-amber-400/30">
                       <Sparkles className="h-4 w-4 text-amber-400" />
                       <span className="text-sm font-semibold text-amber-300">High Potency</span>
                     </div>
                   )}
 
+                  {/* Out of stock banner at bottom */}
                   {!product.availability && (
-                    <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
-                      <Badge variant="destructive" className="text-lg px-6 py-2">Out of Stock</Badge>
+                    <div className="absolute bottom-0 left-0 right-0 bg-sky-600/90 backdrop-blur-sm py-3 px-4 flex items-center justify-center">
+                      <span className="text-base font-semibold text-white uppercase tracking-wide">Out of Stock</span>
                     </div>
                   )}
                 </div>

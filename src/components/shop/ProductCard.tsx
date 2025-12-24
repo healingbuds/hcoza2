@@ -142,24 +142,18 @@ export function ProductCard({ product, onViewDetails, showDataSource = false }: 
         {/* Gradient overlay for premium depth */}
         <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/20 pointer-events-none" />
         
-        <div className="relative aspect-square overflow-hidden bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900/40 dark:to-slate-900/60 flex items-center justify-center p-4">
-          <div className="relative w-[85%] h-[85%] flex items-center justify-center">
+        {/* Image container with consistent sizing */}
+        <div className="relative aspect-square overflow-hidden bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900/40 dark:to-slate-900/60">
+          {/* Centered image with fixed size container */}
+          <div className="absolute inset-0 flex items-center justify-center p-6">
             <img
               src={product.imageUrl}
               alt={product.name}
-              className="max-w-full max-h-full object-contain transition-transform duration-500 group-hover:scale-110 drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)]"
+              className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)]"
               loading="lazy"
+              style={{ maxWidth: '90%', maxHeight: '90%' }}
             />
           </div>
-          
-          {/* Out of stock overlay - faded with image still visible */}
-          {!product.availability && (
-            <div className="absolute inset-0 bg-background/70 backdrop-blur-[2px] flex items-center justify-center">
-              <Badge variant="destructive" className="text-sm px-4 py-1.5 font-medium">
-                {t('outOfStock')}
-              </Badge>
-            </div>
-          )}
           
           {/* Category badge - top left */}
           <Badge 
@@ -167,14 +161,6 @@ export function ProductCard({ product, onViewDetails, showDataSource = false }: 
           >
             {product.category}
           </Badge>
-          
-          {/* Data source indicator - bottom right (debug) */}
-          {showDataSource && (
-            <div className={`absolute bottom-4 right-4 flex items-center gap-1.5 px-2 py-1 rounded-full border text-[10px] font-medium ${sourceConfig.color}`}>
-              <SourceIcon className="h-3 w-3" />
-              <span>{sourceConfig.label}</span>
-            </div>
-          )}
           
           {/* Quick view button - top right */}
           <motion.button
@@ -189,11 +175,28 @@ export function ProductCard({ product, onViewDetails, showDataSource = false }: 
             <Eye className="h-4 w-4" />
           </motion.button>
 
+          {/* Data source indicator - debug */}
+          {showDataSource && (
+            <div className={`absolute top-4 right-16 flex items-center gap-1.5 px-2 py-1 rounded-full border text-[10px] font-medium ${sourceConfig.color}`}>
+              <SourceIcon className="h-3 w-3" />
+              <span>{sourceConfig.label}</span>
+            </div>
+          )}
+
           {/* THC highlight for high potency */}
-          {product.thcContent >= 25 && (
+          {product.thcContent >= 25 && product.availability && (
             <div className="absolute bottom-4 left-4 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/20 backdrop-blur-sm border border-amber-400/30">
               <Sparkles className="h-3 w-3 text-amber-400" />
               <span className="text-xs font-medium text-amber-300">High Potency</span>
+            </div>
+          )}
+          
+          {/* Out of stock banner - full width at bottom */}
+          {!product.availability && (
+            <div className="absolute bottom-0 left-0 right-0 bg-sky-600/90 backdrop-blur-sm py-2 px-4 flex items-center justify-center">
+              <span className="text-sm font-semibold text-white uppercase tracking-wide">
+                {t('outOfStock')}
+              </span>
             </div>
           )}
         </div>
