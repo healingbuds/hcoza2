@@ -1,5 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useMemo } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
@@ -7,14 +8,22 @@ import BackToTop from "@/components/BackToTop";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, User, ExternalLink } from "lucide-react";
-import { newsArticles } from "@/data/newsArticles";
+import { getNewsArticlesByRegion } from "@/data/newsArticles";
+import { useGeoLocation } from "@/hooks/useGeoLocation";
 import ScrollAnimation from "@/components/ScrollAnimation";
 
 const NewsArticle = () => {
   const { t } = useTranslation("theWire");
   const { articleId } = useParams();
   const navigate = useNavigate();
-  const article = newsArticles.find((a) => a.id === articleId);
+  const locationConfig = useGeoLocation();
+  
+  const articles = useMemo(() => 
+    getNewsArticlesByRegion(locationConfig.countryCode), 
+    [locationConfig.countryCode]
+  );
+  
+  const article = articles.find((a) => a.id === articleId);
 
   if (!article) {
     return (
@@ -42,7 +51,7 @@ const NewsArticle = () => {
     <PageTransition>
       <div className="min-h-screen bg-background">
         <Header />
-        <main className="pt-24 pb-20">
+        <main className="pt-32 sm:pt-36 pb-20">
           {/* Breadcrumb */}
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 mb-8">
             <Link
@@ -135,7 +144,7 @@ const NewsArticle = () => {
                     {t("moreFromWire")}
                   </h3>
                   <div className="grid sm:grid-cols-2 gap-6">
-                    {newsArticles
+                    {articles
                       .filter((a) => a.id !== article.id)
                       .slice(0, 2)
                       .map((relatedArticle) => (
