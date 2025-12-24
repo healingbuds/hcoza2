@@ -129,7 +129,7 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
       {/* Scroll Progress Bar with Background Track */}
       <div className="fixed top-0 left-0 right-0 sm:top-2 sm:left-2 sm:right-2 h-1 bg-primary/20 z-[60] sm:rounded-t-xl">
         <motion.div
-          className="h-full bg-gradient-to-r from-primary via-secondary to-primary origin-left"
+          className="h-full bg-gradient-to-r from-primary via-secondary to-primary origin-left will-change-transform"
           style={{ 
             scaleX,
             transformOrigin: "0%"
@@ -153,7 +153,7 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
         <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
           <div className={cn(
             "flex items-center justify-between transition-all duration-500 ease-out",
-            scrolled ? "h-20 md:h-22" : "h-24 md:h-28"
+            scrolled ? "h-20 md:h-[88px]" : "h-24 md:h-28"
           )}>
             <Link to="/" className="flex items-center flex-shrink-0 group">
               <img 
@@ -447,7 +447,7 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="lg:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-[-1]"
+                className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
                 onClick={() => setMobileMenuOpen(false)}
               />
               <motion.nav 
