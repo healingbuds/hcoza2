@@ -117,6 +117,31 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
     }
   }, [mobileMenuOpen]);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.top = `-${window.scrollY}px`;
+    } else {
+      const scrollY = document.body.style.top;
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      }
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+    };
+  }, [mobileMenuOpen]);
+
   // Close dropdowns on route change
   useEffect(() => {
     setWhatWeDoOpen(false);
@@ -437,29 +462,53 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
           </div>
         </div>
 
-        {/* Mobile Navigation - Full Height Slide-in */}
+        {/* Mobile Navigation - True Full-Screen Overlay */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <>
-              {/* Backdrop - Darker for better layer separation */}
+              {/* Full-screen backdrop - blocks all background interaction */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15 }}
-                className="xl:hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-40"
+                className="xl:hidden fixed inset-0 bg-black/85 backdrop-blur-md z-[100]"
                 onClick={() => setMobileMenuOpen(false)}
+                aria-hidden="true"
               />
-              {/* Elevated menu surface with distinct background */}
+              {/* Full-screen menu surface - owns the entire viewport */}
               <motion.nav 
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
-                className="xl:hidden overflow-hidden border-t border-white/20"
-                style={{ backgroundColor: 'hsl(178 42% 22%)' }}
+                className="xl:hidden fixed inset-x-0 top-0 bottom-0 z-[101] flex flex-col"
+                style={{ backgroundColor: 'hsl(178 38% 20%)' }}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Navigation menu"
               >
-                <div className="flex flex-col py-6 px-5 max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20 hover:scrollbar-thumb-white/30">
+                {/* Menu header with close button */}
+                <div className="flex items-center justify-between px-5 py-4 border-b border-white/15" style={{ backgroundColor: 'hsl(178 42% 22%)' }}>
+                  <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center">
+                    <img 
+                      src={hbLogoWhite} 
+                      alt="Healing Buds Logo" 
+                      className="h-12 w-auto object-contain"
+                    />
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                    aria-label="Close menu"
+                  >
+                    <X className="w-6 h-6 text-white" />
+                  </button>
+                </div>
+                
+                {/* Scrollable menu content */}
+                <div className="flex-1 overflow-y-auto py-6 px-5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20 hover:scrollbar-thumb-white/30">
                   {/* Navigation Links */}
                   <div className="flex flex-col space-y-1">
                     {/* What We Do Section - Collapsible */}
