@@ -63,26 +63,29 @@ const CursorFollower = ({ children }: CursorFollowerProps) => {
     <>
       {children}
       
-      {/* Main cursor dot */}
+      {/* Main cursor dot - using brand teal color */}
       <motion.div
-        className="fixed top-0 left-0 pointer-events-none z-[9999] mix-blend-difference"
+        className="fixed top-0 left-0 pointer-events-none z-[9999]"
         style={{
           x: cursorXSpring,
           y: cursorYSpring,
         }}
       >
         <motion.div
-          className="relative -translate-x-1/2 -translate-y-1/2 rounded-full bg-white"
+          className="relative -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary shadow-lg"
+          style={{ 
+            boxShadow: '0 0 10px hsl(175 42% 35% / 0.4)' 
+          }}
           animate={{
-            width: isHovering ? 48 : 8,
-            height: isHovering ? 48 : 8,
-            opacity: isMagnetic ? 0.8 : 1,
+            width: isHovering ? 48 : 10,
+            height: isHovering ? 48 : 10,
+            opacity: isMagnetic ? 0.9 : 1,
           }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
         />
       </motion.div>
       
-      {/* Trailing ring */}
+      {/* Trailing ring - using brand accent teal */}
       <motion.div
         className="fixed top-0 left-0 pointer-events-none z-[9998]"
         style={{
@@ -91,12 +94,11 @@ const CursorFollower = ({ children }: CursorFollowerProps) => {
         }}
       >
         <motion.div
-          className="relative -translate-x-1/2 -translate-y-1/2 rounded-full border-2"
-          style={{ borderColor: 'hsl(210 80% 50% / 0.5)' }}
+          className="relative -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-primary/50"
           animate={{
             width: isHovering ? 64 : 32,
             height: isHovering ? 64 : 32,
-            opacity: isHovering ? 0.6 : 0.3,
+            opacity: isHovering ? 0.7 : 0.4,
           }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
         />
