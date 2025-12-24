@@ -96,19 +96,19 @@ const locationConfigs: Record<string, LocationConfig> = {
     city: 'New York, NY 10001, USA',
   },
   DEFAULT: {
-    countryCode: 'GB',
-    countryName: 'United Kingdom',
-    phonePrefix: '+44',
-    phonePlaceholder: '+44 7911 123456',
-    phonePattern: '^\\+?\\d{10,15}$',
-    postalCodeLabel: 'Post Code',
-    postalCodePlaceholder: 'SW1A 1AA',
-    postalCodePattern: '^[A-Z0-9\\s-]{3,10}$',
-    dateFormat: 'dd/MM/yyyy',
-    email: 'info@healingbuds.co.uk',
-    phone: '+44 20 7123 4567',
-    address: '123 Harley Street',
-    city: 'London W1G 6AX, United Kingdom',
+    countryCode: 'ZA',
+    countryName: 'South Africa',
+    phonePrefix: '+27',
+    phonePlaceholder: '+27 82 123 4567',
+    phonePattern: '^\\+?27?\\s?[6-8]\\d{1}\\s?\\d{3}\\s?\\d{4}$',
+    postalCodeLabel: 'Postal Code',
+    postalCodePlaceholder: '0001',
+    postalCodePattern: '^\\d{4}$',
+    dateFormat: 'yyyy/MM/dd',
+    email: 'info@healingbuds.co.za',
+    phone: '+27 11 123 4567',
+    address: '123 Sandton Drive',
+    city: 'Sandton 2196, South Africa',
   },
 };
 
@@ -125,14 +125,14 @@ const languageToCountry: Record<string, string> = {
   'th-TH': 'TH',
 };
 
-// Detect country from domain - UK is default for lovable.app and unknown domains
+// Detect country from domain - ZA is default for lovable.app (first launch market)
 const getCountryFromDomain = (): string | null => {
   if (typeof window === 'undefined') return null;
   
   const hostname = window.location.hostname;
   
-  // Lovable staging/preview domains → use DEFAULT (GB)
-  if (hostname.includes('lovable.app') || hostname.includes('lovable.dev')) return null;
+  // Lovable staging/preview domains → South Africa (first launch market)
+  if (hostname.includes('lovable.app') || hostname.includes('lovable.dev')) return 'ZA';
   
   // Check specific country TLDs BEFORE generic .com
   if (hostname.endsWith('.pt') || hostname.includes('.pt.')) return 'PT';
@@ -144,8 +144,8 @@ const getCountryFromDomain = (): string | null => {
   if (hostname.endsWith('.us')) return 'US';
   if (hostname === 'healingbuds.com' || hostname === 'www.healingbuds.com') return 'US';
   
-  // All other domains (including generic .com) → use DEFAULT (GB)
-  return null;
+  // All other domains (including generic .com) → use South Africa as default
+  return 'ZA';
 };
 
 export const useGeoLocation = (): LocationConfig => {
