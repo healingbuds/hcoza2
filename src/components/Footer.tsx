@@ -2,10 +2,12 @@ import hbLogoWhite from "@/assets/hb-logo-white-new.png";
 import { Link } from "react-router-dom";
 import { Mail, MapPin, Leaf } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useGeoLocation } from "@/hooks/useGeoLocation";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const { t } = useTranslation('common');
+  const locationConfig = useGeoLocation();
   
   return (
     <footer id="contact" className="text-white relative overflow-hidden" style={{ backgroundColor: 'hsl(var(--section-color))' }}>
@@ -28,16 +30,16 @@ const Footer = () => {
               </p>
               <div className="space-y-3">
                 <div className="flex items-start gap-3 text-white/60 text-sm group">
-                  <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 group-hover:text-primary transition-colors" />
+                  <MapPin size={16} className="mt-0.5 flex-shrink-0 group-hover:text-primary transition-colors" />
                   <span className="font-body">
-                    Avenida D. João II, 98 A<br />
-                    1990-100 Lisboa, Portugal
+                    {locationConfig.address}<br />
+                    {locationConfig.city}
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-white/60 text-sm group">
-                  <Mail className="w-4 h-4 flex-shrink-0 group-hover:text-primary transition-colors" />
-                  <a href="mailto:info@healingbuds.com" className="font-body hover:text-white transition-colors">
-                    info@healingbuds.com
+                  <Mail size={16} className="flex-shrink-0 group-hover:text-primary transition-colors" />
+                  <a href={`mailto:${locationConfig.email}`} className="font-body hover:text-white transition-colors">
+                    {locationConfig.email}
                   </a>
                 </div>
               </div>
@@ -49,7 +51,7 @@ const Footer = () => {
               {/* Company */}
               <div>
                 <h4 className="font-jakarta font-semibold text-sm uppercase tracking-wider mb-5 text-white/90 flex items-center gap-2">
-                  <Leaf className="w-3.5 h-3.5 text-primary" />
+                  <Leaf size={14} className="text-primary flex-shrink-0" />
                   {t('footer.company')}
                 </h4>
                 <ul className="space-y-3">
@@ -79,7 +81,7 @@ const Footer = () => {
               {/* Resources */}
               <div>
                 <h4 className="font-jakarta font-semibold text-sm uppercase tracking-wider mb-5 text-white/90 flex items-center gap-2">
-                  <Leaf className="w-3.5 h-3.5 text-primary" />
+                  <Leaf size={14} className="text-primary flex-shrink-0" />
                   {t('footer.resources')}
                 </h4>
                 <ul className="space-y-3">
@@ -104,7 +106,7 @@ const Footer = () => {
               {/* Legal */}
               <div>
                 <h4 className="font-jakarta font-semibold text-sm uppercase tracking-wider mb-5 text-white/90 flex items-center gap-2">
-                  <Leaf className="w-3.5 h-3.5 text-primary" />
+                  <Leaf size={14} className="text-primary flex-shrink-0" />
                   {t('footer.legal')}
                 </h4>
                 <ul className="space-y-3">

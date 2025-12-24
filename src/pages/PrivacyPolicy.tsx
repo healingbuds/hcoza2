@@ -6,10 +6,12 @@ import PageTransition from "@/components/PageTransition";
 import BackToTop from "@/components/BackToTop";
 import MobileBottomActions from "@/components/MobileBottomActions";
 import { Shield, Lock, Eye, FileText, Users, Globe } from "lucide-react";
+import { useGeoLocation } from "@/hooks/useGeoLocation";
 
 const PrivacyPolicy = () => {
   const { t, i18n } = useTranslation("legal");
   const [menuOpen, setMenuOpen] = useState(false);
+  const locationConfig = useGeoLocation();
   
   const formatDate = () => {
     const locale = i18n.language === 'pt' ? 'pt-PT' : 'en-US';
@@ -158,8 +160,8 @@ const PrivacyPolicy = () => {
                   {t("privacy.contact.content")}
                 </p>
                 <div className="space-y-2">
-                  <p><strong>{t("privacy.contact.email")}</strong> privacy@healingbuds.com</p>
-                  <p><strong>{t("privacy.contact.address")}</strong> {t("privacy.contact.addressValue")}</p>
+                  <p><strong>{t("privacy.contact.email")}</strong> {locationConfig.email.replace('info@', 'privacy@')}</p>
+                  <p><strong>{t("privacy.contact.address")}</strong> {locationConfig.address}, {locationConfig.city}</p>
                 </div>
               </section>
             </div>

@@ -11,6 +11,11 @@ interface LocationConfig {
   postalCodePlaceholder: string;
   postalCodePattern: string;
   dateFormat: string;
+  // Contact information
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
 }
 
 // Country configurations for geographically relevant form fields
@@ -25,6 +30,10 @@ const locationConfigs: Record<string, LocationConfig> = {
     postalCodePlaceholder: '1000-001',
     postalCodePattern: '^\\d{4}-\\d{3}$',
     dateFormat: 'dd/MM/yyyy',
+    email: 'info@healingbuds.pt',
+    phone: '+351 210 123 456',
+    address: 'Avenida D. João II, 98 A',
+    city: '1990-100 Lisboa, Portugal',
   },
   GB: {
     countryCode: 'GB',
@@ -36,6 +45,10 @@ const locationConfigs: Record<string, LocationConfig> = {
     postalCodePlaceholder: 'SW1A 1AA',
     postalCodePattern: '^[A-Z]{1,2}\\d[A-Z\\d]?\\s?\\d[A-Z]{2}$',
     dateFormat: 'dd/MM/yyyy',
+    email: 'info@healingbuds.co.uk',
+    phone: '+44 20 7123 4567',
+    address: '123 Harley Street',
+    city: 'London W1G 6AX, United Kingdom',
   },
   ZA: {
     countryCode: 'ZA',
@@ -47,6 +60,10 @@ const locationConfigs: Record<string, LocationConfig> = {
     postalCodePlaceholder: '0001',
     postalCodePattern: '^\\d{4}$',
     dateFormat: 'yyyy/MM/dd',
+    email: 'info@healingbuds.co.za',
+    phone: '+27 11 123 4567',
+    address: '123 Sandton Drive',
+    city: 'Sandton 2196, South Africa',
   },
   TH: {
     countryCode: 'TH',
@@ -58,6 +75,10 @@ const locationConfigs: Record<string, LocationConfig> = {
     postalCodePlaceholder: '10110',
     postalCodePattern: '^\\d{5}$',
     dateFormat: 'dd/MM/yyyy',
+    email: 'info@healingbuds.co.th',
+    phone: '+66 2 123 4567',
+    address: '123 Sukhumvit Road',
+    city: 'Bangkok 10110, Thailand',
   },
   US: {
     countryCode: 'US',
@@ -69,6 +90,10 @@ const locationConfigs: Record<string, LocationConfig> = {
     postalCodePlaceholder: '10001',
     postalCodePattern: '^\\d{5}(-\\d{4})?$',
     dateFormat: 'MM/dd/yyyy',
+    email: 'info@healingbuds.com',
+    phone: '+1 (555) 123-4567',
+    address: '123 Fifth Avenue',
+    city: 'New York, NY 10001, USA',
   },
   DEFAULT: {
     countryCode: 'GB',
@@ -80,6 +105,10 @@ const locationConfigs: Record<string, LocationConfig> = {
     postalCodePlaceholder: 'SW1A 1AA',
     postalCodePattern: '^[A-Z0-9\\s-]{3,10}$',
     dateFormat: 'dd/MM/yyyy',
+    email: 'info@healingbuds.co.uk',
+    phone: '+44 20 7123 4567',
+    address: '123 Harley Street',
+    city: 'London W1G 6AX, United Kingdom',
   },
 };
 

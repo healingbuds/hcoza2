@@ -13,6 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useGeoLocation } from "@/hooks/useGeoLocation";
 
 // Contact form validation schema
 const contactSchema = z.object({
@@ -42,6 +43,7 @@ const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const { toast } = useToast();
+  const locationConfig = useGeoLocation();
 
   const {
     register,
@@ -154,7 +156,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-foreground mb-2 tracking-tight">{t('connect.email')}</h3>
-                    <p className="text-muted-foreground/80 text-sm">info@healingbuds.com</p>
+                    <p className="text-muted-foreground/80 text-sm">{locationConfig.email}</p>
                   </div>
                 </div>
                 </div>
