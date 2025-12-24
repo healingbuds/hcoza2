@@ -9,7 +9,7 @@ import { Cart } from '@/components/shop/Cart';
 import { CartButton } from '@/components/shop/CartButton';
 import { RestrictedRegionGate } from '@/components/shop/RestrictedRegionGate';
 import { VerificationProgress } from '@/components/shop/VerificationProgress';
-import TrustBadges from '@/components/TrustBadges';
+
 import { useShop } from '@/context/ShopContext';
 import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { useTranslation } from 'react-i18next';
@@ -117,12 +117,7 @@ export default function Shop() {
           </div>
         </section>
 
-        {/* Trust Badges */}
-        <section className="py-6 sm:py-8 border-y border-border/50 bg-muted/20">
-          <div className="container mx-auto px-4">
-            <TrustBadges size="sm" />
-          </div>
-        </section>
+        {/* Products - gated by region restrictions */}
 
         {/* Products - gated by region restrictions */}
         <section className="py-12">
