@@ -34,7 +34,7 @@ const NavigationMenu = ({ scrolled, onCloseAllDropdowns }: NavigationMenuProps) 
     navItemBase,
     navItemSize,
     isItemActive
-      ? "text-white bg-white/25 font-bold shadow-sm border-b-2 border-white" 
+      ? "text-primary-foreground bg-primary/90 font-bold shadow-md" 
       : "text-white/90 hover:text-white hover:bg-white/12"
   );
 

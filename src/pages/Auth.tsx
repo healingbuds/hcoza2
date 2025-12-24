@@ -220,8 +220,8 @@ const Auth = () => {
         <main className="min-h-[calc(100vh-200px)] flex items-center justify-center py-20 pt-36">
           <div className="container mx-auto px-4 max-w-md">
             <div className="bg-background/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-border/50 overflow-hidden">
-              {/* Header - refined emerald-teal gradient */}
-              <div className="bg-gradient-to-br from-[hsl(164,48%,53%)]/15 via-[hsl(178,48%,33%)]/20 to-[hsl(164,48%,53%)]/10 p-8 text-center">
+              {/* Header - darker gradient for better contrast */}
+              <div className="bg-gradient-to-br from-primary via-secondary to-primary p-8 text-center">
                 <div className="flex justify-center mb-4">
                   <img 
                     src={hbLogoWhite} 
@@ -229,10 +229,10 @@ const Auth = () => {
                     className="h-16 min-w-[140px] w-auto object-contain"
                   />
                 </div>
-                <h1 className="font-display text-2xl font-bold text-foreground mb-2">
+                <h1 className="font-display text-2xl font-bold text-white mb-2">
                   {isForgotPassword ? t('resetPassword') : isLogin ? t('welcomeBack') : t('createAccount')}
                 </h1>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-white/80 text-sm">
                   {isForgotPassword 
                     ? t('resetDescription')
                     : isLogin 
@@ -240,6 +240,76 @@ const Auth = () => {
                       : t('signupDescription')}
                 </p>
               </div>
+              
+              {/* Test Accounts Dropdown - for testing dispensary access */}
+              {isLogin && (
+                <div className="px-8 pt-6 pb-0">
+                  <details className="group">
+                    <summary className="flex items-center justify-between cursor-pointer bg-highlight/10 border border-highlight/30 rounded-lg px-4 py-3 text-sm font-medium text-foreground hover:bg-highlight/20 transition-colors">
+                      <span className="flex items-center gap-2">
+                        <UserIcon className="w-4 h-4 text-highlight" />
+                        Test Accounts (Demo Access)
+                      </span>
+                      <svg className="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </summary>
+                    <div className="mt-3 space-y-2 bg-muted/50 rounded-lg p-4 border border-border">
+                      <div 
+                        className="p-3 bg-background rounded-md border border-border hover:border-primary/50 cursor-pointer transition-colors"
+                        onClick={() => {
+                          setEmail("patient@healingbuds.test");
+                          setPassword("TestPatient123!");
+                        }}
+                      >
+                        <p className="font-semibold text-sm text-foreground">Patient Account</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          <span className="font-mono bg-muted px-1.5 py-0.5 rounded">patient@healingbuds.test</span>
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          <span className="font-mono bg-muted px-1.5 py-0.5 rounded">TestPatient123!</span>
+                        </p>
+                        <p className="text-xs text-primary mt-1">✓ KYC Verified • Full Shop Access</p>
+                      </div>
+                      <div 
+                        className="p-3 bg-background rounded-md border border-border hover:border-primary/50 cursor-pointer transition-colors"
+                        onClick={() => {
+                          setEmail("pending@healingbuds.test");
+                          setPassword("TestPending123!");
+                        }}
+                      >
+                        <p className="font-semibold text-sm text-foreground">Pending Verification</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          <span className="font-mono bg-muted px-1.5 py-0.5 rounded">pending@healingbuds.test</span>
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          <span className="font-mono bg-muted px-1.5 py-0.5 rounded">TestPending123!</span>
+                        </p>
+                        <p className="text-xs text-highlight mt-1">⏳ Awaiting Admin Approval</p>
+                      </div>
+                      <div 
+                        className="p-3 bg-background rounded-md border border-border hover:border-primary/50 cursor-pointer transition-colors"
+                        onClick={() => {
+                          setEmail("admin@healingbuds.test");
+                          setPassword("TestAdmin123!");
+                        }}
+                      >
+                        <p className="font-semibold text-sm text-foreground">Admin Account</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          <span className="font-mono bg-muted px-1.5 py-0.5 rounded">admin@healingbuds.test</span>
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          <span className="font-mono bg-muted px-1.5 py-0.5 rounded">TestAdmin123!</span>
+                        </p>
+                        <p className="text-xs text-secondary mt-1">🔑 Full Admin Access</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground text-center pt-2 border-t border-border">
+                        Click an account to auto-fill credentials
+                      </p>
+                    </div>
+                  </details>
+                </div>
+              )}
 
               {/* Forgot Password Form */}
               {isForgotPassword ? (
