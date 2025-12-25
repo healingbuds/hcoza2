@@ -12,6 +12,7 @@ import {
   ArrowRight,
   ArrowLeft,
   Loader2,
+  AlertTriangle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,27 +38,84 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useShop } from '@/context/ShopContext';
 
+// Age calculation helper
+const calculateAge = (dateOfBirth: string): number => {
+  const today = new Date();
+  const birthDate = new Date(dateOfBirth);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+};
+
+// Valid postal code zones per country
+const validPostalZones: Record<string, { pattern: RegExp; description: string }> = {
+  PT: { 
+    pattern: /^\d{4}(-\d{3})?$/, 
+    description: 'Portuguese postal codes (e.g., 1000-001)' 
+  },
+  ZA: { 
+    pattern: /^(0[1-9]\d{2}|1[0-8]\d{2}|19[0-5]\d|[2-9]\d{3})$/, 
+    description: 'South African postal codes (0100-9999)' 
+  },
+  TH: { 
+    pattern: /^10[0-9]{3}$/, 
+    description: 'Bangkok area postal codes only (10XXX)' 
+  },
+  GB: { 
+    pattern: /^[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}$/i, 
+    description: 'UK postal codes (England & Wales delivery zones)' 
+  },
+};
+
+const MINIMUM_AGE = 21;
+
 const personalDetailsSchema = z.object({
-  firstName: z.string().min(2, 'First name must be at least 2 characters'),
-  lastName: z.string().min(2, 'Last name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  phone: z.string().min(10, 'Phone number must be at least 10 digits'),
-  dateOfBirth: z.string().min(1, 'Date of birth is required'),
+  firstName: z.string().min(2, 'First name must be at least 2 characters').max(50, 'First name is too long'),
+  lastName: z.string().min(2, 'Last name must be at least 2 characters').max(50, 'Last name is too long'),
+  email: z.string().email('Invalid email address').max(255, 'Email is too long'),
+  phone: z.string().min(10, 'Phone number must be at least 10 digits').max(20, 'Phone number is too long'),
+  dateOfBirth: z.string().min(1, 'Date of birth is required').refine(
+    (dob) => {
+      const age = calculateAge(dob);
+      return age >= MINIMUM_AGE;
+    },
+    { message: `You must be at least ${MINIMUM_AGE} years old to register for medical cannabis` }
+  ),
+});
+
+const createAddressSchema = (country: string) => z.object({
+  street: z.string().min(5, 'Street address is required').max(200, 'Street address is too long'),
+  city: z.string().min(2, 'City is required').max(100, 'City name is too long'),
+  postalCode: z.string().min(4, 'Postal code is required').refine(
+    (code) => {
+      const zone = validPostalZones[country];
+      if (!zone) return true; // Allow if country not in our list
+      return zone.pattern.test(code.trim());
+    },
+    { message: 'Delivery is not available in your postal zone' }
+  ),
+  country: z.string().min(2, 'Country is required'),
 });
 
 const addressSchema = z.object({
-  street: z.string().min(5, 'Street address is required'),
-  city: z.string().min(2, 'City is required'),
+  street: z.string().min(5, 'Street address is required').max(200, 'Street address is too long'),
+  city: z.string().min(2, 'City is required').max(100, 'City name is too long'),
   postalCode: z.string().min(4, 'Postal code is required'),
   country: z.string().min(2, 'Country is required'),
 });
 
 const medicalSchema = z.object({
-  conditions: z.string().min(10, 'Please describe your medical conditions'),
-  currentMedications: z.string().optional(),
-  allergies: z.string().optional(),
+  conditions: z.string().min(10, 'Please describe your medical conditions').max(2000, 'Description is too long'),
+  currentMedications: z.string().max(1000, 'Text is too long').optional(),
+  allergies: z.string().max(500, 'Text is too long').optional(),
   previousCannabisUse: z.boolean(),
-  doctorApproval: z.boolean(),
+  doctorApproval: z.boolean().refine(
+    (val) => val === true,
+    { message: 'Healthcare provider consultation is required for medical cannabis registration' }
+  ),
   consent: z.boolean().refine((val) => val, 'You must consent to continue'),
 });
 
@@ -82,6 +140,8 @@ const countries = [
 export function ClientOnboarding() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [ageError, setAgeError] = useState<string | null>(null);
+  const [postalError, setPostalError] = useState<string | null>(null);
   const [formData, setFormData] = useState<{
     personal?: PersonalDetails;
     address?: Address;
@@ -124,12 +184,29 @@ export function ClientOnboarding() {
     },
   });
 
+  // Watch country for postal code validation
+  const selectedCountry = addressForm.watch('country');
+
   const handlePersonalSubmit = (data: PersonalDetails) => {
+    // Double-check age validation
+    const age = calculateAge(data.dateOfBirth);
+    if (age < MINIMUM_AGE) {
+      setAgeError(`You must be at least ${MINIMUM_AGE} years old to register for medical cannabis`);
+      return;
+    }
+    setAgeError(null);
     setFormData((prev) => ({ ...prev, personal: data }));
     setCurrentStep(1);
   };
 
   const handleAddressSubmit = (data: Address) => {
+    // Validate postal code against country zones
+    const zone = validPostalZones[data.country];
+    if (zone && !zone.pattern.test(data.postalCode.trim())) {
+      setPostalError(`Delivery is not available in your postal zone. ${zone.description}`);
+      return;
+    }
+    setPostalError(null);
     setFormData((prev) => ({ ...prev, address: data }));
     setCurrentStep(2);
   };
@@ -342,12 +419,25 @@ export function ClientOnboarding() {
                         <FormItem>
                           <FormLabel>Date of Birth</FormLabel>
                           <FormControl>
-                            <Input type="date" {...field} />
+                            <Input 
+                              type="date" 
+                              max={new Date(new Date().setFullYear(new Date().getFullYear() - MINIMUM_AGE)).toISOString().split('T')[0]}
+                              {...field} 
+                            />
                           </FormControl>
                           <FormMessage />
+                          <p className="text-xs text-muted-foreground">
+                            You must be at least {MINIMUM_AGE} years old to register
+                          </p>
                         </FormItem>
                       )}
                     />
+                    {ageError && (
+                      <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
+                        <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+                        <span>{ageError}</span>
+                      </div>
+                    )}
                     <Button type="submit" className="w-full">
                       Continue
                       <ArrowRight className="ml-2 h-4 w-4" />
@@ -444,10 +534,21 @@ export function ClientOnboarding() {
                               <Input placeholder="1000-001" {...field} />
                             </FormControl>
                             <FormMessage />
+                            {validPostalZones[selectedCountry] && (
+                              <p className="text-xs text-muted-foreground">
+                                {validPostalZones[selectedCountry].description}
+                              </p>
+                            )}
                           </FormItem>
                         )}
                       />
                     </div>
+                    {postalError && (
+                      <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
+                        <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+                        <span>{postalError}</span>
+                      </div>
+                    )}
                     <div className="flex gap-3">
                       <Button
                         type="button"
@@ -561,16 +662,22 @@ export function ClientOnboarding() {
                       control={medicalForm.control}
                       name="doctorApproval"
                       render={({ field }) => (
-                        <FormItem className="flex items-start space-x-3 space-y-0">
+                        <FormItem className="flex items-start space-x-3 space-y-0 p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
                           <FormControl>
                             <Checkbox
                               checked={field.value}
                               onCheckedChange={field.onChange}
                             />
                           </FormControl>
-                          <FormLabel className="font-normal">
-                            I have discussed medical cannabis with my healthcare provider
-                          </FormLabel>
+                          <div className="space-y-1">
+                            <FormLabel className="font-medium">
+                              I have discussed medical cannabis with my healthcare provider *
+                            </FormLabel>
+                            <p className="text-xs text-muted-foreground">
+                              Medical consultation is required before accessing cannabis products
+                            </p>
+                            <FormMessage />
+                          </div>
                         </FormItem>
                       )}
                     />
