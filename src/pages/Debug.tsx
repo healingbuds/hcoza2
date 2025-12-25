@@ -5,7 +5,7 @@ import SEOHead from '@/components/SEOHead';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, CheckCircle2, XCircle, RefreshCw, Shield, FileText, Building2, Wifi } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, XCircle, RefreshCw, Shield, FileText, Building2, Wifi, Database } from 'lucide-react';
 import { buildLegacyClientPayload } from '@/lib/drgreenApi';
 import { supabase } from '@/integrations/supabase/client';
 interface TestResult {
@@ -65,6 +65,11 @@ export default function Debug() {
     {
       name: 'API Health Check',
       description: 'Ping drgreen-proxy edge function to verify backend connection',
+      status: 'pending',
+    },
+    {
+      name: 'Database Connectivity',
+      description: 'Verify Supabase tables are accessible and return row counts',
       status: 'pending',
     },
   ]);
@@ -336,6 +341,94 @@ export default function Debug() {
       });
     }
     
+    // ===========================================
+    // TEST 5: Database Connectivity
+    // ===========================================
+    updateTest(4, { status: 'running' });
+    
+    try {
+      const startTime = Date.now();
+      const tableCounts: { table: string; count: number | string }[] = [];
+      
+      // Query strains table (publicly readable)
+      const { data: strainsData, error: strainsError, count: strainsCount } = await supabase
+        .from('strains')
+        .select('*', { count: 'exact', head: true });
+      
+      if (strainsError) {
+        tableCounts.push({ table: 'strains', count: `Error: ${strainsError.message}` });
+      } else {
+        tableCounts.push({ table: 'strains', count: strainsCount ?? 0 });
+      }
+      
+      // Query profiles table (user-specific, may return 0 if not logged in)
+      const { count: profilesCount, error: profilesError } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+      
+      if (profilesError) {
+        tableCounts.push({ table: 'profiles', count: `RLS: ${profilesError.code || 'blocked'}` });
+      } else {
+        tableCounts.push({ table: 'profiles', count: profilesCount ?? 0 });
+      }
+      
+      // Query user_roles table
+      const { count: rolesCount, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('*', { count: 'exact', head: true });
+      
+      if (rolesError) {
+        tableCounts.push({ table: 'user_roles', count: `RLS: ${rolesError.code || 'blocked'}` });
+      } else {
+        tableCounts.push({ table: 'user_roles', count: rolesCount ?? 0 });
+      }
+      
+      // Query drgreen_clients table
+      const { count: clientsCount, error: clientsError } = await supabase
+        .from('drgreen_clients')
+        .select('*', { count: 'exact', head: true });
+      
+      if (clientsError) {
+        tableCounts.push({ table: 'drgreen_clients', count: `RLS: ${clientsError.code || 'blocked'}` });
+      } else {
+        tableCounts.push({ table: 'drgreen_clients', count: clientsCount ?? 0 });
+      }
+      
+      const responseTime = Date.now() - startTime;
+      
+      // Check if at least strains table is accessible (public table)
+      const strainsAccessible = typeof tableCounts[0]?.count === 'number';
+      
+      if (strainsAccessible) {
+        const countSummary = tableCounts
+          .map(t => `${t.table}: ${t.count}`)
+          .join(', ');
+        
+        updateTest(4, {
+          status: 'pass',
+          details: `Database connected in ${responseTime}ms. Tables accessible.`,
+          expected: 'Supabase tables reachable',
+          actual: countSummary,
+        });
+      } else {
+        anyFailed = true;
+        updateTest(4, {
+          status: 'fail',
+          details: `Database connection failed or tables not accessible`,
+          expected: 'Supabase tables reachable',
+          actual: tableCounts.map(t => `${t.table}: ${t.count}`).join(', '),
+        });
+      }
+    } catch (error) {
+      anyFailed = true;
+      updateTest(4, {
+        status: 'fail',
+        details: `Database error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        expected: 'Supabase connection working',
+        actual: 'Connection failed',
+      });
+    }
+    
     setHasFailures(anyFailed);
     setIsRunning(false);
   }, []);
@@ -368,6 +461,8 @@ export default function Debug() {
         return <Building2 className="h-5 w-5" />;
       case 3:
         return <Wifi className="h-5 w-5" />;
+      case 4:
+        return <Database className="h-5 w-5" />;
       default:
         return null;
     }
@@ -528,6 +623,7 @@ export default function Debug() {
                 <p><strong>Test 2:</strong> Ensures <code className="bg-muted px-1 rounded">buildLegacyClientPayload()</code> correctly defaults empty arrays to prevent backend crashes</p>
                 <p><strong>Test 3:</strong> Validates the <code className="bg-muted px-1 rounded">clientBusiness</code> object is conditionally included based on the <code className="bg-muted px-1 rounded">isBusiness</code> flag</p>
                 <p><strong>Test 4:</strong> Pings the <code className="bg-muted px-1 rounded">drgreen-proxy</code> edge function to verify backend connectivity and response time</p>
+                <p><strong>Test 5:</strong> Queries Supabase tables (<code className="bg-muted px-1 rounded">strains</code>, <code className="bg-muted px-1 rounded">profiles</code>, <code className="bg-muted px-1 rounded">user_roles</code>, <code className="bg-muted px-1 rounded">drgreen_clients</code>) and returns row counts</p>
               </CardContent>
             </Card>
           </div>
