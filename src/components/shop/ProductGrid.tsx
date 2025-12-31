@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Filter, Leaf, X, Cloud, AlertCircle, Bug } from 'lucide-react';
+import { Search, Filter, Leaf, X, Cloud, AlertCircle, Bug, Radio } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +22,8 @@ import { ProductCard } from './ProductCard';
 import { CultivarQuickView } from './CultivarQuickView';
 import { Product, useProducts, DataSource } from '@/hooks/useProducts';
 import { useShop } from '@/context/ShopContext';
+import { useStockUpdates, StockUpdate } from '@/hooks/useStockUpdates';
+import { useToast } from '@/hooks/use-toast';
 
 const categories = ['All', 'Sativa', 'Indica', 'Hybrid', 'CBD'];
 
@@ -33,12 +35,38 @@ const dataSourceInfo: Record<DataSource, { icon: typeof Cloud; label: string; co
 export function ProductGrid() {
   const { countryCode } = useShop();
   const { products, isLoading, error, dataSource, refetch } = useProducts(countryCode);
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [sortBy, setSortBy] = useState('name');
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showDebug, setShowDebug] = useState(false);
+  const [realtimeConnected, setRealtimeConnected] = useState(false);
+  const [lastStockUpdate, setLastStockUpdate] = useState<string | null>(null);
+
+  // Handle real-time stock updates
+  const handleStockChange = useCallback((update: StockUpdate) => {
+    setLastStockUpdate(new Date().toLocaleTimeString());
+    setRealtimeConnected(true);
+    
+    // Refetch products to get updated stock levels
+    refetch();
+    
+    // Show toast notification for stock changes
+    toast({
+      title: 'Stock Updated',
+      description: `Inventory changed for strain ${update.strainId.slice(0, 8)}...`,
+      duration: 3000,
+    });
+  }, [refetch, toast]);
+
+  // Subscribe to real-time stock updates
+  useStockUpdates({
+    countryCode,
+    onStockChange: handleStockChange,
+    enabled: !isLoading,
+  });
 
   // Filter and sort products
   const filteredProducts = products
@@ -209,6 +237,17 @@ export function ProductGrid() {
           <div className={`flex items-center gap-1.5 text-xs ${dataSourceInfo[dataSource].color}`}>
             <SourceIcon className="h-3.5 w-3.5" />
             <span className="font-medium">{dataSourceInfo[dataSource].label}</span>
+          </div>
+          
+          {/* Realtime indicator */}
+          <div className={`flex items-center gap-1.5 text-xs ${realtimeConnected ? 'text-emerald-400' : 'text-muted-foreground'}`}>
+            <Radio className={`h-3.5 w-3.5 ${realtimeConnected ? 'animate-pulse' : ''}`} />
+            <span className="font-medium">
+              {realtimeConnected ? 'Live' : 'Connecting...'}
+            </span>
+            {lastStockUpdate && showDebug && (
+              <span className="text-muted-foreground ml-1">({lastStockUpdate})</span>
+            )}
           </div>
           
           {/* Debug toggle */}

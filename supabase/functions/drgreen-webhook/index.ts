@@ -39,6 +39,7 @@ interface WebhookPayload {
   event: string;
   orderId?: string;
   clientId?: string;
+  strainId?: string;
   status?: string;
   paymentStatus?: string;
   kycStatus?: string;
@@ -47,6 +48,10 @@ interface WebhookPayload {
   kycLink?: string;
   timestamp: string;
   data?: Record<string, unknown>;
+  // Inventory-specific fields
+  stock?: number;
+  availability?: boolean;
+  countryCode?: string;
 }
 
 // Email template for order status updates
@@ -424,6 +429,36 @@ serve(async (req) => {
 
       return new Response(
         JSON.stringify({ success: true, event: payload.event, emailSent }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Handle inventory/stock update events
+    if (payload.event.startsWith('inventory.') || payload.event.startsWith('stock.')) {
+      console.log(`Processing inventory event: ${payload.event}`);
+      
+      const stockUpdate = {
+        strainId: payload.strainId,
+        stock: payload.stock,
+        availability: payload.availability,
+        countryCode: payload.countryCode,
+        event: payload.event,
+        timestamp: payload.timestamp,
+      };
+      
+      // Broadcast stock update via Supabase Realtime
+      const channel = supabase.channel('stock-updates');
+      
+      await channel.send({
+        type: 'broadcast',
+        event: 'stock-change',
+        payload: stockUpdate,
+      });
+      
+      console.log(`[Realtime] Broadcasted stock update for strain ${payload.strainId}:`, stockUpdate);
+      
+      return new Response(
+        JSON.stringify({ success: true, event: payload.event, broadcasted: true }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
