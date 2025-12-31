@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
 import hbLogoWhite from "@/assets/hb-logo-white-new.png";
-import hbLogoDark from "@/assets/hb-logo-teal.png";
+import hbLogoGreen from "@/assets/hb-logo-green.png";
 import EligibilityDialog from "@/components/EligibilityDialog";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -144,8 +144,8 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
                 className="flex items-center flex-shrink-0 group"
               >
                 <img 
-                  src={isDark ? hbLogoWhite : hbLogoDark} 
-                  alt="Healing Buds" 
+                  src={isDark ? hbLogoWhite : hbLogoGreen} 
+                  alt="Healing Buds"
                   className={cn(
                     "w-auto object-contain transition-all duration-500 group-hover:opacity-90",
                     scrolled ? "h-9 sm:h-10" : "h-11 sm:h-12"

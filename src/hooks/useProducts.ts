@@ -222,20 +222,23 @@ export function useProducts(countryCode: string = 'PT') {
       
       // Log API error/warning - no local fallback, always use Dr Green API
       if (fnError) {
-        console.error('Dr Green API error:', fnError);
-        throw new Error(fnError.message || 'Failed to fetch products from Dr Green API');
+        console.error(`[Products] API error for ${alpha3Code}:`, fnError);
+        // Extract actual error message from the response
+        const errorMsg = fnError.message || data?.error || 'Failed to fetch products';
+        throw new Error(errorMsg);
       } else {
-        console.warn('Dr Green API returned no strains. Response:', data);
+        console.warn(`[Products] No strains returned for ${alpha3Code}. Response:`, data);
         setProducts([]);
         setDataSource('none');
         setError('No products available in your region');
       }
       
-    } catch (err) {
-      console.error('Error fetching products:', err);
+    } catch (err: any) {
+      console.error(`[Products] Error for ${alpha3Code}:`, err);
       setProducts([]);
       setDataSource('none');
-      setError('Failed to connect to the product service');
+      // Show actual error message if available
+      setError(err?.message || 'Failed to connect to the product service');
     } finally {
       setIsLoading(false);
     }

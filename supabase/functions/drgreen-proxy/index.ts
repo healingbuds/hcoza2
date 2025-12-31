@@ -295,21 +295,28 @@ serve(async (req) => {
     const isAuthOnlyAction = AUTH_ONLY_ACTIONS.includes(action);
     
     // Handle country-gated actions (strains)
+    // IMPORTANT: For open countries (ZAF, THA), skip ALL auth checks completely.
+    // Even if client sends an invalid/expired JWT, we ignore it for open country browsing.
     if (isCountryGatedAction) {
-      const countryCode = body?.countryCode;
+      const countryCode = (body?.countryCode || '').toString().toUpperCase().trim();
       const isOpenCountry = countryCode && OPEN_COUNTRIES.includes(countryCode);
       
       if (isOpenCountry) {
-        // Open countries (ZA, TH) can access without auth
-        console.log(`[Audit] Unauthenticated access to ${action} for open country: ${countryCode}`);
+        // Open countries (ZAF, THA) bypass auth entirely - no JWT validation at all
+        console.log(`[Audit] Public access granted to ${action} for open country: ${countryCode}`);
+        // Continue to route processing without any authentication check
       } else {
-        // Restricted countries (GB, PT) or no country specified require auth
+        // Restricted countries (GBR, PRT) or missing country require valid auth
         const authResult = await verifyAuthentication(req);
         
         if (!authResult) {
-          console.warn(`[Security] Unauthenticated request to ${action} for country: ${countryCode || 'unspecified'}`);
+          console.warn(`[Security] Auth required for ${action}, country: ${countryCode || 'unspecified'}`);
           return new Response(
-            JSON.stringify({ error: 'Authentication required. Please sign in to view products.' }),
+            JSON.stringify({ 
+              error: 'Authentication required. Please sign in to view products in your region.',
+              code: 401,
+              country: countryCode || null
+            }),
             { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
