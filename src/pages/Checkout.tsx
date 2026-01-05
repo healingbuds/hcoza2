@@ -27,8 +27,40 @@ const Checkout = () => {
   const [orderId, setOrderId] = useState<string | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<string>('');
 
+  // Validate that the client's registered country matches the shop's operating country
+  const isDeliveryValid = () => {
+    if (!drGreenClient?.country_code) return false;
+    
+    // Normalize both codes to compare (ZA === ZA, ZAF === ZAF, or ZA === ZAF after normalization)
+    const clientCountry = drGreenClient.country_code.toUpperCase();
+    const shopCountry = countryCode.toUpperCase();
+    
+    // Map alpha-2 to alpha-3 for comparison
+    const countryMap: Record<string, string> = {
+      'ZA': 'ZAF', 'ZAF': 'ZAF',
+      'PT': 'PRT', 'PRT': 'PRT',
+      'GB': 'GBR', 'GBR': 'GBR',
+      'TH': 'THA', 'THA': 'THA',
+    };
+    
+    const normalizedClient = countryMap[clientCountry] || clientCountry;
+    const normalizedShop = countryMap[shopCountry] || shopCountry;
+    
+    return normalizedClient === normalizedShop;
+  };
+
   const handlePlaceOrder = async () => {
     if (!drGreenClient || cart.length === 0) return;
+
+    // Validate delivery country matches registered country
+    if (!isDeliveryValid()) {
+      toast({
+        title: 'Delivery Address Mismatch',
+        description: `Your account is registered for ${drGreenClient?.country_code || 'unknown'} but you're shopping in ${countryCode}. Delivery is only available within your registered country.`,
+        variant: 'destructive',
+      });
+      return;
+    }
 
     setIsProcessing(true);
     setPaymentStatus('Creating order...');
@@ -280,6 +312,20 @@ const Checkout = () => {
                         </p>
                       </div>
 
+                      {/* Country mismatch warning */}
+                      {!isDeliveryValid() && drGreenClient && (
+                        <div className="flex items-start gap-3 p-4 rounded-lg bg-destructive/10 border border-destructive/20">
+                          <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                          <div className="text-sm">
+                            <p className="font-medium text-destructive">Delivery Not Available</p>
+                            <p className="text-muted-foreground mt-1">
+                              Your account is registered in {drGreenClient.country_code} but you're browsing products for {countryCode}. 
+                              Delivery is only available within your registered country.
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
                       {/* Notice */}
                       <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/10 border border-primary/20">
                         <AlertCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
@@ -292,7 +338,7 @@ const Checkout = () => {
                         className="w-full"
                         size="lg"
                         onClick={handlePlaceOrder}
-                        disabled={isProcessing}
+                        disabled={isProcessing || !isDeliveryValid()}
                       >
                         {isProcessing ? (
                           <>
