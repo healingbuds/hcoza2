@@ -10,9 +10,11 @@ import { z } from "zod";
 import Header from "@/layout/Header";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import { PasswordInput } from "@/components/PasswordInput";
 import { Mail, Lock, User as UserIcon, ArrowRight, Loader2 } from "lucide-react";
 import hbLogoWhite from "@/assets/hb-logo-white-new.png";
 import { useTranslation } from "react-i18next";
+import type { PwnedResult } from "@/lib/passwordSecurity";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -26,6 +28,7 @@ const Auth = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [passwordBreachResult, setPasswordBreachResult] = useState<PwnedResult | null>(null);
   
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -38,7 +41,7 @@ const Auth = () => {
 
   const signupSchema = z.object({
     email: z.string().trim().email({ message: t('validationErrors.invalidEmail') }),
-    password: z.string().min(6, { message: t('validationErrors.passwordMin') }),
+    password: z.string().min(8, { message: t('validationErrors.passwordMin') }),
     confirmPassword: z.string(),
     fullName: z.string().trim().min(2, { message: t('validationErrors.fullNameMin') }),
   }).refine((data) => data.password === data.confirmPassword, {
@@ -133,6 +136,16 @@ const Auth = () => {
     
     if (!validateForm()) return;
     
+    // Block signup if password has been breached
+    if (passwordBreachResult?.isPwned) {
+      toast({
+        title: t('signupFailed'),
+        description: t('passwordBreached'),
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setLoading(true);
 
     const redirectUrl = `${window.location.origin}/`;
@@ -154,7 +167,7 @@ const Auth = () => {
       if (error.message.includes("User already registered")) {
         message = t('emailRegistered');
       } else if (error.message.includes("Password should be")) {
-        message = t('passwordRequirements');
+        message = t('passwordRequirementsError');
       }
       toast({
         title: t('signupFailed'),
@@ -513,10 +526,11 @@ const Auth = () => {
                     )}
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <Label htmlFor="password" className="text-foreground">{t('password')}</Label>
-                      {isLogin && (
+                  {/* Password field - conditional rendering based on login/signup */}
+                  {isLogin ? (
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <Label htmlFor="password" className="text-foreground">{t('password')}</Label>
                         <button
                           type="button"
                           onClick={() => {
@@ -528,24 +542,37 @@ const Auth = () => {
                         >
                           {t('forgotPassword')}
                         </button>
+                      </div>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input
+                          id="password"
+                          type="password"
+                          placeholder="••••••••"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="pl-10"
+                          disabled={loading}
+                        />
+                      </div>
+                      {errors.password && (
+                        <p className="text-destructive text-xs">{errors.password}</p>
                       )}
                     </div>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="password"
-                        type="password"
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="pl-10"
-                        disabled={loading}
-                      />
-                    </div>
-                    {errors.password && (
-                      <p className="text-destructive text-xs">{errors.password}</p>
-                    )}
-                  </div>
+                  ) : (
+                    <PasswordInput
+                      id="password"
+                      label={t('password')}
+                      value={password}
+                      onChange={setPassword}
+                      placeholder="••••••••"
+                      showStrength={true}
+                      checkBreaches={true}
+                      onBreachCheck={setPasswordBreachResult}
+                      error={errors.password}
+                      disabled={loading}
+                    />
+                  )}
 
                   {!isLogin && (
                     <div className="space-y-2">
@@ -590,6 +617,7 @@ const Auth = () => {
                           setErrors({});
                           setPassword("");
                           setConfirmPassword("");
+                          setPasswordBreachResult(null);
                         }}
                         className="text-primary hover:underline ml-1 font-medium"
                         disabled={loading}
