@@ -11,7 +11,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import hbLogo from '@/assets/hb-logo-white.png';
+import hbLogo from '@/assets/hb-logo-white-full.png';
 
 interface NavItem {
   label: string;
@@ -61,11 +61,11 @@ export function AdminSidebar() {
   };
 
   return (
-    <aside className="w-64 bg-teal-midnight min-h-screen flex flex-col">
+    <aside className="w-64 bg-[#1A2E2A] min-h-screen flex flex-col">
       {/* Logo / Brand */}
-      <div className="p-4 border-b border-white/10">
+      <div className="p-4 border-b border-[#EAB308]/30">
         <Link to="/admin" className="flex items-center gap-3">
-          <img src={hbLogo} alt="Healing Buds" className="h-8 w-auto" />
+          <img src={hbLogo} alt="Healing Buds" className="h-10 w-auto" />
           <div>
             <span className="font-semibold text-white text-sm">Healing Buds</span>
             <span className="block text-xs text-white/60">Admin Portal</span>
@@ -109,7 +109,7 @@ export function AdminSidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-white/10">
+      <div className="p-4 border-t border-[#EAB308]/30">
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 px-3 py-2 w-full rounded-md text-sm text-white/70 hover:bg-white/10 hover:text-white transition-colors"

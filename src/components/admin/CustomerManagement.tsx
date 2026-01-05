@@ -126,23 +126,6 @@ export function CustomerManagement() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Users className="h-6 w-6 text-primary" />
-          <div>
-            <h2 className="text-xl font-semibold">Customer Management</h2>
-            <p className="text-sm text-muted-foreground">
-              View customer KYC status from Dr. Green API (read-only)
-            </p>
-          </div>
-        </div>
-        <Button onClick={() => refetch()} variant="outline" size="sm">
-          <RefreshCw className="mr-2 h-4 w-4" />
-          Refresh
-        </Button>
-      </div>
-
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
@@ -170,8 +153,8 @@ export function CustomerManagement() {
 
       {/* Info banner */}
       <div className="bg-muted/50 border border-border rounded-lg p-4 text-sm text-muted-foreground">
-        <strong>Note:</strong> Client approval is managed by the Dr. Green API. 
-        This view is read-only. Status changes occur automatically after KYC verification through the Dr. Green platform.
+        <strong>Note:</strong> Client approval is managed automatically. 
+        This view is read-only. Status changes occur after KYC verification.
       </div>
 
       {/* Table */}
