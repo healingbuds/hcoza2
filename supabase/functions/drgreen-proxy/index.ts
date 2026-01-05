@@ -86,8 +86,8 @@ const OWNERSHIP_ACTIONS = [
   'place-order', 'get-order', 'get-orders'
 ];
 
-// Public actions that don't require authentication (minimal - only webhooks/health)
-const PUBLIC_ACTIONS: string[] = [];
+// Public actions that don't require authentication (minimal - only webhooks/health/diagnostics)
+const PUBLIC_ACTIONS: string[] = ['api-diagnostics', 'health', 'drgreen-health'];
 
 // Country-gated actions: open countries (ZA, TH) don't require auth, restricted (GB, PT) do
 const COUNTRY_GATED_ACTIONS = [
