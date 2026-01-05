@@ -1678,8 +1678,22 @@ serve(async (req) => {
     const data = await response.json();
     logInfo(`Response status: ${response.status}`);
     
+    // For non-2xx responses from external API, wrap in a 200 with error info
+    // This allows frontend to handle gracefully instead of throwing
+    if (!response.ok) {
+      return new Response(JSON.stringify({
+        error: data?.message || data?.error || `External API error: ${response.status}`,
+        externalStatus: response.status,
+        data: null,
+        success: false
+      }), {
+        status: 200, // Return 200 so SDK doesn't throw, error is in body
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    
     return new Response(JSON.stringify(data), {
-      status: response.status,
+      status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
     
