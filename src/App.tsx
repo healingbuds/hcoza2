@@ -42,6 +42,7 @@ const Checkout = lazy(() => import("./pages/Checkout"));
 const Orders = lazy(() => import("./pages/Orders"));
 const DashboardStatus = lazy(() => import("./pages/DashboardStatus"));
 const PatientDashboard = lazy(() => import("./pages/PatientDashboard"));
+const ChangePassword = lazy(() => import("./pages/ChangePassword"));
 const AdminPrescriptions = lazy(() => import("./pages/AdminPrescriptions"));
 const AdminStrains = lazy(() => import("./pages/AdminStrains"));
 const AdminStrainSync = lazy(() => import("./pages/AdminStrainSync"));
@@ -74,6 +75,7 @@ const AnimatedRoutes = () => {
           {/* Patient Portal */}
           <Route path="/dashboard" element={<PatientDashboard />} />
           <Route path="/dashboard/status" element={<DashboardStatus />} />
+          <Route path="/account/change-password" element={<ChangePassword />} />
           <Route path="/orders" element={
             <ComplianceGuard>
               <Orders />

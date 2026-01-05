@@ -10,7 +10,8 @@ import {
   Shield,
   FileText,
   ArrowRight,
-  ExternalLink
+  ExternalLink,
+  Lock
 } from 'lucide-react';
 import PrescriptionManager from '@/components/dashboard/PrescriptionManager';
 import DosageTracker from '@/components/dashboard/DosageTracker';
@@ -352,7 +353,7 @@ const PatientDashboard = () => {
                   <CardHeader>
                     <CardTitle className="text-lg">Account</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-4">
                     <div>
                       <p className="text-sm text-muted-foreground">Email</p>
                       <p className="font-medium truncate">{user.email}</p>
@@ -363,6 +364,15 @@ const PatientDashboard = () => {
                         <p className="font-medium">{drGreenClient.country_code}</p>
                       </div>
                     )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start"
+                      onClick={() => navigate('/account/change-password')}
+                    >
+                      <Lock className="mr-2 h-4 w-4" />
+                      Change Password
+                    </Button>
                   </CardContent>
                 </Card>
               </div>
