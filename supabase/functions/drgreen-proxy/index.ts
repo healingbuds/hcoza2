@@ -87,8 +87,8 @@ const OWNERSHIP_ACTIONS = [
   'place-order', 'get-order', 'get-orders'
 ];
 
-// Public actions that don't require authentication (minimal - only webhooks/health/diagnostics)
-const PUBLIC_ACTIONS: string[] = ['api-diagnostics', 'health', 'drgreen-health'];
+// Public actions that don't require authentication (minimal - only webhooks/health/diagnostics/testing)
+const PUBLIC_ACTIONS: string[] = ['api-diagnostics', 'health', 'drgreen-health', 'test-create-client'];
 
 // Country-gated actions: open countries (ZA, TH) don't require auth, restricted (GB, PT) do
 const COUNTRY_GATED_ACTIONS = [
@@ -889,16 +889,154 @@ serve(async (req) => {
       // LEGACY WORDPRESS-COMPATIBLE ENDPOINTS
       // ==========================================
       
+      // Test client creation - validates payload structure without calling API
+      case "test-create-client": {
+        const legacyPayload = body?.payload;
+        if (!legacyPayload) {
+          return new Response(JSON.stringify({ 
+            error: "Payload is required",
+            hint: "Send { action: 'test-create-client', payload: {...} }"
+          }), { 
+            status: 400, 
+            headers: { ...corsHeaders, "Content-Type": "application/json" } 
+          });
+        }
+        
+        console.log("[test-create-client] ========== PAYLOAD ANALYSIS ==========");
+        console.log("[test-create-client] Raw payload keys:", Object.keys(legacyPayload));
+        console.log("[test-create-client] Has nested shipping:", !!legacyPayload.shipping);
+        console.log("[test-create-client] Has nested medicalRecord:", !!legacyPayload.medicalRecord);
+        
+        // Extract fields from potentially nested structure (matching buildLegacyClientPayload output)
+        const shipping = legacyPayload.shipping || {};
+        const medicalRecord = legacyPayload.medicalRecord || {};
+        
+        const extractedFields = {
+          firstName: legacyPayload.firstName,
+          lastName: legacyPayload.lastName,
+          email: legacyPayload.email,
+          contactNumber: legacyPayload.contactNumber,
+          dob: medicalRecord.dob || legacyPayload.dob || legacyPayload.dateOfBirth,
+          gender: medicalRecord.gender || legacyPayload.gender,
+          address: shipping.address1 || legacyPayload.address1,
+          city: shipping.city || legacyPayload.city,
+          postalCode: shipping.postalCode || legacyPayload.postalCode,
+          countryCode: shipping.countryCode || legacyPayload.countryCode || "ZAF",
+          medicalHistory1: legacyPayload.medicalHistory1,
+          medicalHistory2: legacyPayload.medicalHistory2,
+          medicalHistory3: legacyPayload.medicalHistory3,
+        };
+        
+        console.log("[test-create-client] Extracted fields:", JSON.stringify(extractedFields, null, 2));
+        
+        // Validate required fields
+        const missingFields: string[] = [];
+        if (!extractedFields.firstName) missingFields.push("firstName");
+        if (!extractedFields.lastName) missingFields.push("lastName");
+        if (!extractedFields.email) missingFields.push("email");
+        if (!extractedFields.dob) missingFields.push("dob (in medicalRecord or root)");
+        if (!extractedFields.address) missingFields.push("address (in shipping.address1 or root)");
+        if (!extractedFields.city) missingFields.push("city (in shipping or root)");
+        if (!extractedFields.postalCode) missingFields.push("postalCode (in shipping or root)");
+        
+        // Build the transformed payload that would be sent to API
+        const transformedPayload = {
+          transaction_metadata: {
+            source: "Healingbuds_Web_Store",
+            timestamp: new Date().toISOString(),
+            flow_type: "Legacy_Onboarding_v1"
+          },
+          user_identity: {
+            first_name: String(extractedFields.firstName || "").slice(0, 100),
+            last_name: String(extractedFields.lastName || "").slice(0, 100),
+            dob: extractedFields.dob || "",
+            email: String(extractedFields.email || "").toLowerCase().slice(0, 255),
+            phone_number: String(extractedFields.contactNumber || "").slice(0, 20)
+          },
+          eligibility_results: {
+            age_verified: true,
+            region_eligible: true,
+            postal_code: String(extractedFields.postalCode || "").slice(0, 20),
+            country_code: String(extractedFields.countryCode || "ZAF").slice(0, 3),
+            declared_medical_patient: legacyPayload.medicalHistory3 === true
+          },
+          shipping_address: {
+            street: String(extractedFields.address || "").slice(0, 200),
+            city: String(extractedFields.city || "").slice(0, 100),
+            postal_code: String(extractedFields.postalCode || "").slice(0, 20),
+            country: String(extractedFields.countryCode || "ZAF").slice(0, 3)
+          },
+          medical_record: {
+            conditions: String(medicalRecord.conditions || legacyPayload.conditions || "").slice(0, 2000),
+            current_medications: String(medicalRecord.currentMedications || "").slice(0, 1000),
+            allergies: String(medicalRecord.allergies || "").slice(0, 500),
+            previous_cannabis_use: !!medicalRecord.previousCannabisUse,
+            heart_condition: legacyPayload.medicalHistory1 === true,
+            psychosis_history: legacyPayload.medicalHistory2 === true,
+            adverse_reaction: legacyPayload.medicalHistory3 === true
+          },
+          kyc_requirements: {
+            document_type: "Government_ID",
+            id_country: String(extractedFields.countryCode || "ZAF").slice(0, 3),
+            selfie_required: true,
+            liveness_check: "active"
+          }
+        };
+        
+        const testResult = {
+          success: missingFields.length === 0,
+          payloadStructure: {
+            receivedKeys: Object.keys(legacyPayload),
+            hasNestedShipping: !!legacyPayload.shipping,
+            hasNestedMedicalRecord: !!legacyPayload.medicalRecord,
+          },
+          extractedFields,
+          missingFields,
+          transformedPayload,
+          wouldCallEndpoint: "POST /dapp/clients",
+          hint: missingFields.length > 0 
+            ? `Missing required fields: ${missingFields.join(", ")}`
+            : "Payload is valid and would be sent to Dr. Green API"
+        };
+        
+        console.log("[test-create-client] Test result:", testResult.success ? "VALID" : "INVALID");
+        
+        return new Response(JSON.stringify(testResult, null, 2), { 
+          status: testResult.success ? 200 : 400, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        });
+      }
+      
       // Create client with legacy payload format - transformed to new /dapp/clients schema
       case "create-client-legacy": {
         const legacyPayload = body?.payload;
         if (!legacyPayload) throw new Error("Payload is required for client creation");
         
+        // Extract fields from potentially nested structure (matching buildLegacyClientPayload output)
+        const shipping = legacyPayload.shipping || {};
+        const medicalRecord = legacyPayload.medicalRecord || {};
+        
+        const firstName = legacyPayload.firstName;
+        const lastName = legacyPayload.lastName;
+        const email = legacyPayload.email;
+        const contactNumber = legacyPayload.contactNumber;
+        const dob = medicalRecord.dob || legacyPayload.dob || legacyPayload.dateOfBirth || "";
+        const address1 = shipping.address1 || legacyPayload.address1 || "";
+        const city = shipping.city || legacyPayload.city || "";
+        const postalCode = shipping.postalCode || legacyPayload.postalCode || "";
+        const countryCode = shipping.countryCode || legacyPayload.countryCode || "ZAF";
+        
+        console.log("[create-client-legacy] ========== PAYLOAD EXTRACTION ==========");
+        console.log("[create-client-legacy] Has nested shipping:", !!legacyPayload.shipping);
+        console.log("[create-client-legacy] Has nested medicalRecord:", !!legacyPayload.medicalRecord);
+        console.log("[create-client-legacy] Extracted country code:", countryCode);
+        console.log("[create-client-legacy] Extracted postal code:", postalCode);
+        
         // Validate required fields
-        if (!validateEmail(legacyPayload.email)) {
+        if (!validateEmail(email)) {
           throw new Error("Invalid email format");
         }
-        if (!validateStringLength(legacyPayload.firstName, 100) || !validateStringLength(legacyPayload.lastName, 100)) {
+        if (!validateStringLength(firstName, 100) || !validateStringLength(lastName, 100)) {
           throw new Error("Name fields exceed maximum length");
         }
         
@@ -910,34 +1048,37 @@ serve(async (req) => {
             flow_type: "Legacy_Onboarding_v1"
           },
           user_identity: {
-            first_name: String(legacyPayload.firstName || "").slice(0, 100),
-            last_name: String(legacyPayload.lastName || "").slice(0, 100),
-            dob: legacyPayload.dob || legacyPayload.dateOfBirth || "",
-            email: String(legacyPayload.email || "").toLowerCase().slice(0, 255),
-            phone_number: String(legacyPayload.contactNumber || legacyPayload.phone || "").slice(0, 20)
+            first_name: String(firstName || "").slice(0, 100),
+            last_name: String(lastName || "").slice(0, 100),
+            dob: dob,
+            email: String(email || "").toLowerCase().slice(0, 255),
+            phone_number: String(contactNumber || "").slice(0, 20)
           },
           eligibility_results: {
             age_verified: true,
             region_eligible: true,
-            postal_code: String(legacyPayload.postalCode || "").slice(0, 20),
-            country_code: String(legacyPayload.countryCode || "PT").slice(0, 3),
-            declared_medical_patient: legacyPayload.medicalHistory3 === true || legacyPayload.doctorApproval === true
+            postal_code: String(postalCode).slice(0, 20),
+            country_code: String(countryCode).slice(0, 3),
+            declared_medical_patient: legacyPayload.medicalHistory3 === true
           },
           shipping_address: {
-            street: String(legacyPayload.address1 || legacyPayload.street || "").slice(0, 200),
-            city: String(legacyPayload.city || "").slice(0, 100),
-            postal_code: String(legacyPayload.postalCode || "").slice(0, 20),
-            country: String(legacyPayload.countryCode || "PT").slice(0, 3)
+            street: String(address1).slice(0, 200),
+            city: String(city).slice(0, 100),
+            postal_code: String(postalCode).slice(0, 20),
+            country: String(countryCode).slice(0, 3)
           },
           medical_record: {
-            conditions: String(legacyPayload.medicalConditions || legacyPayload.medicalHistory11 || "").slice(0, 2000),
-            current_medications: String(legacyPayload.currentMedications || legacyPayload.medicalHistory13 || "").slice(0, 1000),
-            allergies: String(legacyPayload.allergies || "").slice(0, 500),
-            previous_cannabis_use: legacyPayload.medicalHistory0 === true || legacyPayload.previousCannabisUse === true
+            conditions: String(medicalRecord.conditions || legacyPayload.medicalConditions || legacyPayload.medicalHistory11 || "").slice(0, 2000),
+            current_medications: String(medicalRecord.currentMedications || legacyPayload.medicalHistory13 || "").slice(0, 1000),
+            allergies: String(medicalRecord.allergies || legacyPayload.allergies || "").slice(0, 500),
+            previous_cannabis_use: medicalRecord.previousCannabisUse === true || legacyPayload.medicalHistory0 === true,
+            heart_condition: legacyPayload.medicalHistory1 === true,
+            psychosis_history: legacyPayload.medicalHistory2 === true,
+            adverse_reaction: legacyPayload.medicalHistory3 === true
           },
           kyc_requirements: {
             document_type: "Government_ID",
-            id_country: String(legacyPayload.countryCode || "PT").slice(0, 3),
+            id_country: String(countryCode).slice(0, 3),
             selfie_required: true,
             liveness_check: "active"
           }
