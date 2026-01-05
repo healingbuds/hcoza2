@@ -354,6 +354,40 @@ const Auth = () => {
                         </p>
                         <p className="text-xs text-secondary mt-1">🔑 Full Admin + Dispensary Access</p>
                       </button>
+                      
+                      {/* South Africa Test Accounts */}
+                      <div className="pt-2 mt-2 border-t border-border">
+                        <p className="text-xs text-muted-foreground font-semibold mb-2">🇿🇦 South Africa</p>
+                        <button 
+                          type="button"
+                          className="w-full p-3 bg-background rounded-md border border-border hover:border-primary/50 cursor-pointer transition-colors text-left"
+                          onClick={() => {
+                            setEmail("za-patient@healingbuds.test");
+                            setPassword("ZAPatient123!");
+                          }}
+                        >
+                          <p className="font-semibold text-sm text-foreground">SA Verified Patient</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            <span className="font-mono bg-muted px-1.5 py-0.5 rounded">za-patient@healingbuds.test</span> / <span className="font-mono bg-muted px-1.5 py-0.5 rounded">ZAPatient123!</span>
+                          </p>
+                          <p className="text-xs text-primary mt-1">✓ Full ZA Dispensary Access</p>
+                        </button>
+                        <button 
+                          type="button"
+                          className="w-full p-3 bg-background rounded-md border border-border hover:border-primary/50 cursor-pointer transition-colors text-left mt-2"
+                          onClick={() => {
+                            setEmail("za-pending@healingbuds.test");
+                            setPassword("ZAPending123!");
+                          }}
+                        >
+                          <p className="font-semibold text-sm text-foreground">SA Pending User</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            <span className="font-mono bg-muted px-1.5 py-0.5 rounded">za-pending@healingbuds.test</span> / <span className="font-mono bg-muted px-1.5 py-0.5 rounded">ZAPending123!</span>
+                          </p>
+                          <p className="text-xs text-highlight mt-1">⏳ ZA user awaiting KYC</p>
+                        </button>
+                      </div>
+                      
                       <p className="text-xs text-muted-foreground text-center pt-2 border-t border-border">
                         Click to auto-fill credentials, then Sign In
                       </p>

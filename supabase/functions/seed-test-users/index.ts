@@ -16,6 +16,7 @@ const TEST_USERS = [
     adminApproval: "PENDING",
     kycLink: null,
     role: null,
+    countryCode: "PT",
   },
   {
     email: "pending@healingbuds.test",
@@ -26,6 +27,7 @@ const TEST_USERS = [
     adminApproval: "PENDING",
     kycLink: "https://example.com/kyc/test-link", // Mock KYC link
     role: null,
+    countryCode: "PT",
   },
   {
     email: "kycdone@healingbuds.test",
@@ -36,6 +38,7 @@ const TEST_USERS = [
     adminApproval: "PENDING", // KYC done but admin hasn't approved yet
     kycLink: null,
     role: null,
+    countryCode: "PT",
   },
   {
     email: "patient@healingbuds.test",
@@ -46,6 +49,7 @@ const TEST_USERS = [
     adminApproval: "VERIFIED",
     kycLink: null,
     role: null,
+    countryCode: "PT",
   },
   {
     email: "rejected@healingbuds.test",
@@ -56,6 +60,7 @@ const TEST_USERS = [
     adminApproval: "REJECTED",
     kycLink: null,
     role: null,
+    countryCode: "PT",
   },
   {
     email: "admin@healingbuds.test",
@@ -66,6 +71,30 @@ const TEST_USERS = [
     adminApproval: "VERIFIED",
     kycLink: null,
     role: "admin",
+    countryCode: "PT",
+  },
+  // South Africa test users
+  {
+    email: "za-patient@healingbuds.test",
+    password: "ZAPatient123!",
+    fullName: "SA Test Patient (Verified)",
+    createClient: true,
+    isKycVerified: true,
+    adminApproval: "VERIFIED",
+    kycLink: null,
+    role: null,
+    countryCode: "ZA",
+  },
+  {
+    email: "za-pending@healingbuds.test",
+    password: "ZAPending123!",
+    fullName: "SA Pending User",
+    createClient: true,
+    isKycVerified: false,
+    adminApproval: "PENDING",
+    kycLink: "https://example.com/kyc/za-test-link",
+    role: null,
+    countryCode: "ZA",
   },
 ];
 
@@ -143,7 +172,7 @@ serve(async (req) => {
                 is_kyc_verified: testUser.isKycVerified,
                 admin_approval: testUser.adminApproval,
                 kyc_link: testUser.kycLink,
-                country_code: "PT",
+                country_code: testUser.countryCode || "PT",
               },
               { onConflict: "user_id" }
             );
