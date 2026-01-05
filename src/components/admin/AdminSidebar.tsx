@@ -8,7 +8,8 @@ import {
   BookOpen,
   LogOut,
   ExternalLink,
-  ShoppingCart
+  ShoppingCart,
+  BarChart3
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -46,6 +47,7 @@ export function AdminSidebar() {
   const navItems: NavItem[] = [
     { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { label: 'Orders', href: '/admin/orders', icon: ShoppingCart },
+    { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
     { label: 'Customers', href: '/admin/customers', icon: Users, badge: pendingCount },
     { label: 'Prescriptions', href: '/admin/prescriptions', icon: FileText },
     { label: 'Strains', href: '/admin/strains', icon: Leaf },
