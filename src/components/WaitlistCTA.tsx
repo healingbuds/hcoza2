@@ -2,8 +2,21 @@ import { useState } from "react";
 import { ArrowRight, Loader2, Check, Sprout } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRegionGate } from "@/hooks/useRegionGate";
 
 const WaitlistCTA = () => {
+  const { isOperational } = useRegionGate();
+  
+  // Only show for operational countries (ZA, TH)
+  // Non-operational countries already saw the PreLaunchGate
+  if (!isOperational) {
+    return null;
+  }
+  
+  return <WaitlistCTAContent />;
+};
+
+const WaitlistCTAContent = () => {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");

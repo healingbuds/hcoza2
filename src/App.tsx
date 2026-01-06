@@ -15,6 +15,8 @@ import SkipLinks from "@/components/SkipLinks";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ProtectedNFTRoute } from "@/components/ProtectedNFTRoute";
 import { ComplianceGuard } from "@/components/ComplianceGuard";
+import PreLaunchGate from "@/components/PreLaunchGate";
+import { useRegionGate } from "@/hooks/useRegionGate";
 
 import { ShopProvider } from "@/context/ShopContext";
 import { CursorProvider } from "@/context/CursorContext";
@@ -53,8 +55,31 @@ const AdminCustomers = lazy(() => import("./pages/AdminCustomers"));
 const AdminOrders = lazy(() => import("./pages/AdminOrders"));
 const AdminOrderAnalytics = lazy(() => import("./pages/AdminOrderAnalytics"));
 const Debug = lazy(() => import("./pages/Debug"));
+const CountrySelector = lazy(() => import("./pages/CountrySelector"));
 
 const queryClient = new QueryClient();
+
+// Wrapper component that handles region-based routing
+const RegionGatedApp = () => {
+  const { isGlobal, isPreLaunch, shouldShowGate } = useRegionGate();
+
+  // Global domains show only the country selector
+  if (isGlobal) {
+    return (
+      <Suspense fallback={<PageLoadingSkeleton variant="hero" />}>
+        <CountrySelector />
+      </Suspense>
+    );
+  }
+
+  // Pre-launch regions show the gate overlay (site still accessible behind it)
+  return (
+    <>
+      {isPreLaunch && shouldShowGate && <PreLaunchGate />}
+      <AnimatedRoutes />
+    </>
+  );
+};
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -191,7 +216,7 @@ const App = () => (
                         <ScrollToTop />
                         <RouteProgress />
                         <main id="main-content" tabIndex={-1}>
-                          <AnimatedRoutes />
+                          <RegionGatedApp />
                         </main>
                       </TenantProvider>
                     </BrowserRouter>
