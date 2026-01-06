@@ -761,22 +761,47 @@ function FlowTester() {
                       <div className="mb-6 p-4 border rounded-lg bg-muted/50">
                         <h4 className="font-medium mb-3 flex items-center gap-2">
                           <Mail className="h-4 w-4" />
-                          Send Test Email
+                          Send Test Email (Branded Templates)
                         </h4>
-                        <div className="flex gap-3 items-end flex-wrap">
-                          <div className="flex-1 min-w-[200px]">
-                            <Label htmlFor="test-email" className="text-xs">Recipient Email</Label>
-                            <Input 
-                              id="test-email"
-                              type="email" 
-                              placeholder="test@example.com"
-                              value={testEmail}
-                              onChange={(e) => setTestEmail(e.target.value)}
-                            />
+                        <div className="space-y-3">
+                          <div className="flex gap-3 items-end">
+                            <div className="flex-1 min-w-[250px]">
+                              <Label htmlFor="test-email" className="text-xs">Recipient Email</Label>
+                              <Input 
+                                id="test-email"
+                                type="email" 
+                                placeholder="your-email@example.com"
+                                value={testEmail}
+                                onChange={(e) => setTestEmail(e.target.value)}
+                              />
+                            </div>
                           </div>
-                          <Button size="sm" onClick={() => sendTestEmail('welcome')}>Welcome</Button>
-                          <Button size="sm" onClick={() => sendTestEmail('kyc-link')}>KYC Link</Button>
-                          <Button size="sm" onClick={() => sendTestEmail('eligibility-approved')}>Approved</Button>
+                          <div className="flex flex-wrap gap-2">
+                            <Button size="sm" variant="outline" onClick={() => sendTestEmail('welcome')}>
+                              👋 Welcome
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => sendTestEmail('kyc-link')}>
+                              🔐 KYC Link
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => sendTestEmail('kyc-approved')}>
+                              ✅ KYC Approved
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => sendTestEmail('kyc-rejected')}>
+                              ❌ KYC Rejected
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => sendTestEmail('eligibility-approved')}>
+                              🎉 Eligibility Approved
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => sendTestEmail('eligibility-rejected')}>
+                              ⚠️ Eligibility Rejected
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => sendTestEmail('waitlist-welcome')}>
+                              🌱 Waitlist
+                            </Button>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            All emails are sent with [TEST] prefix from noreply@send.healingbuds.co.za
+                          </p>
                         </div>
                       </div>
                     )}
