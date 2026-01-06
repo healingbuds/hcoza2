@@ -1,58 +1,23 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  brandedEmailTemplate,
+  ctaButton,
+  statusBox,
+  paragraph,
+  infoBox,
+  numberedList,
+  bulletList,
+  signature,
+  getDomainConfig,
+  getFromAddress,
+  BRAND_COLORS,
+} from '../_shared/email-template.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-
-// Multi-domain configuration for Healing Buds regions
-const DOMAIN_CONFIG: Record<string, {
-  domain: string;
-  brandName: string;
-  supportEmail: string;
-  address: string;
-  phone: string;
-  websiteUrl: string;
-}> = {
-  'ZA': {
-    domain: 'healingbuds.co.za',
-    brandName: 'Healing Buds South Africa',
-    supportEmail: 'support@healingbuds.co.za',
-    address: '123 Sandton Drive, Sandton 2196, South Africa',
-    phone: '+27 11 123 4567',
-    websiteUrl: 'https://healingbuds.co.za',
-  },
-  'PT': {
-    domain: 'healingbuds.pt',
-    brandName: 'Healing Buds Portugal',
-    supportEmail: 'suporte@healingbuds.pt',
-    address: 'Avenida D. João II, 98 A, 1990-100 Lisboa, Portugal',
-    phone: '+351 210 123 456',
-    websiteUrl: 'https://healingbuds.pt',
-  },
-  'GB': {
-    domain: 'healingbuds.co.uk',
-    brandName: 'Healing Buds UK',
-    supportEmail: 'support@healingbuds.co.uk',
-    address: '123 Harley Street, London W1G 6AX, United Kingdom',
-    phone: '+44 20 7123 4567',
-    websiteUrl: 'https://healingbuds.co.uk',
-  },
-  'global': {
-    domain: 'healingbuds.global',
-    brandName: 'Healing Buds',
-    supportEmail: 'support@healingbuds.global',
-    address: 'Global Medical Cannabis Network',
-    phone: '+27 11 123 4567',
-    websiteUrl: 'https://healingbuds.global',
-  },
-};
-
-function getDomainConfig(region?: string) {
-  const regionKey = region?.toUpperCase() || 'global';
-  return DOMAIN_CONFIG[regionKey] || DOMAIN_CONFIG['global'];
-}
 
 interface ClientEmailRequest {
   type: 'welcome' | 'kyc-link' | 'kyc-approved' | 'kyc-rejected' | 'eligibility-approved' | 'eligibility-rejected' | 'waitlist-welcome';
@@ -76,290 +41,169 @@ function getWaitlistSubject(region?: string, countryName?: string): string {
   return `Welcome to the Healing Buds ${countryName || ''} Waitlist! 🌱`.trim();
 }
 
-function getWaitlistBody(firstName: string, region?: string, countryName?: string, config?: typeof DOMAIN_CONFIG['global']): string {
-  const supportEmail = config?.supportEmail || 'support@healingbuds.global';
-  
+function getWaitlistBody(firstName: string, region?: string, countryName?: string): string {
   if (region === 'PT') {
     return `
-      <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-        Olá ${firstName},
-      </p>
-      <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-        Obrigado por se juntar à lista de espera da Healing Buds Portugal!
-      </p>
-      <div style="background-color: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;">
-        <p style="margin: 0; color: #16a34a; font-size: 18px; font-weight: 600;">
-          🌱 Está na Lista!
-        </p>
-      </div>
-      <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-        Estamos a trabalhar para trazer cuidados de canábis medicinal regulamentados para Portugal. Como membro da lista de espera, será dos primeiros a saber quando lançarmos.
-      </p>
-      <h3 style="color: #18181b; font-size: 18px; margin: 24px 0 12px 0;">O que acontece a seguir:</h3>
-      <ul style="color: #18181b; font-size: 16px; line-height: 1.8; margin: 0; padding-left: 20px;">
-        <li>Manteremos-no/a atualizado/a sobre o nosso progresso em Portugal</li>
-        <li>Terá acesso antecipado quando as inscrições abrirem</li>
-        <li>Sem spam - apenas atualizações importantes</li>
-      </ul>
-      <p style="color: #71717a; font-size: 14px; margin: 24px 0 0 0;">
-        Até breve,<br>A Equipa Healing Buds
-      </p>
+      ${paragraph(`Olá ${firstName},`)}
+      ${paragraph('Obrigado por se juntar à lista de espera da Healing Buds Portugal!')}
+      ${statusBox('Está na Lista!', 'success', '🌱')}
+      ${paragraph('Estamos a trabalhar para trazer cuidados de canábis medicinal regulamentados para Portugal. Como membro da lista de espera, será dos primeiros a saber quando lançarmos.')}
+      ${infoBox('O que acontece a seguir:', `
+        <ul style="margin: 0; padding-left: 20px;">
+          <li>Manteremos-no/a atualizado/a sobre o nosso progresso em Portugal</li>
+          <li>Terá acesso antecipado quando as inscrições abrirem</li>
+          <li>Sem spam - apenas atualizações importantes</li>
+        </ul>
+      `)}
+      ${signature('A Equipa Healing Buds', 'Até breve')}
     `;
   }
   
   if (region === 'GB') {
     return `
-      <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-        Dear ${firstName},
-      </p>
-      <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-        Thank you for joining the Healing Buds UK waitlist!
-      </p>
-      <div style="background-color: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;">
-        <p style="margin: 0; color: #16a34a; font-size: 18px; font-weight: 600;">
-          🌱 You're on the List!
-        </p>
-      </div>
-      <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-        We're working hard to bring regulated medical cannabis care to the United Kingdom. As a waitlist member, you'll be among the first to know when we launch.
-      </p>
-      <h3 style="color: #18181b; font-size: 18px; margin: 24px 0 12px 0;">What happens next:</h3>
-      <ul style="color: #18181b; font-size: 16px; line-height: 1.8; margin: 0; padding-left: 20px;">
-        <li>We'll keep you updated on our UK launch progress</li>
-        <li>You'll receive early access when registrations open</li>
-        <li>No spam - only important updates</li>
-      </ul>
-      <p style="color: #71717a; font-size: 14px; margin: 24px 0 0 0;">
-        Best regards,<br>The Healing Buds Team
-      </p>
+      ${paragraph(`Dear ${firstName},`)}
+      ${paragraph('Thank you for joining the Healing Buds UK waitlist!')}
+      ${statusBox("You're on the List!", 'success', '🌱')}
+      ${paragraph("We're working hard to bring regulated medical cannabis care to the United Kingdom. As a waitlist member, you'll be among the first to know when we launch.")}
+      ${infoBox('What happens next:', `
+        <ul style="margin: 0; padding-left: 20px;">
+          <li>We'll keep you updated on our UK launch progress</li>
+          <li>You'll receive early access when registrations open</li>
+          <li>No spam - only important updates</li>
+        </ul>
+      `)}
+      ${signature()}
     `;
   }
   
   // Default/other regions
   return `
-    <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-      Dear ${firstName},
-    </p>
-    <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-      Thank you for joining the Healing Buds ${countryName || ''} pre-launch waitlist!
-    </p>
-    <div style="background-color: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;">
-      <p style="margin: 0; color: #16a34a; font-size: 18px; font-weight: 600;">
-        🌱 You're on the List!
-      </p>
-    </div>
-    <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-      You're now on our pre-launch list. We'll notify you as soon as we're ready to welcome patients in your region.
-    </p>
-    <h3 style="color: #18181b; font-size: 18px; margin: 24px 0 12px 0;">What happens next:</h3>
-    <ul style="color: #18181b; font-size: 16px; line-height: 1.8; margin: 0; padding-left: 20px;">
-      <li>We'll keep you updated on our launch progress</li>
-      <li>You'll receive early access when registrations open</li>
-      <li>No spam - only important updates</li>
-    </ul>
-    <p style="color: #71717a; font-size: 14px; margin: 24px 0 0 0;">
-      Best regards,<br>The Healing Buds Team
-    </p>
+    ${paragraph(`Dear ${firstName},`)}
+    ${paragraph(`Thank you for joining the Healing Buds ${countryName || ''} pre-launch waitlist!`)}
+    ${statusBox("You're on the List!", 'success', '🌱')}
+    ${paragraph("You're now on our pre-launch list. We'll notify you as soon as we're ready to welcome patients in your region.")}
+    ${infoBox('What happens next:', `
+      <ul style="margin: 0; padding-left: 20px;">
+        <li>We'll keep you updated on our launch progress</li>
+        <li>You'll receive early access when registrations open</li>
+        <li>No spam - only important updates</li>
+      </ul>
+    `)}
+    ${signature()}
   `;
 }
 
 // Email templates
-function getEmailTemplate(request: ClientEmailRequest, config: typeof DOMAIN_CONFIG['global']) {
+function getEmailTemplate(request: ClientEmailRequest, config: ReturnType<typeof getDomainConfig>) {
   const { type, name, kycLink, rejectionReason } = request;
   const firstName = name.split(' ')[0] || name;
 
-  const baseStyles = `
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: #f4f4f5;
-    margin: 0;
-    padding: 20px;
-  `;
-
-  const headerColor = type.includes('rejected') ? '#ef4444' : '#0d9488';
-
-  // Logo URL hosted in Supabase storage
-  const logoUrl = `${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/email-assets/hb-logo-white.png`;
-
-  const templates: Record<string, { subject: string; body: string }> = {
+  const templates: Record<string, { subject: string; body: string; type: 'success' | 'warning' | 'error' | 'default' }> = {
     'welcome': {
       subject: `Welcome to ${config.brandName} - Registration Complete`,
+      type: 'default',
       body: `
-        <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-          Dear ${firstName},
-        </p>
-        <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-          Thank you for registering with ${config.brandName}. Your medical cannabis patient registration has been received.
-        </p>
-        <h3 style="color: #18181b; font-size: 18px; margin: 24px 0 12px 0;">What happens next?</h3>
-        <ol style="color: #18181b; font-size: 16px; line-height: 1.8; margin: 0; padding-left: 20px;">
-          <li><strong>Identity Verification (KYC)</strong> - You'll receive a separate email with a link to verify your identity.</li>
-          <li><strong>Medical Review</strong> - Our medical team will review your application.</li>
-          <li><strong>Approval</strong> - Once approved, you'll have full access to our medical cannabis products.</li>
-        </ol>
-        ${kycLink ? `
-          <div style="text-align: center; margin: 32px 0;">
-            <a href="${kycLink}" style="display: inline-block; background-color: #0d9488; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600;">
-              Complete Identity Verification
-            </a>
-          </div>
-        ` : `
-          <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 16px; margin: 24px 0;">
-            <p style="margin: 0; color: #92400e; font-size: 14px;">
-              <strong>Note:</strong> Your verification link is being generated and will be sent to you shortly in a separate email.
-            </p>
-          </div>
-        `}
+        ${paragraph(`Dear ${firstName},`)}
+        ${paragraph(`Thank you for registering with ${config.brandName}. Your medical cannabis patient registration has been received.`)}
+        ${infoBox('What happens next?', `
+          ${numberedList([
+            '<strong>Identity Verification (KYC)</strong> - You\'ll receive a separate email with a link to verify your identity.',
+            '<strong>Medical Review</strong> - Our medical team will review your application.',
+            '<strong>Approval</strong> - Once approved, you\'ll have full access to our medical cannabis products.',
+          ])}
+        `)}
+        ${kycLink ? ctaButton('Complete Identity Verification', kycLink) : statusBox('Your verification link is being generated and will be sent to you shortly in a separate email.', 'warning', '📋')}
+        ${signature()}
       `,
     },
     'kyc-link': {
       subject: `Complete Your Identity Verification - ${config.brandName}`,
+      type: 'default',
       body: `
-        <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-          Dear ${firstName},
-        </p>
-        <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-          Please complete your identity verification to continue with your ${config.brandName} registration.
-        </p>
-        <div style="background-color: #f0fdfa; border: 1px solid #0d9488; border-radius: 8px; padding: 16px; margin: 24px 0;">
-          <p style="margin: 0 0 12px 0; color: #0d9488; font-size: 14px; font-weight: 600;">
-            What you'll need:
-          </p>
-          <ul style="margin: 0; padding-left: 20px; color: #18181b; font-size: 14px; line-height: 1.8;">
-            <li>A valid government-issued ID (passport, driver's license, or national ID)</li>
-            <li>Good lighting for clear photos</li>
-            <li>5 minutes to complete the process</li>
-          </ul>
-        </div>
-        <div style="text-align: center; margin: 32px 0;">
-          <a href="${kycLink}" style="display: inline-block; background-color: #0d9488; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600;">
-            Verify My Identity
-          </a>
-        </div>
-        <p style="color: #71717a; font-size: 14px; margin: 24px 0 0 0;">
-          This link is secure and will expire in 7 days. If you didn't request this verification, please contact us immediately.
-        </p>
+        ${paragraph(`Dear ${firstName},`)}
+        ${paragraph(`Please complete your identity verification to continue with your ${config.brandName} registration.`)}
+        ${infoBox("What you'll need:", `
+          ${bulletList([
+            'A valid government-issued ID (passport, driver\'s license, or national ID)',
+            'Good lighting for clear photos',
+            '5 minutes to complete the process',
+          ])}
+        `)}
+        ${ctaButton('Verify My Identity', kycLink || '#')}
+        ${paragraph('This link is secure and will expire in 7 days. If you didn\'t request this verification, please contact us immediately.', true)}
       `,
     },
     'kyc-approved': {
       subject: `✅ Identity Verified - ${config.brandName}`,
+      type: 'success',
       body: `
-        <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-          Dear ${firstName},
-        </p>
-        <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-          Great news! Your identity has been successfully verified.
-        </p>
-        <div style="background-color: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; padding: 16px; margin: 24px 0; text-align: center;">
-          <p style="margin: 0; color: #16a34a; font-size: 18px; font-weight: 600;">
-            ✓ KYC Verification Complete
-          </p>
-        </div>
-        <h3 style="color: #18181b; font-size: 18px; margin: 24px 0 12px 0;">Next Step: Medical Review</h3>
-        <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-          Your application is now being reviewed by our medical team. This typically takes 1-2 business days.
-        </p>
-        <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-          We'll notify you by email once your medical eligibility has been confirmed.
-        </p>
+        ${paragraph(`Dear ${firstName},`)}
+        ${paragraph('Great news! Your identity has been successfully verified.')}
+        ${statusBox('KYC Verification Complete', 'success', '✓')}
+        ${infoBox('Next Step: Medical Review', 'Your application is now being reviewed by our medical team. This typically takes 1-2 business days.')}
+        ${paragraph("We'll notify you by email once your medical eligibility has been confirmed.")}
+        ${signature()}
       `,
     },
     'kyc-rejected': {
       subject: `Identity Verification - Additional Information Required`,
+      type: 'error',
       body: `
-        <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-          Dear ${firstName},
-        </p>
-        <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-          Unfortunately, we were unable to verify your identity with the information provided.
-        </p>
-        <div style="background-color: #fef2f2; border: 1px solid #ef4444; border-radius: 8px; padding: 16px; margin: 24px 0;">
-          <p style="margin: 0 0 8px 0; color: #dc2626; font-size: 14px; font-weight: 600;">
-            Reason:
-          </p>
-          <p style="margin: 0; color: #18181b; font-size: 14px;">
-            ${rejectionReason || 'The document quality was insufficient or the information could not be verified.'}
-          </p>
-        </div>
-        <h3 style="color: #18181b; font-size: 18px; margin: 24px 0 12px 0;">How to resubmit:</h3>
-        <ul style="color: #18181b; font-size: 16px; line-height: 1.8; margin: 0; padding-left: 20px;">
-          <li>Ensure your ID is not expired</li>
-          <li>Take photos in good lighting</li>
-          <li>Make sure all text on the document is clearly readable</li>
-          <li>Avoid glare or shadows on the document</li>
-        </ul>
-        ${kycLink ? `
-          <div style="text-align: center; margin: 32px 0;">
-            <a href="${kycLink}" style="display: inline-block; background-color: #0d9488; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600;">
-              Retry Verification
-            </a>
-          </div>
-        ` : ''}
-        <p style="color: #71717a; font-size: 14px; margin: 24px 0 0 0;">
-          If you need assistance, please contact our support team at ${config.supportEmail}
-        </p>
+        ${paragraph(`Dear ${firstName},`)}
+        ${paragraph('Unfortunately, we were unable to verify your identity with the information provided.')}
+        ${statusBox(rejectionReason || 'The document quality was insufficient or the information could not be verified.', 'error', '⚠️')}
+        ${infoBox('How to resubmit:', `
+          ${bulletList([
+            'Ensure your ID is not expired',
+            'Take photos in good lighting',
+            'Make sure all text on the document is clearly readable',
+            'Avoid glare or shadows on the document',
+          ])}
+        `)}
+        ${kycLink ? ctaButton('Retry Verification', kycLink) : ''}
+        ${paragraph(`If you need assistance, please contact our support team at ${config.supportEmail}`, true)}
       `,
     },
     'eligibility-approved': {
       subject: `🎉 You're Approved for Medical Cannabis - ${config.brandName}`,
+      type: 'success',
       body: `
-        <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-          Dear ${firstName},
-        </p>
-        <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-          Congratulations! Your application for medical cannabis has been approved by our medical team.
-        </p>
-        <div style="background-color: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;">
-          <p style="margin: 0; color: #16a34a; font-size: 20px; font-weight: 600;">
-            🎉 Medical Eligibility Confirmed
-          </p>
-          <p style="margin: 8px 0 0 0; color: #18181b; font-size: 14px;">
-            You now have full access to browse and purchase medical cannabis products.
-          </p>
-        </div>
-        <div style="text-align: center; margin: 32px 0;">
-          <a href="${config.websiteUrl}/shop" style="display: inline-block; background-color: #0d9488; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600;">
-            Browse Products
-          </a>
-        </div>
-        <h3 style="color: #18181b; font-size: 18px; margin: 24px 0 12px 0;">Important Information:</h3>
-        <ul style="color: #18181b; font-size: 16px; line-height: 1.8; margin: 0; padding-left: 20px;">
-          <li>Always follow dosage guidelines provided with your products</li>
-          <li>Keep your prescription documentation accessible</li>
-          <li>Contact our support team if you have any questions</li>
-        </ul>
+        ${paragraph(`Dear ${firstName},`)}
+        ${paragraph('Congratulations! Your application for medical cannabis has been approved by our medical team.')}
+        ${statusBox('Medical Eligibility Confirmed', 'success', '🎉')}
+        ${paragraph('You now have full access to browse and purchase medical cannabis products.')}
+        ${ctaButton('Browse Products', `${config.websiteUrl}/shop`)}
+        ${infoBox('Important Information:', `
+          ${bulletList([
+            'Always follow dosage guidelines provided with your products',
+            'Keep your prescription documentation accessible',
+            'Contact our support team if you have any questions',
+          ])}
+        `)}
+        ${signature()}
       `,
     },
     'eligibility-rejected': {
       subject: `Medical Eligibility Review - ${config.brandName}`,
+      type: 'error',
       body: `
-        <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-          Dear ${firstName},
-        </p>
-        <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-          After careful review, we regret to inform you that your medical cannabis application could not be approved at this time.
-        </p>
-        <div style="background-color: #fef2f2; border: 1px solid #ef4444; border-radius: 8px; padding: 16px; margin: 24px 0;">
-          <p style="margin: 0 0 8px 0; color: #dc2626; font-size: 14px; font-weight: 600;">
-            Reason:
-          </p>
-          <p style="margin: 0; color: #18181b; font-size: 14px;">
-            ${rejectionReason || 'Based on the medical information provided, you do not currently meet our eligibility criteria for medical cannabis.'}
-          </p>
-        </div>
-        <h3 style="color: #18181b; font-size: 18px; margin: 24px 0 12px 0;">What you can do:</h3>
-        <ul style="color: #18181b; font-size: 16px; line-height: 1.8; margin: 0; padding-left: 20px;">
-          <li>Consult with your healthcare provider about alternative options</li>
-          <li>Request a review by contacting our medical team</li>
-          <li>Reapply if your medical situation changes</li>
-        </ul>
-        <p style="color: #71717a; font-size: 14px; margin: 24px 0 0 0;">
-          If you believe this decision was made in error or have additional medical documentation, please contact us at ${config.supportEmail}
-        </p>
+        ${paragraph(`Dear ${firstName},`)}
+        ${paragraph('After careful review, we regret to inform you that your medical cannabis application could not be approved at this time.')}
+        ${statusBox(rejectionReason || 'Based on the medical information provided, you do not currently meet our eligibility criteria for medical cannabis.', 'error', '⚠️')}
+        ${infoBox('What you can do:', `
+          ${bulletList([
+            'Consult with your healthcare provider about alternative options',
+            'Request a review by contacting our medical team',
+            'Reapply if your medical situation changes',
+          ])}
+        `)}
+        ${paragraph(`If you believe this decision was made in error or have additional medical documentation, please contact us at ${config.supportEmail}`, true)}
       `,
     },
     'waitlist-welcome': {
       subject: getWaitlistSubject(request.region, request.countryName),
-      body: getWaitlistBody(firstName, request.region, request.countryName, config),
+      type: 'success',
+      body: getWaitlistBody(firstName, request.region, request.countryName),
     },
   };
 
@@ -367,37 +211,14 @@ function getEmailTemplate(request: ClientEmailRequest, config: typeof DOMAIN_CON
 
   return {
     subject: template.subject,
-    html: `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      </head>
-      <body style="${baseStyles}">
-        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-          <div style="background-color: ${headerColor}; padding: 24px; text-align: center;">
-            <img src="${logoUrl}" alt="${config.brandName}" width="180" style="display: inline-block; max-width: 180px; height: auto;" />
-            <p style="color: #ffffff; margin: 12px 0 0 0; font-size: 14px;">Medical Cannabis Care</p>
-          </div>
-          <div style="padding: 32px;">
-            ${template.body}
-          </div>
-          <div style="background-color: #f4f4f5; padding: 20px; text-align: center;">
-            <p style="margin: 0; color: #71717a; font-size: 12px;">
-              ${config.brandName}
-            </p>
-            <p style="margin: 4px 0 0 0; color: #a1a1aa; font-size: 11px;">
-              ${config.address}
-            </p>
-            <p style="margin: 8px 0 0 0; color: #a1a1aa; font-size: 11px;">
-              Need help? Contact us at <a href="mailto:${config.supportEmail}" style="color: #0d9488;">${config.supportEmail}</a>
-            </p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `,
+    html: brandedEmailTemplate(template.body, {
+      type: template.type,
+      brandName: config.brandName,
+      supportEmail: config.supportEmail,
+      address: config.address,
+      websiteUrl: config.websiteUrl,
+      region: request.region,
+    }),
   };
 }
 
@@ -437,7 +258,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailContent = getEmailTemplate(request, domainConfig);
 
     // Use verified subdomain for sending
-    const fromAddress = `${domainConfig.brandName} <noreply@send.healingbuds.co.za>`;
+    const fromAddress = getFromAddress(domainConfig.brandName);
 
     console.log('[send-client-email] Sending email:', {
       from: fromAddress,

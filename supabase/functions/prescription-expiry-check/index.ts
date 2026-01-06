@@ -1,5 +1,13 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import {
+  brandedEmailTemplate,
+  statusBox,
+  paragraph,
+  ctaButton,
+  infoBox,
+  signature,
+} from '../_shared/email-template.ts';
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
@@ -67,58 +75,25 @@ serve(async (req) => {
 
         console.log(`Sending expiry notification to ${userEmail} for ${doc.file_name}`);
 
-        // Logo URL for email header
-        const logoUrl = `${supabaseUrl}/storage/v1/object/public/email-assets/hb-logo-white.png`;
-
-        const emailHtml = `
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <style>
-              body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-              .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-              .header { background: linear-gradient(135deg, #16a34a 0%, #059669 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-              .header img { max-width: 180px; height: auto; }
-              .header p { color: rgba(255,255,255,0.9); margin: 12px 0 0 0; font-size: 14px; }
-              .content { background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; }
-              .alert-box { background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 20px; margin: 20px 0; }
-              .alert-box h2 { color: #92400e; margin-top: 0; }
-              .document-info { background: white; border-radius: 8px; padding: 15px; margin: 15px 0; }
-              .btn { display: inline-block; background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 15px; }
-              .footer { text-align: center; color: #6b7280; font-size: 12px; margin-top: 20px; }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <div class="header">
-                <img src="${logoUrl}" alt="Healing Buds" width="180" />
-                <p>Medical Cannabis Care</p>
-              </div>
-              <div class="content">
-                <div class="alert-box">
-                  <h2>⚠️ Document Expiring Soon</h2>
-                  <p>Your medical document will expire in <strong>${daysUntilExpiry} day${daysUntilExpiry !== 1 ? 's' : ''}</strong>.</p>
-                </div>
-                
-                <div class="document-info">
-                  <p><strong>Document Type:</strong> ${docTypeLabel}</p>
-                  <p><strong>File Name:</strong> ${doc.file_name}</p>
-                  <p><strong>Expiry Date:</strong> ${expiryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                </div>
-                
-                <p>To continue using our medical cannabis services without interruption, please upload a renewed document before the expiry date.</p>
-                
-                <a href="https://healingbuds.co.uk/dashboard" class="btn">Upload New Document</a>
-                
-                <div class="footer">
-                  <p>This is an automated notification from Healing Buds.</p>
-                  <p>If you have any questions, please contact our support team.</p>
-                </div>
-              </div>
-            </div>
-          </body>
-          </html>
+        // Build email body using branded components
+        const bodyContent = `
+          ${statusBox(`Your ${docTypeLabel} expires in ${daysUntilExpiry} day${daysUntilExpiry !== 1 ? 's' : ''}`, 'warning', '⚠️')}
+          ${paragraph('To continue using our medical cannabis services without interruption, please upload a renewed document before the expiry date.')}
+          ${infoBox('Document Details', `
+            <p style="margin: 0 0 8px 0;"><strong>Document Type:</strong> ${docTypeLabel}</p>
+            <p style="margin: 0 0 8px 0;"><strong>File Name:</strong> ${doc.file_name}</p>
+            <p style="margin: 0;"><strong>Expiry Date:</strong> ${expiryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+          `)}
+          ${ctaButton('Upload New Document', 'https://healingbuds.co.za/dashboard')}
+          ${signature()}
         `;
+
+        const emailHtml = brandedEmailTemplate(bodyContent, {
+          type: 'warning',
+          brandName: 'Healing Buds',
+          supportEmail: 'support@healingbuds.co.za',
+          websiteUrl: 'https://healingbuds.co.za',
+        });
 
         const emailResponse = await fetch("https://api.resend.com/emails", {
           method: "POST",
