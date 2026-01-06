@@ -12,8 +12,6 @@ import {
 import Header from "@/layout/Header";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
-import BackToTop from "@/components/BackToTop";
-import MobileBottomActions from "@/components/MobileBottomActions";
 import SEOHead from "@/components/SEOHead";
 import HBIcon from "@/components/HBIcon";
 import TrustMotifs, { CertifiedMotif, LabTestedMotif, SecureShieldMotif, DeliveryMotif } from "@/components/TrustMotifs";
@@ -58,7 +56,7 @@ const Index = () => {
     <PageTransition variant="premium">
       {/* SEO now uses tenant defaults automatically */}
       <SEOHead canonical="/" />
-      <div className="min-h-screen bg-background pb-20 lg:pb-0">
+      <div className="min-h-screen bg-background">
         <Header onMenuStateChange={setMenuOpen} />
         
         <main>
@@ -385,8 +383,6 @@ const Index = () => {
         </main>
 
         <Footer />
-        <BackToTop />
-        <MobileBottomActions menuOpen={menuOpen} />
       </div>
     </PageTransition>
   );

@@ -1,10 +1,10 @@
-import PreFooterCTA from "@/components/PreFooterCTA";
+import WaitlistCTA from "@/components/WaitlistCTA";
 import FooterMinimal from "@/components/FooterMinimal";
 
 const Footer = () => {
   return (
     <div id="contact" className="relative" style={{ backgroundColor: 'hsl(var(--section-color))' }}>
-      <PreFooterCTA />
+      <WaitlistCTA />
       <FooterMinimal />
     </div>
   );

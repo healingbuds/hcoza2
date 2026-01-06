@@ -3,8 +3,6 @@ import { useTranslation } from "react-i18next";
 import Header from "@/layout/Header";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
-import BackToTop from "@/components/BackToTop";
-import MobileBottomActions from "@/components/MobileBottomActions";
 import { FileText, AlertCircle, Scale, Users, Shield, Coins } from "lucide-react";
 import { useGeoLocation } from "@/hooks/useGeoLocation";
 
@@ -198,8 +196,6 @@ const TermsOfService = () => {
           </div>
         </main>
         <Footer />
-        <BackToTop />
-        <MobileBottomActions menuOpen={menuOpen} />
       </div>
     </PageTransition>
   );
