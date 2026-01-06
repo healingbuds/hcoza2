@@ -1,5 +1,15 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  brandedEmailTemplate,
+  statusBox,
+  paragraph,
+  ctaButton,
+  infoBox,
+  getDomainConfig as getSharedDomainConfig,
+  getFromAddress,
+  BRAND_COLORS,
+} from '../_shared/email-template.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -52,19 +62,6 @@ function sanitizeForLogging(data: Record<string, unknown>): Record<string, unkno
 
 // Webhook timestamp validation (max 5 minutes old)
 const MAX_WEBHOOK_AGE_MS = 5 * 60 * 1000;
-
-// Multi-domain configuration for Healing Buds regions
-const DOMAIN_CONFIG: Record<string, { domain: string; brandName: string }> = {
-  'ZA': { domain: 'healingbuds.co.za', brandName: 'Healing Buds South Africa' },
-  'PT': { domain: 'healingbuds.pt', brandName: 'Healing Buds Portugal' },
-  'GB': { domain: 'healingbuds.co.uk', brandName: 'Healing Buds UK' },
-  'global': { domain: 'healingbuds.global', brandName: 'Healing Buds' },
-};
-
-function getDomainConfig(region?: string) {
-  const regionKey = region?.toUpperCase() || 'global';
-  return DOMAIN_CONFIG[regionKey] || DOMAIN_CONFIG['global'];
-}
 
 // Verify webhook signature from Dr Green API
 async function verifyWebhookSignature(payload: string, signature: string, secret: string): Promise<boolean> {
@@ -156,90 +153,64 @@ function validateWebhookPayload(payload: unknown): payload is WebhookPayload {
   return true;
 }
 
-// Email template for order status updates
-function getOrderStatusEmail(orderId: string, status: string, event: string, config: typeof DOMAIN_CONFIG['global']): { subject: string; html: string } {
-  const statusMessages: Record<string, { subject: string; body: string; color: string }> = {
+// Email template for order status updates using branded template
+function getOrderStatusEmail(orderId: string, status: string, event: string, config: ReturnType<typeof getSharedDomainConfig>): { subject: string; html: string } {
+  const statusMessages: Record<string, { subject: string; body: string; type: 'success' | 'warning' | 'error' | 'info' }> = {
     'order.shipped': {
       subject: '🚚 Your order has been shipped!',
       body: 'Great news! Your order has been shipped and is on its way to you.',
-      color: '#3b82f6',
+      type: 'info',
     },
     'order.delivered': {
       subject: '✅ Your order has been delivered!',
       body: 'Your order has been successfully delivered. We hope you enjoy your products!',
-      color: '#22c55e',
+      type: 'success',
     },
     'order.cancelled': {
       subject: '❌ Your order has been cancelled',
       body: 'Your order has been cancelled. If you have any questions, please contact our support team.',
-      color: '#ef4444',
+      type: 'error',
     },
     'payment.completed': {
       subject: '💳 Payment confirmed for your order',
       body: 'Your payment has been successfully processed. Your order is now being prepared.',
-      color: '#22c55e',
+      type: 'success',
     },
     'payment.failed': {
       subject: '⚠️ Payment failed for your order',
       body: 'Unfortunately, your payment could not be processed. Please try again or contact support.',
-      color: '#ef4444',
+      type: 'error',
     },
     'order.status_updated': {
       subject: `📦 Order status update: ${status}`,
       body: `Your order status has been updated to: ${status}`,
-      color: '#8b5cf6',
+      type: 'info',
     },
   };
 
   const template = statusMessages[event] || statusMessages['order.status_updated'];
 
+  // Build body using branded components
+  const bodyContent = `
+    ${paragraph(template.body)}
+    ${infoBox('Order ID', `<code style="font-family: monospace; font-size: 16px; font-weight: 600; color: ${BRAND_COLORS.gray900};">${orderId}</code>`)}
+    ${ctaButton('View Order Details', `https://${config.domain}/orders`)}
+  `;
+
   return {
     subject: template.subject,
-    html: `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      </head>
-      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f4f5; margin: 0; padding: 20px;">
-        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-          <div style="background-color: ${template.color}; padding: 24px; text-align: center;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 24px;">${config.brandName}</h1>
-          </div>
-          <div style="padding: 32px;">
-            <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-              ${template.body}
-            </p>
-            <div style="background-color: #f4f4f5; border-radius: 8px; padding: 16px; margin: 24px 0;">
-              <p style="margin: 0; color: #71717a; font-size: 14px;">Order ID</p>
-              <p style="margin: 4px 0 0 0; color: #18181b; font-size: 18px; font-family: monospace; font-weight: 600;">
-                ${orderId}
-              </p>
-            </div>
-            <div style="text-align: center; margin-top: 32px;">
-              <a href="https://${config.domain}/orders" style="display: inline-block; background-color: ${template.color}; color: #ffffff; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-weight: 600;">
-                View Order Details
-              </a>
-            </div>
-          </div>
-          <div style="background-color: #f4f4f5; padding: 20px; text-align: center;">
-            <p style="margin: 0; color: #71717a; font-size: 12px;">
-              ${config.brandName} Medical Cannabis
-            </p>
-            <p style="margin: 8px 0 0 0; color: #a1a1aa; font-size: 11px;">
-              This is an automated message. Please do not reply to this email.
-            </p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `,
+    html: brandedEmailTemplate(bodyContent, {
+      type: template.type === 'info' ? 'default' : template.type,
+      brandName: config.brandName,
+      supportEmail: config.supportEmail,
+      address: config.address,
+      websiteUrl: config.websiteUrl,
+    }),
   };
 }
 
 // Send email using Resend API via fetch
-async function sendEmail(to: string, subject: string, html: string, config: typeof DOMAIN_CONFIG['global']): Promise<boolean> {
+async function sendEmail(to: string, subject: string, html: string, config: ReturnType<typeof getSharedDomainConfig>): Promise<boolean> {
   const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
   if (!RESEND_API_KEY) {
     logInfo('RESEND_API_KEY not configured, skipping email');
@@ -247,8 +218,7 @@ async function sendEmail(to: string, subject: string, html: string, config: type
   }
 
   try {
-    // Use verified domain or fallback to resend.dev
-    const fromAddress = `${config.brandName} <noreply@send.healingbuds.co.za>`;
+    const fromAddress = getFromAddress(config.brandName);
 
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -656,7 +626,7 @@ serve(async (req) => {
       
       region = clientData?.country_code || 'global';
 
-      const domainConfig = getDomainConfig(region);
+      const domainConfig = getSharedDomainConfig(region);
 
       // Handle webhook events
       const updates: Record<string, string> = {};
