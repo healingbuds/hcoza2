@@ -19,7 +19,7 @@ import {
 import Header from "@/layout/Header";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
-import BackToTop from "@/components/BackToTop";
+
 import SEOHead from "@/components/SEOHead";
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -478,7 +478,6 @@ const Support = () => {
         </main>
 
         <Footer />
-        <BackToTop />
       </div>
     </PageTransition>
   );

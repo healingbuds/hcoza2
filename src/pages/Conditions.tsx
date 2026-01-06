@@ -14,7 +14,7 @@ import {
 import Header from "@/layout/Header";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
-import BackToTop from "@/components/BackToTop";
+
 import SEOHead from "@/components/SEOHead";
 import HBIcon from "@/components/HBIcon";
 import { Button } from '@/components/ui/button';
@@ -328,7 +328,6 @@ const Conditions = () => {
         </main>
 
         <Footer />
-        <BackToTop />
       </div>
     </PageTransition>
   );

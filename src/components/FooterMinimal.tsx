@@ -11,7 +11,7 @@ const FooterMinimal = () => {
   };
 
   return (
-    <footer className="px-4 sm:px-6 lg:px-8 py-8 pb-28 lg:pb-8">
+    <footer className="px-4 sm:px-6 lg:px-8 py-8">
       <div className="max-w-4xl mx-auto">
         {/* Top row: Copyright and Back to Top */}
         <div className="flex items-center justify-between mb-6">
