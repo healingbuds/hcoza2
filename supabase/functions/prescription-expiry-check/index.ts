@@ -127,7 +127,7 @@ serve(async (req) => {
             "Authorization": `Bearer ${RESEND_API_KEY}`,
           },
           body: JSON.stringify({
-            from: "Healing Buds <notifications@healingbuds.co.uk>",
+            from: "Healing Buds <noreply@send.healingbuds.co.za>",
             to: [userEmail],
             subject: `Your ${docTypeLabel} Expires in ${daysUntilExpiry} Days`,
             html: emailHtml,

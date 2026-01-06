@@ -113,7 +113,7 @@ const handler = async (req: Request): Promise<Response> => {
     const template = templates[type] || templates['test'];
 
     const emailResponse = await resend.emails.send({
-      from: "Healing Buds Test <onboarding@resend.dev>",
+      from: "Healing Buds <noreply@send.healingbuds.co.za>",
       to: [email],
       subject: `[TEST] ${template.subject}`,
       html: `
