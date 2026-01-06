@@ -56,6 +56,7 @@ const AdminCustomers = lazy(() => import("./pages/AdminCustomers"));
 const AdminOrders = lazy(() => import("./pages/AdminOrders"));
 const AdminOrderAnalytics = lazy(() => import("./pages/AdminOrderAnalytics"));
 const Debug = lazy(() => import("./pages/Debug"));
+const FlowTester = lazy(() => import("./pages/FlowTester"));
 const CountrySelector = lazy(() => import("./pages/CountrySelector"));
 
 const queryClient = new QueryClient();
@@ -194,6 +195,7 @@ const AnimatedRoutes = () => {
           
           {/* Debug/Diagnosis */}
           <Route path="/debug" element={<Debug />} />
+          <Route path="/test-flow" element={<FlowTester />} />
           
           {/* Legal */}
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
