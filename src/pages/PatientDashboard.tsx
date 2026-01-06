@@ -21,6 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import Header from '@/layout/Header';
 import Footer from '@/components/Footer';
+import PageTransition from '@/components/PageTransition';
 import HBIcon from '@/components/HBIcon';
 import HBLoader from '@/components/HBLoader';
 import { useShop } from '@/context/ShopContext';
@@ -112,9 +113,10 @@ const PatientDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="pt-32 pb-24 lg:pb-20">
+    <PageTransition variant="premium">
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-32 pb-24 lg:pb-20">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -393,6 +395,7 @@ const PatientDashboard = () => {
       </main>
       <Footer />
     </div>
+    </PageTransition>
   );
 };
 
