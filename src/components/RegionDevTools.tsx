@@ -23,16 +23,17 @@ export const RegionDevTools: React.FC = () => {
   const currentRegion = regions.find(r => r.code === countryCode) || regions[0];
   const isOverridden = overrideCountry !== null;
 
+  // Positioned top-left to avoid footer overlap
   return (
-    <div className="fixed bottom-4 left-4 z-[10001]">
+    <div className="fixed top-20 left-4 z-[10001]">
       <AnimatePresence>
         {isExpanded && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute bottom-full left-0 mb-2 w-56 rounded-xl bg-gray-900/95 backdrop-blur-lg border border-white/10 shadow-xl overflow-hidden"
+            className="absolute top-full left-0 mt-2 w-56 rounded-xl bg-gray-900/95 backdrop-blur-lg border border-white/10 shadow-xl overflow-hidden"
           >
             {/* Header */}
             <div className="px-3 py-2 border-b border-white/10 bg-white/5">
