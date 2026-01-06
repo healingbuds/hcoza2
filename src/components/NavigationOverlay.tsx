@@ -1,11 +1,11 @@
 /**
- * NavigationOverlay Component - Pharmaceutical Grade
+ * NavigationOverlay Component - Pharmaceutical Grade Premium
  * 
- * Premium mobile navigation drawer sliding from RIGHT with glassmorphism.
+ * Premium mobile navigation drawer with glassmorphism matching ContactEligibilityOverlay.
  */
 
 import { Link, useLocation } from "react-router-dom";
-import { X, LogOut, LayoutDashboard, User, FileText, ClipboardCheck, ShoppingBag, HeadphonesIcon, Home, Shield, Settings } from "lucide-react";
+import { X, LogOut, LayoutDashboard, User, FileText, ClipboardCheck, ShoppingBag, HeadphonesIcon, Home, Shield, Settings, Lock, Award, Truck, ArrowRight } from "lucide-react";
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -27,6 +27,14 @@ interface NavigationOverlayProps {
   onEligibilityClick: () => void;
   scrolled: boolean;
 }
+
+// Trust Badge Component
+const TrustBadge = ({ icon: Icon, label }: { icon: React.ElementType; label: string }) => (
+  <div className="flex flex-col items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity duration-300">
+    <Icon className="w-4 h-4 text-[#EAB308]" />
+    <span className="text-[10px] text-white/60 whitespace-nowrap font-medium">{label}</span>
+  </div>
+);
 
 const NavigationOverlay = ({
   isOpen,
@@ -128,11 +136,11 @@ const NavigationOverlay = ({
   ];
 
   const navLinkStyles = (active: boolean) => cn(
-    "text-base transition-all duration-200 py-4 px-5 rounded-xl",
+    "text-base transition-all duration-200 py-4 px-5 rounded-xl relative",
     "touch-manipulation min-h-[56px] flex items-center gap-4 active:scale-[0.98]",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EAB308]/50",
     active
-      ? "text-white font-semibold bg-white/15 border-l-4 border-[#EAB308]"
+      ? "text-white font-semibold bg-gradient-to-r from-white/15 to-white/5 border-l-4 border-[#EAB308] shadow-inner shadow-white/5"
       : "text-white/90 hover:text-white hover:bg-white/10"
   );
 
@@ -140,18 +148,18 @@ const NavigationOverlay = ({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop - Glassmorphism blur */}
+          {/* Backdrop - Premium glassmorphism blur */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="xl:hidden fixed inset-0 z-[9998] bg-black/70 backdrop-blur-md"
+            className="xl:hidden fixed inset-0 z-[9998] bg-black/60 backdrop-blur-md"
             onClick={onClose}
             aria-hidden="true"
           />
           
-          {/* Drawer - Slides from RIGHT */}
+          {/* Drawer - Premium glassmorphism */}
           <motion.div 
             ref={focusTrapRef}
             initial={{ x: '100%' }}
@@ -159,46 +167,54 @@ const NavigationOverlay = ({
             exit={{ x: '100%' }}
             transition={{ 
               type: "spring",
-              stiffness: 350,
-              damping: 35
+              stiffness: 300,
+              damping: 30,
+              mass: 0.8
             }}
             className="xl:hidden fixed top-0 right-0 bottom-0 w-[85%] max-w-[380px] z-[9999] flex flex-col"
             style={{ 
-              background: 'linear-gradient(180deg, #1A2E2A 0%, #1E3632 100%)',
-              boxShadow: '-10px 0 50px rgba(0, 0, 0, 0.5)'
+              background: 'linear-gradient(180deg, rgba(26, 46, 42, 0.98) 0%, rgba(30, 54, 50, 0.98) 100%)',
+              backdropFilter: 'blur(20px)',
+              boxShadow: '-20px 0 60px rgba(0, 0, 0, 0.6), inset 1px 0 0 rgba(255, 255, 255, 0.05)',
+              borderLeft: '1px solid rgba(255, 255, 255, 0.08)'
             }}
             role="dialog"
             aria-modal="true"
             aria-label="Navigation menu"
           >
-            {/* Menu Header */}
-            <div 
-              className="flex-shrink-0 flex items-center justify-between px-5 py-4"
-              style={{ 
-                borderBottom: '2px solid rgba(255, 255, 255, 0.8)'
-              }}
-            >
-              <Link 
-                to="/" 
-                onClick={onClose}
-                className="flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg"
-              >
-                <img 
-                  src={hbLogoWhite} 
-                  alt="Healing Buds Logo" 
-                  className="h-10 w-auto object-contain"
-                />
-              </Link>
+            {/* Menu Header - Refined */}
+            <div className="flex-shrink-0 px-5 py-4 border-b border-white/10">
+              <div className="flex items-center justify-between">
+                <Link 
+                  to="/" 
+                  onClick={onClose}
+                  className="flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg"
+                >
+                  <img 
+                    src={hbLogoWhite} 
+                    alt="Healing Buds Logo" 
+                    className="h-10 w-auto object-contain"
+                  />
+                </Link>
+                
+                {/* Close Button - Premium styling */}
+                <motion.button
+                  type="button"
+                  onClick={onClose}
+                  whileTap={{ scale: 0.92 }}
+                  whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
+                  className="p-3 rounded-xl bg-white/10 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EAB308]/50"
+                  aria-label="Close menu"
+                >
+                  <X className="w-6 h-6 text-white" />
+                </motion.button>
+              </div>
               
-              {/* Close Button - Easy reach on right */}
-              <button
-                type="button"
-                onClick={onClose}
-                className="p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EAB308]/50"
-                aria-label="Close menu"
-              >
-                <X className="w-6 h-6 text-white" />
-              </button>
+              {/* Security Badge */}
+              <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-white/80 text-xs font-medium">
+                <Lock className="w-3 h-3" />
+                Secure Medical Portal
+              </div>
             </div>
             
             {/* Scrollable menu content */}
@@ -209,7 +225,7 @@ const NavigationOverlay = ({
               }}
             >
               {/* Navigation Links */}
-              <motion.div 
+              <motion.nav 
                 className="flex flex-col space-y-2"
                 initial="hidden"
                 animate="visible"
@@ -229,10 +245,11 @@ const NavigationOverlay = ({
                     <motion.div
                       key={item.to}
                       variants={{
-                        hidden: { opacity: 0, x: 30 },
+                        hidden: { opacity: 0, x: 40, filter: 'blur(4px)' },
                         visible: { 
                           opacity: 1, 
                           x: 0,
+                          filter: 'blur(0px)',
                           transition: {
                             type: "spring",
                             stiffness: 400,
@@ -247,30 +264,40 @@ const NavigationOverlay = ({
                         onClick={onClose}
                       >
                         <Icon className={cn(
-                          "w-5 h-5",
+                          "w-5 h-5 transition-colors",
                           item.active ? "text-[#EAB308]" : "text-white/60"
                         )} />
-                        {item.label}
+                        <span className="flex-1">{item.label}</span>
+                        {/* Active indicator pulse */}
+                        {item.active && (
+                          <motion.span 
+                            className="w-2 h-2 rounded-full bg-[#EAB308]"
+                            animate={{ scale: [1, 1.2, 1], opacity: [1, 0.7, 1] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                          />
+                        )}
                       </Link>
                     </motion.div>
                   );
                 })}
-              </motion.div>
+              </motion.nav>
 
-              {/* Divider */}
-              <div className="my-6 h-[2px] bg-white/20" />
+              {/* Premium Gradient Divider */}
+              <div className="my-6 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
               {/* User Section */}
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {user ? (
                   <>
+                    {/* Dashboard Card with gradient border */}
                     <Link
                       to={isAdmin ? "/admin" : "/dashboard"}
                       onClick={onClose}
                       className={cn(
                         "flex items-center gap-4 py-4 px-5 rounded-xl transition-all duration-200",
                         "touch-manipulation min-h-[56px] active:scale-[0.98]",
-                        "bg-white/10 text-white hover:bg-white/15 border border-white/20",
+                        "bg-gradient-to-r from-white/10 to-white/5 text-white",
+                        "border border-[#EAB308]/30 hover:border-[#EAB308]/60",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EAB308]/50"
                       )}
                     >
@@ -279,75 +306,89 @@ const NavigationOverlay = ({
                       ) : (
                         <LayoutDashboard className="w-5 h-5 text-[#EAB308]" />
                       )}
-                      <span className="font-medium">{isAdmin ? "Admin Portal" : "Patient Portal"}</span>
+                      <span className="font-semibold">{isAdmin ? "Admin Portal" : "Patient Portal"}</span>
+                      <ArrowRight className="w-4 h-4 text-white/40 ml-auto" />
                     </Link>
+                    
+                    {/* Settings with glassmorphism */}
                     <Link
                       to="/account/settings"
                       onClick={onClose}
                       className={cn(
                         "flex items-center gap-4 py-4 px-5 rounded-xl transition-all duration-200",
                         "touch-manipulation min-h-[56px] active:scale-[0.98]",
-                        "bg-white/10 text-white hover:bg-white/15 border border-white/20",
+                        "bg-white/5 text-white hover:bg-white/10 backdrop-blur-sm",
+                        "border border-white/10 hover:border-white/20",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EAB308]/50"
                       )}
                     >
                       <Settings className="w-5 h-5 text-white/70" />
                       <span className="font-medium">Account Settings</span>
                     </Link>
+                    
+                    {/* Sign Out with hover state */}
                     <button
                       onClick={handleLogout}
                       className={cn(
                         "w-full flex items-center gap-4 py-4 px-5 rounded-xl transition-all duration-200",
                         "touch-manipulation min-h-[56px] active:scale-[0.98]",
-                        "bg-white/10 text-white hover:bg-white/15 border border-white/20",
+                        "bg-white/5 text-white/80 hover:bg-red-500/10 hover:text-red-300",
+                        "border border-white/10 hover:border-red-500/30",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EAB308]/50"
                       )}
                     >
-                      <LogOut className="w-5 h-5 text-white/70" />
+                      <LogOut className="w-5 h-5" />
                       <span className="font-medium">Sign Out</span>
                     </button>
                   </>
                 ) : (
                   <>
-                    {/* Check Eligibility - Primary CTA - Only for operational regions */}
-                    <button
+                    {/* Check Eligibility - Premium Gradient CTA */}
+                    <motion.button
                       onClick={handleEligibility}
+                      whileTap={{ scale: 0.97 }}
                       className={cn(
-                        "w-full flex items-center justify-center gap-3 py-5 px-6 rounded-xl transition-all duration-200",
-                        "touch-manipulation min-h-[60px] active:scale-[0.97]",
+                        "w-full flex items-center justify-center gap-3 py-5 px-6 rounded-xl transition-all duration-300",
+                        "touch-manipulation min-h-[60px]",
                         isOperational
-                          ? "bg-white text-[hsl(178,48%,16%)] font-bold text-lg shadow-xl shadow-white/20 border-2 border-white hover:bg-white/95"
+                          ? "bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white font-bold text-lg shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30"
                           : "bg-white/20 text-white/50 font-bold text-lg border-2 border-white/20 cursor-not-allowed",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A2E2A]"
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A2E2A]"
                       )}
                     >
                       Check Eligibility
+                      {isOperational && <ArrowRight className="w-5 h-5" />}
                       {!isOperational && <span className="text-xs opacity-60">(Coming Soon)</span>}
-                    </button>
+                    </motion.button>
                     
-                    {/* Patient Login - Secondary CTA */}
+                    {/* Patient Login - Gold Glassmorphism CTA */}
                     {isOperational ? (
-                      <Link
-                        to="/auth"
-                        onClick={onClose}
-                        className={cn(
-                          "flex items-center justify-center gap-3 py-5 px-6 rounded-xl transition-all duration-200",
-                          "touch-manipulation min-h-[60px] active:scale-[0.97]",
-                          "bg-[#EAB308]/20 text-[#EAB308] font-semibold text-lg border-2 border-[#EAB308]/60",
-                          "hover:bg-[#EAB308]/30 hover:border-[#EAB308]",
-                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EAB308]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A2E2A]"
-                        )}
-                      >
-                        <User className="w-5 h-5" />
-                        Patient Login
-                      </Link>
+                      <motion.div whileTap={{ scale: 0.97 }}>
+                        <Link
+                          to="/auth"
+                          onClick={onClose}
+                          className={cn(
+                            "flex items-center justify-center gap-3 py-5 px-6 rounded-xl transition-all duration-300",
+                            "touch-manipulation min-h-[60px]",
+                            "bg-gradient-to-r from-[#EAB308]/20 to-[#F59E0B]/20",
+                            "border border-[#EAB308]/40 hover:border-[#EAB308]/70",
+                            "text-[#EAB308] font-semibold text-lg",
+                            "backdrop-blur-sm",
+                            "hover:from-[#EAB308]/25 hover:to-[#F59E0B]/25",
+                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EAB308]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A2E2A]"
+                          )}
+                        >
+                          <User className="w-5 h-5" />
+                          Patient Login
+                        </Link>
+                      </motion.div>
                     ) : (
                       <button
                         onClick={handleComingSoon}
                         className={cn(
                           "w-full flex items-center justify-center gap-3 py-5 px-6 rounded-xl transition-all duration-200",
                           "touch-manipulation min-h-[60px]",
-                          "bg-white/10 text-white/50 font-semibold text-lg border-2 border-white/10 cursor-not-allowed",
+                          "bg-white/10 text-white/50 font-semibold text-lg border border-white/10 cursor-not-allowed",
                           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
                         )}
                       >
@@ -360,16 +401,25 @@ const NavigationOverlay = ({
                 )}
               </div>
 
-              {/* Divider */}
-              <div className="my-6 h-[2px] bg-white/20" />
+              {/* Premium Gradient Divider */}
+              <div className="my-6 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-              {/* Settings */}
-              <div className="flex items-center justify-between gap-4 px-2">
+              {/* Settings Row - Card container */}
+              <div className="flex items-center justify-between gap-4 px-4 py-3 rounded-xl bg-white/5 border border-white/10">
                 <div className="flex items-center gap-3">
                   <span className="text-white/60 text-sm">Language:</span>
                   <LanguageSwitcher />
                 </div>
                 <ThemeToggle />
+              </div>
+            </div>
+            
+            {/* Trust Badges Footer */}
+            <div className="flex-shrink-0 px-6 py-4 border-t border-white/10 bg-black/20">
+              <div className="flex items-center justify-center gap-8">
+                <TrustBadge icon={Award} label="EU GMP" />
+                <TrustBadge icon={Shield} label="Secure" />
+                <TrustBadge icon={Truck} label="Discreet" />
               </div>
             </div>
           </motion.div>
