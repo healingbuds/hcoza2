@@ -1,6 +1,6 @@
 import { ArrowUp } from "lucide-react";
 import drGreenLogo from "@/assets/drgreen-logo.svg";
-import hbLogo from "@/assets/hb-logo-white.png";
+import hbLogoWhite from "@/assets/hb-logo-white-full.png";
 import { useTenant } from "@/hooks/useTenant";
 
 const FooterBottomBar = () => {
@@ -20,7 +20,7 @@ const FooterBottomBar = () => {
           <div className="relative">
             <div className="absolute inset-0 blur-2xl bg-teal-500/20 rounded-full" />
             <img 
-              src={hbLogo}
+              src={hbLogoWhite}
               alt={tenant.name}
               className="h-10 w-auto relative z-10 drop-shadow-lg"
             />
@@ -67,7 +67,7 @@ const FooterBottomBar = () => {
             <div className="relative group">
               <div className="absolute inset-0 blur-2xl bg-teal-500/0 group-hover:bg-teal-500/20 rounded-full transition-all duration-500" />
               <img 
-                src={hbLogo}
+                src={hbLogoWhite}
                 alt={tenant.name}
                 className="h-9 w-auto relative z-10 drop-shadow-lg"
               />
