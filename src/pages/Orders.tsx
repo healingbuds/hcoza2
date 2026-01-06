@@ -1,6 +1,7 @@
 import Header from '@/layout/Header';
 import Footer from '@/components/Footer';
 import SEOHead from '@/components/SEOHead';
+import PageTransition from '@/components/PageTransition';
 import { useOrderTracking } from '@/hooks/useOrderTracking';
 import { OrdersTable } from '@/components/shop/OrdersTable';
 import { Button } from '@/components/ui/button';
@@ -25,7 +26,7 @@ export default function Orders() {
   };
 
   return (
-    <>
+    <PageTransition variant="premium">
       <SEOHead
         title="Order History | Healing Buds"
         description="View your order history and track your medical cannabis orders."
@@ -94,6 +95,6 @@ export default function Orders() {
 
         <Footer />
       </div>
-    </>
+    </PageTransition>
   );
 }

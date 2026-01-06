@@ -4,6 +4,7 @@ import { ShieldCheck } from 'lucide-react';
 import Header from '@/layout/Header';
 import Footer from '@/components/Footer';
 import SEOHead from '@/components/SEOHead';
+import PageTransition from '@/components/PageTransition';
 import { ProductGrid } from '@/components/shop/ProductGrid';
 import { Cart } from '@/components/shop/Cart';
 import { FloatingCartButton } from '@/components/shop/FloatingCartButton';
@@ -45,7 +46,7 @@ export default function Shop() {
   }, [drGreenClient, isEligible, syncVerificationFromDrGreen]);
 
   return (
-    <>
+    <PageTransition variant="premium">
       <SEOHead
         title={`${t('title')} | Dr. Green - Premium Cultivars`}
         description="Browse our selection of pharmaceutical-grade medical cannabis cultivars. Lab-tested, doctor-approved products for qualified patients."
@@ -128,6 +129,6 @@ export default function Shop() {
 
         <Footer />
       </div>
-    </>
+    </PageTransition>
   );
 }

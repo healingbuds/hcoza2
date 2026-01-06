@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import Header from '@/layout/Header';
 import Footer from '@/components/Footer';
+import PageTransition from '@/components/PageTransition';
 import { useShop } from '@/context/ShopContext';
 import { EligibilityGate } from '@/components/shop/EligibilityGate';
 import { useTranslation } from 'react-i18next';
@@ -246,9 +247,10 @@ const Checkout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="pt-32 pb-20">
+    <PageTransition variant="premium">
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-32 pb-20">
         <div className="container mx-auto px-4">
           <EligibilityGate>
             <motion.div
@@ -380,6 +382,7 @@ const Checkout = () => {
       </main>
       <Footer />
     </div>
+    </PageTransition>
   );
 };
 
