@@ -9,6 +9,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { LogOut, LayoutDashboard, User, Shield, Settings, Lock, ChevronDown } from "lucide-react";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { useRegionGate } from "@/hooks/useRegionGate";
 import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { motion, useScroll, useSpring } from "framer-motion";
@@ -53,6 +54,7 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
   const { tenant } = useTenant();
   const headerRef = useRef<HTMLElement>(null);
   const { isAdmin } = useIsAdmin();
+  const { isOperational } = useRegionGate();
   
   const isDark = resolvedTheme === 'dark';
   
@@ -110,6 +112,13 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
     });
     setMobileMenuOpen(false);
     navigate("/");
+  };
+
+  const handleComingSoon = () => {
+    toast({
+      title: "Coming Soon",
+      description: "This service is not yet available in your region.",
+    });
   };
 
   return (
@@ -190,18 +199,20 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
                 {user && <KYCStatusBadge />}
 
                 <div className="flex items-center gap-2 ml-3">
-                  {/* Check Eligibility - Emerald Green CTA */}
-                  <button
-                    onClick={() => setEligibilityDialogOpen(true)}
-                    className={cn(
-                      "font-semibold px-5 py-2.5 rounded-lg transition-all duration-300",
-                      "bg-emerald-500 text-white hover:bg-emerald-400",
-                      "shadow-lg shadow-emerald-500/30 hover:shadow-emerald-400/50",
-                      "text-sm whitespace-nowrap hover:scale-[1.02] active:scale-[0.98]"
-                    )}
-                  >
-                    {t('nav.checkEligibility')}
-                  </button>
+                  {/* Check Eligibility - Only show for operational regions */}
+                  {isOperational && (
+                    <button
+                      onClick={() => setEligibilityDialogOpen(true)}
+                      className={cn(
+                        "font-semibold px-5 py-2.5 rounded-lg transition-all duration-300",
+                        "bg-emerald-500 text-white hover:bg-emerald-400",
+                        "shadow-lg shadow-emerald-500/30 hover:shadow-emerald-400/50",
+                        "text-sm whitespace-nowrap hover:scale-[1.02] active:scale-[0.98]"
+                      )}
+                    >
+                      {t('nav.checkEligibility')}
+                    </button>
+                  )}
                   
                   {user ? (
                     <DropdownMenu>
@@ -257,7 +268,7 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  ) : (
+                  ) : isOperational ? (
                     <Link
                       to="/auth"
                       className={cn(
@@ -269,6 +280,18 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
                       <User className="w-4 h-4" />
                       {t('nav.patientLogin')}
                     </Link>
+                  ) : (
+                    <button
+                      onClick={handleComingSoon}
+                      className={cn(
+                        "font-medium px-4 py-2.5 rounded-lg transition-all duration-300",
+                        "bg-white/10 text-white/50 border border-white/10 cursor-not-allowed",
+                        "text-sm flex items-center gap-2"
+                      )}
+                    >
+                      <User className="w-4 h-4" />
+                      {t('nav.patientLogin')}
+                    </button>
                   )}
                 </div>
               </div>
@@ -297,6 +320,7 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
         onClose={() => setMobileMenuOpen(false)}
         user={user}
         isAdmin={isAdmin}
+        isOperational={isOperational}
         onLogout={handleLogout}
         onEligibilityClick={() => setEligibilityDialogOpen(true)}
         scrolled={scrolled}

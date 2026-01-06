@@ -1,9 +1,16 @@
 import { motion } from 'framer-motion';
 import { ShoppingCart } from 'lucide-react';
 import { useShop } from '@/context/ShopContext';
+import { useRegionGate } from '@/hooks/useRegionGate';
 
 export function FloatingCartButton() {
   const { cartCount, setIsCartOpen } = useShop();
+  const { isOperational } = useRegionGate();
+
+  // Hide floating cart for non-operational regions
+  if (!isOperational) {
+    return null;
+  }
   
   return (
     <motion.button

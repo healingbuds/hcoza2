@@ -16,6 +16,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { ProtectedNFTRoute } from "@/components/ProtectedNFTRoute";
 import { ComplianceGuard } from "@/components/ComplianceGuard";
 import PreLaunchGate from "@/components/PreLaunchGate";
+import RegionDevTools from "@/components/RegionDevTools";
 import { useRegionGate } from "@/hooks/useRegionGate";
 
 import { ShopProvider } from "@/context/ShopContext";
@@ -61,7 +62,7 @@ const queryClient = new QueryClient();
 
 // Wrapper component that handles region-based routing
 const RegionGatedApp = () => {
-  const { isGlobal, isPreLaunch, shouldShowGate } = useRegionGate();
+  const { isGlobal, isPreLaunch } = useRegionGate();
 
   // Global domains show only the country selector
   if (isGlobal) {
@@ -72,11 +73,21 @@ const RegionGatedApp = () => {
     );
   }
 
-  // Pre-launch regions show the gate overlay (site still accessible behind it)
+  // Pre-launch regions (UK/PT): Show ONLY the stealth gate - no site access
+  if (isPreLaunch) {
+    return (
+      <>
+        <PreLaunchGate />
+        <RegionDevTools />
+      </>
+    );
+  }
+
+  // Operational regions: Full site access
   return (
     <>
-      {isPreLaunch && shouldShowGate && <PreLaunchGate />}
       <AnimatedRoutes />
+      <RegionDevTools />
     </>
   );
 };

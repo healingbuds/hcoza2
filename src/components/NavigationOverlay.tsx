@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { useTranslation } from "react-i18next";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
+import { useToast } from "@/hooks/use-toast";
 import hbLogoWhite from "@/assets/hb-logo-white-full.png";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggle from "./ThemeToggle";
@@ -21,6 +22,7 @@ interface NavigationOverlayProps {
   onClose: () => void;
   user: SupabaseUser | null;
   isAdmin?: boolean;
+  isOperational?: boolean;
   onLogout: () => void;
   onEligibilityClick: () => void;
   scrolled: boolean;
@@ -31,11 +33,13 @@ const NavigationOverlay = ({
   onClose,
   user,
   isAdmin = false,
+  isOperational = true,
   onLogout,
   onEligibilityClick,
 }: NavigationOverlayProps) => {
   const location = useLocation();
   const { t } = useTranslation('common');
+  const { toast } = useToast();
   
   // Focus trap for accessibility
   const focusTrapRef = useFocusTrap(isOpen);
@@ -92,8 +96,22 @@ const NavigationOverlay = ({
   }, [isOpen, onClose]);
 
   const handleEligibility = () => {
+    if (!isOperational) {
+      toast({
+        title: "Coming Soon",
+        description: "This service is not yet available in your region.",
+      });
+      return;
+    }
     onEligibilityClick();
     onClose();
+  };
+
+  const handleComingSoon = () => {
+    toast({
+      title: "Coming Soon",
+      description: "This service is not yet available in your region.",
+    });
   };
 
   const handleLogout = () => {
@@ -291,36 +309,53 @@ const NavigationOverlay = ({
                   </>
                 ) : (
                   <>
-                    {/* Check Eligibility - Primary CTA - HIGH VISIBILITY */}
+                    {/* Check Eligibility - Primary CTA - Only for operational regions */}
                     <button
                       onClick={handleEligibility}
                       className={cn(
                         "w-full flex items-center justify-center gap-3 py-5 px-6 rounded-xl transition-all duration-200",
                         "touch-manipulation min-h-[60px] active:scale-[0.97]",
-                        "bg-white text-[hsl(178,48%,16%)] font-bold text-lg",
-                        "shadow-xl shadow-white/20 border-2 border-white",
-                        "hover:bg-white/95",
+                        isOperational
+                          ? "bg-white text-[hsl(178,48%,16%)] font-bold text-lg shadow-xl shadow-white/20 border-2 border-white hover:bg-white/95"
+                          : "bg-white/20 text-white/50 font-bold text-lg border-2 border-white/20 cursor-not-allowed",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A2E2A]"
                       )}
                     >
                       Check Eligibility
+                      {!isOperational && <span className="text-xs opacity-60">(Coming Soon)</span>}
                     </button>
                     
-                    {/* Patient Login - Secondary CTA - Clear but distinct */}
-                    <Link
-                      to="/auth"
-                      onClick={onClose}
-                      className={cn(
-                        "flex items-center justify-center gap-3 py-5 px-6 rounded-xl transition-all duration-200",
-                        "touch-manipulation min-h-[60px] active:scale-[0.97]",
-                        "bg-[#EAB308]/20 text-[#EAB308] font-semibold text-lg border-2 border-[#EAB308]/60",
-                        "hover:bg-[#EAB308]/30 hover:border-[#EAB308]",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EAB308]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A2E2A]"
-                      )}
-                    >
-                      <User className="w-5 h-5" />
-                      Patient Login
-                    </Link>
+                    {/* Patient Login - Secondary CTA */}
+                    {isOperational ? (
+                      <Link
+                        to="/auth"
+                        onClick={onClose}
+                        className={cn(
+                          "flex items-center justify-center gap-3 py-5 px-6 rounded-xl transition-all duration-200",
+                          "touch-manipulation min-h-[60px] active:scale-[0.97]",
+                          "bg-[#EAB308]/20 text-[#EAB308] font-semibold text-lg border-2 border-[#EAB308]/60",
+                          "hover:bg-[#EAB308]/30 hover:border-[#EAB308]",
+                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EAB308]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A2E2A]"
+                        )}
+                      >
+                        <User className="w-5 h-5" />
+                        Patient Login
+                      </Link>
+                    ) : (
+                      <button
+                        onClick={handleComingSoon}
+                        className={cn(
+                          "w-full flex items-center justify-center gap-3 py-5 px-6 rounded-xl transition-all duration-200",
+                          "touch-manipulation min-h-[60px]",
+                          "bg-white/10 text-white/50 font-semibold text-lg border-2 border-white/10 cursor-not-allowed",
+                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                        )}
+                      >
+                        <User className="w-5 h-5" />
+                        Patient Login
+                        <span className="text-xs opacity-60">(Coming Soon)</span>
+                      </button>
+                    )}
                   </>
                 )}
               </div>
