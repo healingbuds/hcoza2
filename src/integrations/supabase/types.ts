@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      contact_inquiries: {
+        Row: {
+          country_code: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          inquiry_type: string
+          medical_context: string | null
+          phone: string
+          source: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          country_code?: string
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          inquiry_type: string
+          medical_context?: string | null
+          phone: string
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          country_code?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          inquiry_type?: string
+          medical_context?: string | null
+          phone?: string
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       dosage_logs: {
         Row: {
           consumption_method: string

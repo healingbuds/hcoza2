@@ -18,6 +18,7 @@ import TrustMotifs, { CertifiedMotif, LabTestedMotif, SecureShieldMotif, Deliver
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useShop } from "@/context/ShopContext";
+import { ContactEligibilityOverlay } from "@/components/ContactEligibilityOverlay";
 import heroVideo from "/hero-video.mp4";
 import hbLogoTeal from "@/assets/hb-logo-teal.png";
 import hbIconWhiteTraceability from "@/assets/hb-icon-white-traceability.png";
@@ -32,6 +33,7 @@ const eligibilitySteps = [
 const Index = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [ctaIconHovered, setCtaIconHovered] = useState(false);
+  const [contactOverlayOpen, setContactOverlayOpen] = useState(false);
   const navigate = useNavigate();
   const { drGreenClient, isEligible } = useShop();
   const heroRef = useRef<HTMLElement>(null);
@@ -112,7 +114,7 @@ const Index = () => {
                     <Button 
                       size="lg" 
                       className="text-lg px-8 py-6 bg-highlight hover:bg-highlight/90 text-highlight-foreground shadow-lg"
-                      onClick={() => navigate('/eligibility')}
+                      onClick={() => setContactOverlayOpen(true)}
                     >
                       Check Eligibility
                       <ArrowRight className="ml-2 w-5 h-5" />
@@ -254,7 +256,7 @@ const Index = () => {
                 <div className="text-center mt-10">
                   <Button 
                     size="lg"
-                    onClick={() => navigate('/eligibility')}
+                    onClick={() => setContactOverlayOpen(true)}
                   >
                     Start Your Assessment
                     <ArrowRight className="ml-2 w-5 h-5" />
@@ -362,7 +364,7 @@ const Index = () => {
                     <Button 
                       size="lg" 
                       className="text-lg px-8 py-6"
-                      onClick={() => navigate('/eligibility')}
+                      onClick={() => setContactOverlayOpen(true)}
                     >
                       Start Medical Assessment
                       <ArrowRight className="ml-2 w-5 h-5" />
@@ -383,6 +385,13 @@ const Index = () => {
         </main>
 
         <Footer />
+        
+        {/* Contact/Eligibility Overlay */}
+        <ContactEligibilityOverlay 
+          open={contactOverlayOpen} 
+          onOpenChange={setContactOverlayOpen}
+          source="homepage"
+        />
       </div>
     </PageTransition>
   );
