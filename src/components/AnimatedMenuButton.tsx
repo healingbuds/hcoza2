@@ -12,18 +12,23 @@ const AnimatedMenuButton = ({ isOpen, onClick, className = "", isDark = true }: 
   const barTransition = {
     type: "spring" as const,
     stiffness: 400,
-    damping: 30,
+    damping: 28,
   };
 
   return (
     <motion.button
       onClick={onClick}
       className={cn(
-        "relative flex items-center justify-center w-10 h-10 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+        "relative flex items-center justify-center w-10 h-10 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transition-shadow duration-300",
         className
       )}
       whileTap={{ scale: 0.92 }}
-      whileHover={{ backgroundColor: isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 128, 128, 0.1)" }}
+      whileHover={{ 
+        backgroundColor: isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 128, 128, 0.1)",
+        boxShadow: isDark 
+          ? "0 0 20px rgba(255, 255, 255, 0.15)" 
+          : "0 0 20px rgba(0, 128, 128, 0.15)"
+      }}
       aria-label={isOpen ? "Close menu" : "Open menu"}
       aria-expanded={isOpen}
     >
@@ -34,6 +39,7 @@ const AnimatedMenuButton = ({ isOpen, onClick, className = "", isDark = true }: 
           animate={{
             rotate: isOpen ? 45 : 0,
             y: isOpen ? 9 : 0,
+            backgroundColor: isOpen ? "rgba(234, 179, 8, 1)" : "rgba(255, 255, 255, 1)"
           }}
           transition={barTransition}
         />
@@ -54,6 +60,7 @@ const AnimatedMenuButton = ({ isOpen, onClick, className = "", isDark = true }: 
           animate={{
             rotate: isOpen ? -45 : 0,
             y: isOpen ? -9 : 0,
+            backgroundColor: isOpen ? "rgba(234, 179, 8, 1)" : "rgba(255, 255, 255, 1)"
           }}
           transition={barTransition}
         />
