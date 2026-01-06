@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, Zap } from 'lucide-react';
 import Header from '@/layout/Header';
 import Footer from '@/components/Footer';
 import SEOHead from '@/components/SEOHead';
@@ -54,6 +54,19 @@ export default function Shop() {
       />
 
       <div className="min-h-screen bg-background">
+        {/* Dev Mode API Status Indicator */}
+        {(import.meta.env.DEV || window.location.search.includes('dev=true')) && (
+          <div className="fixed bottom-4 left-4 z-50">
+            <a 
+              href="/test-flow"
+              className="flex items-center gap-2 px-3 py-2 text-xs font-mono bg-primary/10 border border-primary/20 rounded-lg hover:bg-primary/20 transition-colors"
+            >
+              <Zap className="h-3 w-3 text-primary" />
+              <span>Flow Auditor</span>
+              <span className="text-muted-foreground">| {countryCode}</span>
+            </a>
+          </div>
+        )}
         <Header />
 
         {/* Hero Section */}
