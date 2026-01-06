@@ -1,4 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import {
+  brandedEmailTemplate,
+  paragraph,
+  signature,
+  getFromAddress,
+  BRAND_COLORS,
+} from "../_shared/email-template.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
@@ -144,43 +151,29 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
     
-    // Logo URL for email header
-    const logoUrl = `${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/email-assets/hb-logo-white.png`;
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
 
-    // Build email HTML
-    const emailHtml = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-      </head>
-      <body style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #f4f7f6;">
-        <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-          <div style="background: linear-gradient(135deg, #2a3d3a 0%, #1a2e2a 100%); padding: 32px; border-radius: 16px 16px 0 0; text-align: center;">
-            <img src="${logoUrl}" alt="Healing Buds" width="180" style="display: inline-block; max-width: 180px; height: auto;" />
-            <p style="color: rgba(255,255,255,0.9); margin: 12px 0 0 0; font-size: 14px;">Medical Cannabis Care</p>
-          </div>
-          <div style="background-color: #ffffff; padding: 32px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
-            <h2 style="color: #1a2e2a; margin: 0 0 16px; font-size: 20px;">Thank you for contacting us, ${name.trim()}!</h2>
-            <p style="color: #5a6b68; line-height: 1.6; margin: 0 0 16px;">We have received your message and will get back to you as soon as possible.</p>
-            <div style="background-color: #f4f7f6; padding: 20px; border-radius: 12px; margin: 24px 0;">
-              <p style="color: #5a6b68; margin: 0 0 8px; font-size: 14px;"><strong>Subject:</strong> ${subject.trim()}</p>
-              <p style="color: #5a6b68; margin: 0; font-size: 14px;"><strong>Your message:</strong></p>
-              <p style="color: #5a6b68; margin: 8px 0 0; font-size: 14px; white-space: pre-wrap;">${message.trim()}</p>
-            </div>
-            <p style="color: #5a6b68; line-height: 1.6; margin: 24px 0 0;">
-              Best regards,<br>
-              <strong>The Healing Buds Team</strong>
-            </p>
-          </div>
-          <div style="text-align: center; padding: 24px 0;">
-            <p style="color: #8a9a96; font-size: 12px; margin: 0;">© 2024 Healing Buds Global. All rights reserved.</p>
-          </div>
-        </div>
-      </body>
-      </html>
+    // Build email body content
+    const emailBodyContent = `
+      ${paragraph(`Thank you for contacting us, ${name.trim()}!`)}
+      ${paragraph(`We have received your message and will get back to you as soon as possible.`)}
+      
+      <div style="background-color: ${BRAND_COLORS.gray100}; padding: 20px; border-radius: 12px; margin: 24px 0;">
+        <p style="color: ${BRAND_COLORS.gray600}; margin: 0 0 8px; font-size: 14px;"><strong>Subject:</strong> ${subject.trim()}</p>
+        <p style="color: ${BRAND_COLORS.gray600}; margin: 0 0 8px; font-size: 14px;"><strong>Your message:</strong></p>
+        <p style="color: ${BRAND_COLORS.gray600}; margin: 0; font-size: 14px; white-space: pre-wrap;">${message.trim()}</p>
+      </div>
+      
+      ${signature()}
     `;
+
+    // Wrap in branded template
+    const emailHtml = brandedEmailTemplate(emailBodyContent, {
+      type: 'default',
+      brandName: 'Healing Buds',
+      supportEmail: 'support@healingbuds.co.za',
+      supabaseUrl,
+    });
 
     // Send email using Resend API via fetch
     const resendResponse = await fetch('https://api.resend.com/emails', {
@@ -190,7 +183,7 @@ const handler = async (req: Request): Promise<Response> => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: "Healing Buds <noreply@send.healingbuds.co.za>",
+        from: getFromAddress('Healing Buds'),
         to: [email.trim()],
         subject: "Thank you for contacting Healing Buds",
         html: emailHtml,
