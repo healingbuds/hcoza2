@@ -116,7 +116,7 @@ const handler = async (req: Request): Promise<Response> => {
 
       try {
         await resend.emails.send({
-          from: "Healing Buds <noreply@healingbuds.co.za>",
+          from: "Healing Buds <noreply@send.healingbuds.co.za>",
           to: [data.email],
           subject: "We've Received Your Inquiry - Healing Buds",
           html: `
@@ -165,7 +165,7 @@ const handler = async (req: Request): Promise<Response> => {
       // Send notification to admin
       try {
         await resend.emails.send({
-          from: "Healing Buds <noreply@healingbuds.co.za>",
+          from: "Healing Buds <noreply@send.healingbuds.co.za>",
           to: ["info@healingbuds.co.za"],
           subject: `New Inquiry: ${inquiryTypeLabels[data.inquiryType]} - ${data.fullName}`,
           html: `

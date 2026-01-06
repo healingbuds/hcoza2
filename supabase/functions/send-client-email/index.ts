@@ -436,11 +436,8 @@ const handler = async (req: Request): Promise<Response> => {
     // Generate email content
     const emailContent = getEmailTemplate(request, domainConfig);
 
-    // Determine from address - use verified domain or fallback
-    // Note: Until domains are verified on Resend, we use onboarding@resend.dev
-    const fromAddress = `${domainConfig.brandName} <onboarding@resend.dev>`;
-    // Once domains are verified, uncomment this:
-    // const fromAddress = `${domainConfig.brandName} <noreply@${domainConfig.domain}>`;
+    // Use verified subdomain for sending
+    const fromAddress = `${domainConfig.brandName} <noreply@send.healingbuds.co.za>`;
 
     console.log('[send-client-email] Sending email:', {
       from: fromAddress,
