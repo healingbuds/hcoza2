@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
 import { useTenant } from "@/hooks/useTenant";
 import EligibilityDialog from "@/components/EligibilityDialog";
+import { ContactEligibilityOverlay } from "@/components/ContactEligibilityOverlay";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import ThemeToggle from "@/components/ThemeToggle";
 import NavigationMenu from "@/components/NavigationMenu";
@@ -45,6 +46,7 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [eligibilityDialogOpen, setEligibilityDialogOpen] = useState(false);
+  const [contactOverlayOpen, setContactOverlayOpen] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -202,7 +204,7 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
                   {/* Check Eligibility - Only show for operational regions */}
                   {isOperational && (
                     <button
-                      onClick={() => setEligibilityDialogOpen(true)}
+                      onClick={() => setContactOverlayOpen(true)}
                       className={cn(
                         "font-semibold px-5 py-2.5 rounded-lg transition-all duration-300",
                         "bg-emerald-500 text-white hover:bg-emerald-400",
@@ -322,12 +324,19 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
         isAdmin={isAdmin}
         isOperational={isOperational}
         onLogout={handleLogout}
-        onEligibilityClick={() => setEligibilityDialogOpen(true)}
+        onEligibilityClick={() => setContactOverlayOpen(true)}
         scrolled={scrolled}
       />
 
-      {/* Eligibility Dialog */}
+      {/* Eligibility Dialog (legacy) */}
       <EligibilityDialog open={eligibilityDialogOpen} onOpenChange={setEligibilityDialogOpen} />
+      
+      {/* New Contact/Eligibility Overlay */}
+      <ContactEligibilityOverlay 
+        open={contactOverlayOpen} 
+        onOpenChange={setContactOverlayOpen}
+        source="header"
+      />
     </>
   );
 };
