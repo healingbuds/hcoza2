@@ -1,5 +1,5 @@
 import { ArrowUp } from "lucide-react";
-import drGreenLogo from "@/assets/drgreen-nft-logo.png";
+import drGreenLogo from "@/assets/drgreen-logo.svg";
 import hbLogo from "@/assets/hb-logo-white.png";
 import { useTenant } from "@/hooks/useTenant";
 
@@ -12,45 +12,50 @@ const FooterBottomBar = () => {
   };
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-6 border-t border-white/10">
+    <div className="px-4 sm:px-6 lg:px-8 py-8 border-t border-white/10 bg-gradient-to-t from-black/20 to-transparent">
       <div className="max-w-6xl mx-auto">
         {/* Mobile layout: stacked */}
-        <div className="flex flex-col items-center gap-4 md:hidden">
-          {/* Logo */}
-          <img 
-            src={hbLogo}
-            alt={tenant.name}
-            className="h-8 w-auto"
-          />
+        <div className="flex flex-col items-center gap-6 md:hidden">
+          {/* Logo with glow effect */}
+          <div className="relative">
+            <div className="absolute inset-0 blur-2xl bg-teal-500/20 rounded-full" />
+            <img 
+              src={hbLogo}
+              alt={tenant.name}
+              className="h-10 w-auto relative z-10 drop-shadow-lg"
+            />
+          </div>
           
-          {/* Copyright */}
-          <p className="text-white/50 text-xs text-center">
+          {/* Copyright with enhanced styling */}
+          <p className="text-white/40 text-xs text-center tracking-wide font-light">
             © {currentYear} {tenant.name}. All rights reserved.
           </p>
           
           {/* Bottom row: Powered by + Back to top */}
-          <div className="flex items-center justify-between w-full">
+          <div className="flex items-center justify-between w-full pt-4 border-t border-white/5">
             <a 
               href="https://drgreennft.com" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex items-center gap-2 opacity-50 hover:opacity-70 transition-opacity duration-300"
-              title="Powered by Dr. Green NFT"
+              className="flex items-center gap-2.5 group transition-all duration-300 hover:scale-105"
+              title="Powered by Dr. Green"
             >
-              <span className="text-white/60 text-xs">Powered by</span>
+              <span className="text-white/40 text-[10px] uppercase tracking-widest font-medium group-hover:text-white/60 transition-colors">
+                Powered by
+              </span>
               <img 
                 src={drGreenLogo}
-                alt="Dr. Green NFT"
-                className="h-6 w-auto"
+                alt="Dr. Green"
+                className="h-5 w-auto opacity-60 group-hover:opacity-90 transition-opacity"
               />
             </a>
             
             <button
               onClick={scrollToTop}
               aria-label="Back to top"
-              className="w-10 h-10 rounded-full flex items-center justify-center bg-white/10 border border-white/20 transition-all duration-300 hover:bg-teal-500 hover:border-teal-500 hover:-translate-y-1 group"
+              className="w-11 h-11 rounded-full flex items-center justify-center bg-gradient-to-br from-white/10 to-white/5 border border-white/10 backdrop-blur-sm transition-all duration-300 hover:from-teal-500/80 hover:to-emerald-600/80 hover:border-teal-400/50 hover:-translate-y-1 hover:shadow-lg hover:shadow-teal-500/25 group"
             >
-              <ArrowUp className="w-4 h-4 text-white/70 group-hover:text-white" />
+              <ArrowUp className="w-4 h-4 text-white/60 group-hover:text-white transition-colors" />
             </button>
           </div>
         </div>
@@ -58,40 +63,48 @@ const FooterBottomBar = () => {
         {/* Desktop layout: horizontal */}
         <div className="hidden md:flex items-center justify-between">
           {/* Left: Logo + Copyright */}
-          <div className="flex items-center gap-4">
-            <img 
-              src={hbLogo}
-              alt={tenant.name}
-              className="h-8 w-auto"
-            />
-            <p className="text-white/50 text-sm">
+          <div className="flex items-center gap-6">
+            <div className="relative group">
+              <div className="absolute inset-0 blur-2xl bg-teal-500/0 group-hover:bg-teal-500/20 rounded-full transition-all duration-500" />
+              <img 
+                src={hbLogo}
+                alt={tenant.name}
+                className="h-9 w-auto relative z-10 drop-shadow-lg"
+              />
+            </div>
+            <div className="h-6 w-px bg-white/10" />
+            <p className="text-white/40 text-sm tracking-wide font-light">
               © {currentYear} {tenant.name}. All rights reserved.
             </p>
           </div>
           
           {/* Right: Powered by + Back to top */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
             <a 
               href="https://drgreennft.com" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex items-center gap-2 opacity-50 hover:opacity-70 transition-opacity duration-300"
-              title="Powered by Dr. Green NFT"
+              className="flex items-center gap-3 group transition-all duration-300 hover:scale-105"
+              title="Powered by Dr. Green"
             >
-              <span className="text-white/60 text-xs">Powered by</span>
+              <span className="text-white/40 text-[10px] uppercase tracking-widest font-medium group-hover:text-white/60 transition-colors">
+                Powered by
+              </span>
               <img 
                 src={drGreenLogo}
-                alt="Dr. Green NFT"
-                className="h-6 w-auto"
+                alt="Dr. Green"
+                className="h-6 w-auto opacity-60 group-hover:opacity-100 transition-opacity"
               />
             </a>
+            
+            <div className="h-6 w-px bg-white/10" />
             
             <button
               onClick={scrollToTop}
               aria-label="Back to top"
-              className="w-10 h-10 rounded-full flex items-center justify-center bg-white/10 border border-white/20 transition-all duration-300 hover:bg-teal-500 hover:border-teal-500 hover:-translate-y-1 group"
+              className="w-11 h-11 rounded-full flex items-center justify-center bg-gradient-to-br from-white/10 to-white/5 border border-white/10 backdrop-blur-sm transition-all duration-300 hover:from-teal-500/80 hover:to-emerald-600/80 hover:border-teal-400/50 hover:-translate-y-1 hover:shadow-lg hover:shadow-teal-500/25 group"
             >
-              <ArrowUp className="w-4 h-4 text-white/70 group-hover:text-white" />
+              <ArrowUp className="w-4 h-4 text-white/60 group-hover:text-white transition-colors" />
             </button>
           </div>
         </div>
