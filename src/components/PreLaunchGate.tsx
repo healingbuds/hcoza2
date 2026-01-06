@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, CheckCircle, Loader2, Sparkles } from 'lucide-react';
 import { useRegionGate } from '@/hooks/useRegionGate';
+import { useWaitlistSignup } from '@/hooks/useWaitlistSignup';
 import hbLogo from '@/assets/hb-logo-white.png';
 
 type SubmitStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -39,7 +40,8 @@ const localizedContent: Record<string, {
 const defaultContent = localizedContent.GB;
 
 export const PreLaunchGate: React.FC = () => {
-  const { countryCode, shouldShowGate, dismissGate, markWaitlistJoined } = useRegionGate();
+  const { countryCode, countryName, shouldShowGate, dismissGate, markWaitlistJoined } = useRegionGate();
+  const { signup, isLoading } = useWaitlistSignup();
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<SubmitStatus>('idle');
   const [errorMessage, setErrorMessage] = useState('');
@@ -63,14 +65,18 @@ export const PreLaunchGate: React.FC = () => {
     setStatus('loading');
     setErrorMessage('');
 
-    try {
-      // Simulate API call - in production, this would save to database
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+    const result = await signup({
+      email,
+      countryCode,
+      countryName,
+      source: 'prelaunch_gate',
+    });
+    
+    if (result.success) {
       markWaitlistJoined(email);
       setStatus('success');
-    } catch (error) {
-      setErrorMessage('Something went wrong. Please try again.');
+    } else {
+      setErrorMessage(result.error || 'Something went wrong. Please try again.');
       setStatus('error');
     }
   };
@@ -177,7 +183,7 @@ export const PreLaunchGate: React.FC = () => {
 
                   <button
                     type="submit"
-                    disabled={status === 'loading' || !email}
+                    disabled={status === 'loading' || isLoading || !email}
                     className="w-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 py-4 font-medium text-white shadow-lg transition-all hover:shadow-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {status === 'loading' ? (

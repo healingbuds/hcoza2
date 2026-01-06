@@ -464,6 +464,51 @@ export type Database = {
         }
         Relationships: []
       }
+      waitlist_signups: {
+        Row: {
+          country_code: string
+          country_name: string
+          created_at: string
+          email: string
+          email_confirmed: boolean | null
+          email_sent_at: string | null
+          id: string
+          ip_address: string | null
+          referrer: string | null
+          source: string
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          country_code: string
+          country_name: string
+          created_at?: string
+          email: string
+          email_confirmed?: boolean | null
+          email_sent_at?: string | null
+          id?: string
+          ip_address?: string | null
+          referrer?: string | null
+          source?: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          country_code?: string
+          country_name?: string
+          created_at?: string
+          email?: string
+          email_confirmed?: boolean | null
+          email_sent_at?: string | null
+          id?: string
+          ip_address?: string | null
+          referrer?: string | null
+          source?: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

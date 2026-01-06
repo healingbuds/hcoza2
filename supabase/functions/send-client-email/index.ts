@@ -55,13 +55,112 @@ function getDomainConfig(region?: string) {
 }
 
 interface ClientEmailRequest {
-  type: 'welcome' | 'kyc-link' | 'kyc-approved' | 'kyc-rejected' | 'eligibility-approved' | 'eligibility-rejected';
+  type: 'welcome' | 'kyc-link' | 'kyc-approved' | 'kyc-rejected' | 'eligibility-approved' | 'eligibility-rejected' | 'waitlist-welcome';
   email: string;
   name: string;
   region?: string;
   kycLink?: string;
   clientId?: string;
   rejectionReason?: string;
+  countryName?: string;
+}
+
+// Waitlist email helpers
+function getWaitlistSubject(region?: string, countryName?: string): string {
+  if (region === 'PT') {
+    return 'Está na Lista de Espera da Healing Buds! 🌱';
+  }
+  if (region === 'GB') {
+    return "You're on the Healing Buds UK Waitlist! 🌱";
+  }
+  return `Welcome to the Healing Buds ${countryName || ''} Waitlist! 🌱`.trim();
+}
+
+function getWaitlistBody(firstName: string, region?: string, countryName?: string, config?: typeof DOMAIN_CONFIG['global']): string {
+  const supportEmail = config?.supportEmail || 'support@healingbuds.global';
+  
+  if (region === 'PT') {
+    return `
+      <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
+        Olá ${firstName},
+      </p>
+      <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
+        Obrigado por se juntar à lista de espera da Healing Buds Portugal!
+      </p>
+      <div style="background-color: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;">
+        <p style="margin: 0; color: #16a34a; font-size: 18px; font-weight: 600;">
+          🌱 Está na Lista!
+        </p>
+      </div>
+      <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
+        Estamos a trabalhar para trazer cuidados de canábis medicinal regulamentados para Portugal. Como membro da lista de espera, será dos primeiros a saber quando lançarmos.
+      </p>
+      <h3 style="color: #18181b; font-size: 18px; margin: 24px 0 12px 0;">O que acontece a seguir:</h3>
+      <ul style="color: #18181b; font-size: 16px; line-height: 1.8; margin: 0; padding-left: 20px;">
+        <li>Manteremos-no/a atualizado/a sobre o nosso progresso em Portugal</li>
+        <li>Terá acesso antecipado quando as inscrições abrirem</li>
+        <li>Sem spam - apenas atualizações importantes</li>
+      </ul>
+      <p style="color: #71717a; font-size: 14px; margin: 24px 0 0 0;">
+        Até breve,<br>A Equipa Healing Buds
+      </p>
+    `;
+  }
+  
+  if (region === 'GB') {
+    return `
+      <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
+        Dear ${firstName},
+      </p>
+      <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
+        Thank you for joining the Healing Buds UK waitlist!
+      </p>
+      <div style="background-color: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;">
+        <p style="margin: 0; color: #16a34a; font-size: 18px; font-weight: 600;">
+          🌱 You're on the List!
+        </p>
+      </div>
+      <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
+        We're working hard to bring regulated medical cannabis care to the United Kingdom. As a waitlist member, you'll be among the first to know when we launch.
+      </p>
+      <h3 style="color: #18181b; font-size: 18px; margin: 24px 0 12px 0;">What happens next:</h3>
+      <ul style="color: #18181b; font-size: 16px; line-height: 1.8; margin: 0; padding-left: 20px;">
+        <li>We'll keep you updated on our UK launch progress</li>
+        <li>You'll receive early access when registrations open</li>
+        <li>No spam - only important updates</li>
+      </ul>
+      <p style="color: #71717a; font-size: 14px; margin: 24px 0 0 0;">
+        Best regards,<br>The Healing Buds Team
+      </p>
+    `;
+  }
+  
+  // Default/other regions
+  return `
+    <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
+      Dear ${firstName},
+    </p>
+    <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
+      Thank you for joining the Healing Buds ${countryName || ''} pre-launch waitlist!
+    </p>
+    <div style="background-color: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;">
+      <p style="margin: 0; color: #16a34a; font-size: 18px; font-weight: 600;">
+        🌱 You're on the List!
+      </p>
+    </div>
+    <p style="color: #18181b; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
+      You're now on our pre-launch list. We'll notify you as soon as we're ready to welcome patients in your region.
+    </p>
+    <h3 style="color: #18181b; font-size: 18px; margin: 24px 0 12px 0;">What happens next:</h3>
+    <ul style="color: #18181b; font-size: 16px; line-height: 1.8; margin: 0; padding-left: 20px;">
+      <li>We'll keep you updated on our launch progress</li>
+      <li>You'll receive early access when registrations open</li>
+      <li>No spam - only important updates</li>
+    </ul>
+    <p style="color: #71717a; font-size: 14px; margin: 24px 0 0 0;">
+      Best regards,<br>The Healing Buds Team
+    </p>
+  `;
 }
 
 // Email templates
@@ -257,6 +356,10 @@ function getEmailTemplate(request: ClientEmailRequest, config: typeof DOMAIN_CON
           If you believe this decision was made in error or have additional medical documentation, please contact us at ${config.supportEmail}
         </p>
       `,
+    },
+    'waitlist-welcome': {
+      subject: getWaitlistSubject(request.region, request.countryName),
+      body: getWaitlistBody(firstName, request.region, request.countryName, config),
     },
   };
 

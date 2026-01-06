@@ -3,6 +3,7 @@ import { ArrowRight, Loader2, Check, Sprout } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRegionGate } from "@/hooks/useRegionGate";
+import { useWaitlistSignup } from "@/hooks/useWaitlistSignup";
 
 const WaitlistCTA = () => {
   const { isOperational } = useRegionGate();
@@ -17,6 +18,8 @@ const WaitlistCTA = () => {
 };
 
 const WaitlistCTAContent = () => {
+  const { countryCode, countryName } = useRegionGate();
+  const { signup, isLoading } = useWaitlistSignup();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -32,10 +35,19 @@ const WaitlistCTAContent = () => {
 
     setStatus("loading");
     
-    // Simulate API call - replace with actual waitlist API
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    const result = await signup({
+      email,
+      countryCode,
+      countryName,
+      source: 'footer_cta',
+    });
     
-    setStatus("success");
+    if (result.success) {
+      setStatus("success");
+    } else {
+      setStatus("error");
+      setErrorMessage(result.error || 'Something went wrong. Please try again.');
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,7 +141,7 @@ const WaitlistCTAContent = () => {
 
                   <button
                     type="submit"
-                    disabled={status === "loading"}
+                    disabled={status === "loading" || isLoading}
                     aria-busy={status === "loading"}
                     className={cn(
                       "w-full sm:w-auto sm:min-w-[160px] px-6 py-4 rounded-full font-semibold text-white",
