@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { 
   Mail, 
   MessageCircle, 
@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGeoLocation } from "@/hooks/useGeoLocation";
+import useScrollToHash from "@/hooks/useScrollToHash";
 
 const faqCategories = [
   {
@@ -196,6 +197,19 @@ const Support = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState('eligibility');
   const locationConfig = useGeoLocation();
+  const location = useLocation();
+  
+  // Enable smooth scrolling to hash targets
+  useScrollToHash(120);
+  
+  // Auto-switch to delivery tab when navigating to #delivery
+  useEffect(() => {
+    if (location.hash === '#delivery') {
+      setActiveCategory('delivery');
+    } else if (location.hash === '#faq') {
+      setActiveCategory('eligibility');
+    }
+  }, [location.hash]);
 
   return (
     <PageTransition variant="premium">
@@ -271,7 +285,7 @@ const Support = () => {
           </section>
 
           {/* FAQ Section - Tabbed Interface */}
-          <section className="py-12">
+          <section id="faq" className="py-12 scroll-mt-28">
             <div className="container mx-auto px-4">
               <div className="max-w-5xl mx-auto">
                 <motion.div

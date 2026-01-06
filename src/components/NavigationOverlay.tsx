@@ -4,15 +4,16 @@
  * Premium mobile navigation drawer with glassmorphism matching ContactEligibilityOverlay.
  */
 
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { X, LogOut, LayoutDashboard, User, FileText, ClipboardCheck, ShoppingBag, HeadphonesIcon, Home, Shield, Settings, Lock, Award, Truck, ArrowRight, HelpCircle, BookOpen } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { useTranslation } from "react-i18next";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { useToast } from "@/hooks/use-toast";
+import { scrollToSection } from "@/hooks/useScrollToHash";
 import hbLogoWhite from "@/assets/hb-logo-white-full.png";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggle from "./ThemeToggle";
@@ -136,11 +137,32 @@ const NavigationOverlay = ({
   ];
 
   const quickLinks = [
-    { to: "/support#faq", label: "FAQ", icon: HelpCircle },
-    { to: "/research#guidelines", label: "Medical Guidelines", icon: BookOpen },
-    { to: "/support#delivery", label: "Delivery Info", icon: Truck },
-    { to: "/terms", label: "Legal & Compliance", icon: FileText }
+    { to: "/support#faq", label: "FAQ", icon: HelpCircle, hash: "faq" },
+    { to: "/traceability", label: "Medical Guidelines", icon: BookOpen, hash: null },
+    { to: "/support#delivery", label: "Delivery Info", icon: Truck, hash: "delivery" },
+    { to: "/terms", label: "Legal & Compliance", icon: FileText, hash: null }
   ];
+
+  // Handle quick link navigation with smooth scroll
+  const navigate = useNavigate();
+  
+  const handleQuickLinkClick = useCallback((to: string, hash: string | null) => {
+    onClose();
+    
+    // Parse the path and hash from the 'to' prop
+    const [path, targetHash] = to.split('#');
+    const currentPath = location.pathname;
+    
+    // If we're already on the target page, just scroll to the section
+    if (currentPath === path && targetHash) {
+      setTimeout(() => {
+        scrollToSection(targetHash, 120);
+      }, 350); // Wait for drawer close animation
+    } else {
+      // Navigate to the new page - the useScrollToHash hook on that page will handle scrolling
+      navigate(to);
+    }
+  }, [location.pathname, navigate, onClose]);
 
   const navLinkStyles = (active: boolean) => cn(
     "text-base transition-all duration-200 py-4 px-5 rounded-xl relative",
@@ -152,7 +174,7 @@ const NavigationOverlay = ({
   );
 
   const quickLinkStyles = cn(
-    "text-sm transition-all duration-200 py-3 px-5 rounded-xl relative",
+    "text-sm transition-all duration-200 py-3 px-5 rounded-xl relative cursor-pointer",
     "touch-manipulation min-h-[48px] flex items-center gap-4 active:scale-[0.98]",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EAB308]/50",
     "text-white/80 hover:text-white hover:bg-white/10"
@@ -344,14 +366,14 @@ const NavigationOverlay = ({
                         }
                       }}
                     >
-                      <Link 
-                        to={item.to} 
+                      <button 
+                        type="button"
                         className={quickLinkStyles}
-                        onClick={onClose}
+                        onClick={() => handleQuickLinkClick(item.to, item.hash)}
                       >
                         <Icon className="w-4 h-4 text-white/50" />
-                        <span className="flex-1">{item.label}</span>
-                      </Link>
+                        <span className="flex-1 text-left">{item.label}</span>
+                      </button>
                     </motion.div>
                   );
                 })}
