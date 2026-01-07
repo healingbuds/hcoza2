@@ -13,13 +13,16 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDrGreenApi } from "@/hooks/useDrGreenApi";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Search, 
   XCircle, 
   RefreshCw,
   Users,
   Filter,
-  ExternalLink
+  ExternalLink,
+  Database,
+  Cloud
 } from "lucide-react";
 import {
   Select,
@@ -47,10 +50,11 @@ export function CustomerManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
+  const [dataSource, setDataSource] = useState<"api" | "local">("api");
   const pageSize = 10;
 
   // Fetch clients from Dr. Green API
-  const { data: clientsData, isLoading, error, refetch } = useQuery({
+  const { data: apiClientsData, isLoading: isApiLoading, error: apiError, refetch: refetchApi } = useQuery({
     queryKey: ["dapp-clients", page, statusFilter],
     queryFn: async () => {
       const response = await getDappClients({ 
@@ -63,22 +67,55 @@ export function CustomerManagement() {
       }
       return response.data;
     },
+    enabled: dataSource === "api",
   });
 
+  // Fetch clients from local Supabase database
+  const { data: localClientsData, isLoading: isLocalLoading, error: localError, refetch: refetchLocal } = useQuery({
+    queryKey: ["local-clients", page, statusFilter],
+    queryFn: async () => {
+      let query = supabase
+        .from('drgreen_clients')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .range((page - 1) * pageSize, page * pageSize - 1);
+      
+      if (statusFilter !== "all") {
+        query = query.eq('admin_approval', statusFilter);
+      }
+      
+      const { data, error } = await query;
+      if (error) throw error;
+      return data;
+    },
+    enabled: dataSource === "local",
+  });
+
+  const clientsData = dataSource === "api" ? apiClientsData : localClientsData;
+  const isLoading = dataSource === "api" ? isApiLoading : isLocalLoading;
+  const error = dataSource === "api" ? apiError : localError;
+  const refetch = dataSource === "api" ? refetchApi : refetchLocal;
+
   // Filter clients by search query - handle both array and paginated response
-  const rawClients = Array.isArray(clientsData) 
-    ? clientsData 
-    : (clientsData?.clients || []);
-  const clients: Client[] = rawClients.map((c: Record<string, unknown>) => ({
+  const getRawClients = (): Record<string, unknown>[] => {
+    if (!clientsData) return [];
+    if (Array.isArray(clientsData)) return clientsData as Record<string, unknown>[];
+    if ('clients' in clientsData && Array.isArray(clientsData.clients)) {
+      return clientsData.clients as Record<string, unknown>[];
+    }
+    return [];
+  };
+  const rawClients = getRawClients();
+  const clients: Client[] = rawClients.map((c) => ({
     id: c.id as string || c.clientId as string || "",
-    clientId: c.clientId as string,
-    fullName: c.fullName as string || `${c.firstName || ""} ${c.lastName || ""}`.trim(),
+    clientId: c.clientId as string || c.drgreen_client_id as string,
+    fullName: c.fullName as string || c.full_name as string || `${c.firstName || ""} ${c.lastName || ""}`.trim(),
     email: c.email as string,
-    countryCode: c.countryCode as string,
-    isKYCVerified: c.isKYCVerified as boolean,
-    adminApproval: c.adminApproval as string,
-    createdAt: c.createdAt as string,
-    kycLink: c.kycLink as string,
+    countryCode: c.countryCode as string || c.country_code as string,
+    isKYCVerified: (c.isKYCVerified ?? c.is_kyc_verified) as boolean,
+    adminApproval: (c.adminApproval ?? c.admin_approval) as string,
+    createdAt: (c.createdAt ?? c.created_at) as string,
+    kycLink: (c.kycLink ?? c.kyc_link) as string,
   }));
   
   const filteredClients = clients.filter((client: Client) => {
@@ -149,6 +186,33 @@ export function CustomerManagement() {
             <SelectItem value="REJECTED">Rejected</SelectItem>
           </SelectContent>
         </Select>
+      </div>
+
+      {/* Data source toggle */}
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 p-1 bg-muted rounded-lg">
+          <Button
+            variant={dataSource === "api" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => { setDataSource("api"); setPage(1); }}
+            className="gap-2"
+          >
+            <Cloud className="h-4 w-4" />
+            API Clients
+          </Button>
+          <Button
+            variant={dataSource === "local" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => { setDataSource("local"); setPage(1); }}
+            className="gap-2"
+          >
+            <Database className="h-4 w-4" />
+            Local DB
+          </Button>
+        </div>
+        <span className="text-xs text-muted-foreground">
+          {dataSource === "api" ? "Showing clients from Dr. Green API" : "Showing local test accounts"}
+        </span>
       </div>
 
       {/* Info banner */}
