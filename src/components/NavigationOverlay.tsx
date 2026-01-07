@@ -207,7 +207,7 @@ const NavigationOverlay = ({
               damping: 30,
               mass: 0.8
             }}
-            className="xl:hidden fixed top-0 right-0 bottom-0 w-[85%] max-w-[320px] sm:w-[300px] z-[9999] flex flex-col"
+            className="xl:hidden fixed top-0 right-0 bottom-0 w-[85%] max-w-[320px] sm:w-[300px] z-[9999] flex flex-col h-full max-h-screen"
             style={{ 
               background: 'linear-gradient(180deg, rgba(26, 46, 42, 0.98) 0%, rgba(30, 54, 50, 0.98) 100%)',
               backdropFilter: 'blur(20px)',
@@ -255,7 +255,8 @@ const NavigationOverlay = ({
             
             {/* Scrollable menu content */}
             <div 
-              className="flex-1 overflow-y-auto py-4 px-4"
+              className="flex-1 overflow-y-auto overscroll-contain py-4 px-4 min-h-0"
+              style={{ WebkitOverflowScrolling: 'touch' }}
             >
               {/* MENU Section Label */}
               <div className="mb-2 px-2">
