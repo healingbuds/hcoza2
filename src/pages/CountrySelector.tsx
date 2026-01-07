@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, ArrowRight, Clock } from 'lucide-react';
-import hbLogo from '@/assets/hb-logo-white.png';
+import hbLogo from '@/assets/hb-logo-white-full.png';
 
 interface RegionOption {
   code: string;
