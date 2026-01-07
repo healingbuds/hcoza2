@@ -646,7 +646,7 @@ export function ClientOnboarding() {
       setKycProgress(100);
 
       // Store client info locally (upsert to handle re-registration attempts)
-      // Include email and full_name for manual email triggers if API fails
+      // Include email, full_name, and registration_payload for manual retry if API fails
       const { error: dbError } = await supabase.from('drgreen_clients').upsert({
         user_id: user.id,
         drgreen_client_id: clientId,
@@ -656,6 +656,7 @@ export function ClientOnboarding() {
         kyc_link: kycLink,
         email: formData.personal?.email || null,
         full_name: formData.personal ? `${formData.personal.firstName} ${formData.personal.lastName}`.trim() : null,
+        registration_payload: legacyPayload as any, // Store for retry functionality (cast for type sync)
       }, {
         onConflict: 'user_id',
       });
