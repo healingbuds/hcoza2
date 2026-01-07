@@ -33,15 +33,19 @@ const ChangePassword = () => {
   const [newPassword, setNewPassword] = useState('');
   const [passwordBreachResult, setPasswordBreachResult] = useState<PwnedResult | null>(null);
   const [isPasswordValid, setIsPasswordValid] = useState(false);
+  const [isRecoveryMode, setIsRecoveryMode] = useState(false);
 
+  // Schema changes based on whether this is a recovery (no current password needed)
   const changePasswordSchema = z.object({
-    currentPassword: z.string().min(1, t('changePassword.currentRequired', 'Current password is required')),
+    currentPassword: isRecoveryMode 
+      ? z.string().optional() 
+      : z.string().min(1, t('changePassword.currentRequired', 'Current password is required')),
     newPassword: z.string().min(8, t('validationErrors.passwordMin')),
     confirmNewPassword: z.string(),
   }).refine((data) => data.newPassword === data.confirmNewPassword, {
     message: t('validationErrors.passwordMatch'),
     path: ['confirmNewPassword'],
-  }).refine((data) => data.currentPassword !== data.newPassword, {
+  }).refine((data) => isRecoveryMode || data.currentPassword !== data.newPassword, {
     message: t('changePassword.samePassword'),
     path: ['newPassword'],
   });
@@ -61,12 +65,25 @@ const ChangePassword = () => {
   const confirmNewPassword = watch('confirmNewPassword');
 
   useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === 'PASSWORD_RECOVERY') {
+          setIsRecoveryMode(true);
+          setUser(session?.user ?? null);
+          setIsLoading(false);
+        }
+      }
+    );
+
+    // Check for existing session
     const fetchUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
       setIsLoading(false);
     };
     fetchUser();
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const handleNewPasswordChange = (value: string) => {
@@ -108,20 +125,22 @@ const ChangePassword = () => {
     setIsSubmitting(true);
 
     try {
-      // Re-authenticate with current password first
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email: user.email,
-        password: data.currentPassword,
-      });
-
-      if (authError) {
-        toast({
-          title: t('error'),
-          description: t('changePassword.incorrectCurrent'),
-          variant: 'destructive',
+      // Only verify current password if NOT in recovery mode
+      if (!isRecoveryMode && data.currentPassword) {
+        const { error: authError } = await supabase.auth.signInWithPassword({
+          email: user.email,
+          password: data.currentPassword,
         });
-        setIsSubmitting(false);
-        return;
+
+        if (authError) {
+          toast({
+            title: t('error'),
+            description: t('changePassword.incorrectCurrent'),
+            variant: 'destructive',
+          });
+          setIsSubmitting(false);
+          return;
+        }
       }
 
       // Final breach check before updating
@@ -208,14 +227,16 @@ const ChangePassword = () => {
             animate={{ opacity: 1, y: 0 }}
             className="max-w-md mx-auto"
           >
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/dashboard')}
-              className="mb-6"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              {t('changePassword.cancel', 'Back to Dashboard')}
-            </Button>
+            {!isRecoveryMode && (
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/dashboard')}
+                className="mb-6"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                {t('changePassword.cancel', 'Back to Dashboard')}
+              </Button>
+            )}
 
             <Card className="bg-card/50 backdrop-blur-sm border-border/50">
               <CardHeader className="text-center">
@@ -223,45 +244,51 @@ const ChangePassword = () => {
                   <Lock className="h-8 w-8 text-primary" />
                 </div>
                 <CardTitle className="text-2xl">
-                  {t('changePassword.title', 'Change Password')}
+                  {isRecoveryMode 
+                    ? t('changePassword.resetTitle', 'Reset Your Password')
+                    : t('changePassword.title', 'Change Password')}
                 </CardTitle>
                 <CardDescription>
-                  {t('changePassword.description', 'Update your password to keep your account secure')}
+                  {isRecoveryMode
+                    ? t('changePassword.resetDescription', 'Enter your new password below')
+                    : t('changePassword.description', 'Update your password to keep your account secure')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                  {/* Current Password */}
-                  <div className="space-y-2">
-                    <Label htmlFor="currentPassword">
-                      {t('changePassword.currentPassword', 'Current Password')}
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="currentPassword"
-                        type={showCurrentPassword ? 'text' : 'password'}
-                        {...register('currentPassword')}
-                        className={errors.currentPassword ? 'border-destructive' : ''}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {showCurrentPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
+                  {/* Current Password - only show if not in recovery mode */}
+                  {!isRecoveryMode && (
+                    <div className="space-y-2">
+                      <Label htmlFor="currentPassword">
+                        {t('changePassword.currentPassword', 'Current Password')}
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="currentPassword"
+                          type={showCurrentPassword ? 'text' : 'password'}
+                          {...register('currentPassword')}
+                          className={errors.currentPassword ? 'border-destructive' : ''}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          {showCurrentPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                      {errors.currentPassword && (
+                        <p className="text-sm text-destructive flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" />
+                          {errors.currentPassword.message}
+                        </p>
+                      )}
                     </div>
-                    {errors.currentPassword && (
-                      <p className="text-sm text-destructive flex items-center gap-1">
-                        <AlertCircle className="h-3 w-3" />
-                        {errors.currentPassword.message}
-                      </p>
-                    )}
-                  </div>
+                  )}
 
                   {/* New Password */}
                   <PasswordInput
@@ -314,19 +341,21 @@ const ChangePassword = () => {
                   </div>
 
                   {/* Submit Buttons */}
-                  <div className="flex gap-3 pt-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() => navigate('/dashboard')}
-                      disabled={isSubmitting}
-                    >
-                      {t('changePassword.cancel', 'Cancel')}
-                    </Button>
+                  <div className={`flex gap-3 pt-4 ${isRecoveryMode ? '' : ''}`}>
+                    {!isRecoveryMode && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => navigate('/dashboard')}
+                        disabled={isSubmitting}
+                      >
+                        {t('changePassword.cancel', 'Cancel')}
+                      </Button>
+                    )}
                     <Button
                       type="submit"
-                      className="flex-1"
+                      className={isRecoveryMode ? 'w-full' : 'flex-1'}
                       disabled={isSubmitting || passwordBreachResult?.isPwned || !isPasswordValid}
                     >
                       {isSubmitting ? (
@@ -334,6 +363,8 @@ const ChangePassword = () => {
                           <HBLoader size="sm" className="mr-2" />
                           {t('changePassword.updating', 'Updating...')}
                         </>
+                      ) : isRecoveryMode ? (
+                        t('changePassword.setNewPassword', 'Set New Password')
                       ) : (
                         t('changePassword.updateButton', 'Update Password')
                       )}

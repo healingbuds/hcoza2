@@ -54,6 +54,12 @@ const Auth = () => {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        
+        // Handle password recovery - redirect to change password page
+        if (event === 'PASSWORD_RECOVERY') {
+          navigate('/change-password');
+          return;
+        }
       }
     );
 
@@ -63,10 +69,11 @@ const Auth = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
-    if (user) {
+    // Don't redirect if user came from password recovery
+    if (user && !window.location.hash.includes('type=recovery')) {
       navigate("/");
     }
   }, [user, navigate]);
