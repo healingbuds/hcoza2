@@ -39,7 +39,7 @@ const Index = () => {
   const [contactOverlayOpen, setContactOverlayOpen] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const navigate = useNavigate();
-  const { drGreenClient, isEligible } = useShop();
+  const { drGreenClient, isEligible, isLoading } = useShop();
   const heroRef = useRef<HTMLElement>(null);
   
   // Auth state tracking
@@ -139,7 +139,18 @@ const Index = () => {
                       <ArrowRight className="ml-2 w-5 h-5" />
                     </Button>
                     
-                    {isEligible ? (
+                    {isLoading && user ? (
+                      // Loading state while fetching user data
+                      <Button 
+                        size="lg" 
+                        variant="outline"
+                        className="text-lg px-8 py-6 bg-white/10 backdrop-blur-sm border-white/30 text-white"
+                        disabled
+                      >
+                        <span className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        Loading...
+                      </Button>
+                    ) : isEligible ? (
                       <Button 
                         size="lg" 
                         variant="outline"
