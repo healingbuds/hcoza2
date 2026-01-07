@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { SmokeParticles } from "@/components/SmokeParticles";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
@@ -7,7 +7,8 @@ import {
   Shield,
   Stethoscope,
   Play,
-  ChevronDown
+  ChevronDown,
+  User
 } from "lucide-react";
 import Header from "@/layout/Header";
 import Footer from "@/components/Footer";
@@ -19,6 +20,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useShop } from "@/context/ShopContext";
 import { ContactEligibilityOverlay } from "@/components/ContactEligibilityOverlay";
+import { supabase } from "@/integrations/supabase/client";
+import { User as SupabaseUser } from "@supabase/supabase-js";
 import heroVideo from "/hero-video.mp4";
 import hbLogoTeal from "@/assets/hb-logo-teal.png";
 import hbIconWhiteTraceability from "@/assets/hb-icon-white-traceability.png";
@@ -34,9 +37,25 @@ const Index = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [ctaIconHovered, setCtaIconHovered] = useState(false);
   const [contactOverlayOpen, setContactOverlayOpen] = useState(false);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
   const navigate = useNavigate();
   const { drGreenClient, isEligible } = useShop();
   const heroRef = useRef<HTMLElement>(null);
+  
+  // Auth state tracking
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
   
   // Parallax scroll effect for video
   const { scrollYProgress } = useScroll({
@@ -129,14 +148,27 @@ const Index = () => {
                       >
                         Browse Products
                       </Button>
-                    ) : (
+                    ) : user ? (
+                      // Logged in but not yet eligible - go to registration or eligibility
                       <Button 
                         size="lg" 
                         variant="outline"
                         className="text-lg px-8 py-6 bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20"
-                        onClick={() => navigate(drGreenClient ? '/eligibility' : '/auth')}
+                        onClick={() => navigate(drGreenClient ? '/eligibility' : '/shop/register')}
                       >
-                        {drGreenClient ? 'Continue Assessment' : 'Sign In'}
+                        <User className="mr-2 w-5 h-5" />
+                        {drGreenClient ? 'Continue Assessment' : 'Complete Registration'}
+                      </Button>
+                    ) : (
+                      // Not logged in - show sign in
+                      <Button 
+                        size="lg" 
+                        variant="outline"
+                        className="text-lg px-8 py-6 bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20"
+                        onClick={() => navigate('/auth')}
+                      >
+                        <User className="mr-2 w-5 h-5" />
+                        Sign In
                       </Button>
                     )}
                   </div>
