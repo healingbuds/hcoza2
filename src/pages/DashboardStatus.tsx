@@ -22,9 +22,10 @@ interface VerificationStep {
 
 export default function DashboardStatus() {
   const navigate = useNavigate();
-  const { drGreenClient, isLoading, syncVerificationFromDrGreen } = useShop();
+  const { drGreenClient, isLoading, syncVerificationFromDrGreen, refreshClient } = useShop();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isRetryingApi, setIsRetryingApi] = useState(false);
   const { toast } = useToast();
 
   // Manual refresh handler
@@ -46,6 +47,75 @@ export default function DashboardStatus() {
       setIsSyncing(false);
     }
   }, [syncVerificationFromDrGreen, toast]);
+
+  // [DEV] Retry API registration with stored payload
+  const handleRetryApiRegistration = useCallback(async () => {
+    setIsRetryingApi(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({ title: 'Not authenticated', variant: 'destructive' });
+        return;
+      }
+
+      // Fetch stored payload
+      const { data: client, error: fetchError } = await supabase
+        .from('drgreen_clients')
+        .select('registration_payload')
+        .eq('user_id', user.id)
+        .single();
+
+      if (fetchError || !client?.registration_payload) {
+        toast({
+          title: 'No stored payload',
+          description: 'Please complete registration again.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      console.log('[DEV Retry] Calling drgreen-proxy with stored payload...');
+      const { data: result, error } = await supabase.functions.invoke('drgreen-proxy', {
+        body: {
+          action: 'create-client-legacy',
+          payload: client.registration_payload,
+        },
+      });
+
+      console.log('[DEV Retry] Result:', result, 'Error:', error);
+
+      if (!error && result?.clientId && !result.clientId.startsWith('local-')) {
+        // Update local record with real client ID
+        await supabase.from('drgreen_clients')
+          .update({
+            drgreen_client_id: result.clientId,
+            kyc_link: result.kycLink || null,
+          })
+          .eq('user_id', user.id);
+
+        await refreshClient();
+        toast({
+          title: 'Success!',
+          description: 'Registration synced. Check email for KYC link.',
+        });
+      } else {
+        toast({
+          title: 'Retry failed',
+          description: result?.message || result?.error || 'API error - check logs',
+          variant: 'destructive',
+        });
+      }
+    } catch (err) {
+      console.error('[DEV Retry] Failed:', err);
+      toast({
+        title: 'Error',
+        description: 'Failed to retry registration',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsRetryingApi(false);
+    }
+  }, [refreshClient, toast]);
 
   // Auto-sync for pending verifications every 30 seconds
   useEffect(() => {
@@ -221,13 +291,27 @@ export default function DashboardStatus() {
                         Your registration wasn't fully synced with our verification provider. 
                         Please complete registration again to receive your KYC verification email from First AML.
                       </AlertDescription>
-                      <Button 
-                        asChild 
-                        size="sm" 
-                        className="mt-3 bg-amber-600 hover:bg-amber-500"
-                      >
-                        <Link to="/shop/register">Complete Registration</Link>
-                      </Button>
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        <Button 
+                          asChild 
+                          size="sm" 
+                          className="bg-amber-600 hover:bg-amber-500"
+                        >
+                          <Link to="/shop/register">Complete Registration</Link>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleRetryApiRegistration}
+                          disabled={isRetryingApi}
+                          className="border-dashed border-destructive text-destructive hover:bg-destructive/10"
+                        >
+                          {isRetryingApi ? (
+                            <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                          ) : null}
+                          [DEV] Retry API
+                        </Button>
+                      </div>
                     </Alert>
                   )}
 
