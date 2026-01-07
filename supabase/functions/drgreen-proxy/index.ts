@@ -1156,27 +1156,11 @@ serve(async (req) => {
         const legacyPayload = body?.payload;
         if (!legacyPayload) throw new Error("Payload is required for client creation");
         
-        // Extract fields from potentially nested structure (matching buildLegacyClientPayload output)
-        const shipping = legacyPayload.shipping || {};
-        const medicalRecord = legacyPayload.medicalRecord || {};
-        
+        // Validate required fields from the legacy payload
+        const email = legacyPayload.email;
         const firstName = legacyPayload.firstName;
         const lastName = legacyPayload.lastName;
-        const email = legacyPayload.email;
-        const contactNumber = legacyPayload.contactNumber;
-        const dob = medicalRecord.dob || legacyPayload.dob || legacyPayload.dateOfBirth || "";
-        const address1 = shipping.address1 || legacyPayload.address1 || "";
-        const city = shipping.city || legacyPayload.city || "";
-        const postalCode = shipping.postalCode || legacyPayload.postalCode || "";
-        const countryCode = shipping.countryCode || legacyPayload.countryCode || "ZAF";
         
-        console.log("[create-client-legacy] ========== PAYLOAD EXTRACTION ==========");
-        console.log("[create-client-legacy] Has nested shipping:", !!legacyPayload.shipping);
-        console.log("[create-client-legacy] Has nested medicalRecord:", !!legacyPayload.medicalRecord);
-        console.log("[create-client-legacy] Extracted country code:", countryCode);
-        console.log("[create-client-legacy] Extracted postal code:", postalCode);
-        
-        // Validate required fields
         if (!validateEmail(email)) {
           throw new Error("Invalid email format");
         }
@@ -1184,51 +1168,7 @@ serve(async (req) => {
           throw new Error("Name fields exceed maximum length");
         }
         
-        // Transform legacy payload to new /dapp/clients schema
-        const dappPayload = {
-          transaction_metadata: {
-            source: "Healingbuds_Web_Store",
-            timestamp: new Date().toISOString(),
-            flow_type: "Legacy_Onboarding_v1"
-          },
-          user_identity: {
-            first_name: String(firstName || "").slice(0, 100),
-            last_name: String(lastName || "").slice(0, 100),
-            dob: dob,
-            email: String(email || "").toLowerCase().slice(0, 255),
-            phone_number: String(contactNumber || "").slice(0, 20)
-          },
-          eligibility_results: {
-            age_verified: true,
-            region_eligible: true,
-            postal_code: String(postalCode).slice(0, 20),
-            country_code: String(countryCode).slice(0, 3),
-            declared_medical_patient: legacyPayload.medicalHistory3 === true
-          },
-          shipping_address: {
-            street: String(address1).slice(0, 200),
-            city: String(city).slice(0, 100),
-            postal_code: String(postalCode).slice(0, 20),
-            country: String(countryCode).slice(0, 3)
-          },
-          medical_record: {
-            conditions: String(medicalRecord.conditions || legacyPayload.medicalConditions || legacyPayload.medicalHistory11 || "").slice(0, 2000),
-            current_medications: String(medicalRecord.currentMedications || legacyPayload.medicalHistory13 || "").slice(0, 1000),
-            allergies: String(medicalRecord.allergies || legacyPayload.allergies || "").slice(0, 500),
-            previous_cannabis_use: medicalRecord.previousCannabisUse === true || legacyPayload.medicalHistory0 === true,
-            heart_condition: legacyPayload.medicalHistory1 === true,
-            psychosis_history: legacyPayload.medicalHistory2 === true,
-            adverse_reaction: legacyPayload.medicalHistory3 === true
-          },
-          kyc_requirements: {
-            document_type: "Government_ID",
-            id_country: String(countryCode).slice(0, 3),
-            selfie_required: true,
-            liveness_check: "active"
-          }
-        };
-        
-        // Enhanced logging for debugging - log BEFORE API call
+        // Enhanced logging for debugging
         console.log("[create-client-legacy] ========== CLIENT CREATION START ==========");
         console.log("[create-client-legacy] Timestamp:", new Date().toISOString());
         console.log("[create-client-legacy] API credentials check:", {
@@ -1237,21 +1177,25 @@ serve(async (req) => {
           apiKeyLength: Deno.env.get("DRGREEN_API_KEY")?.length || 0,
           privateKeyLength: Deno.env.get("DRGREEN_PRIVATE_KEY")?.length || 0,
         });
-        console.log("[create-client-legacy] Payload summary:", {
-          email: dappPayload.user_identity.email?.slice(0, 5) + '***',
-          countryCode: dappPayload.eligibility_results.country_code,
-          hasShippingAddress: !!dappPayload.shipping_address.street,
-        });
+        console.log("[create-client-legacy] Sending LEGACY payload format directly (not transformed)");
+        console.log("[create-client-legacy] Payload keys:", Object.keys(legacyPayload));
+        console.log("[create-client-legacy] Has shipping:", !!legacyPayload.shipping);
+        console.log("[create-client-legacy] Has medicalRecord:", !!legacyPayload.medicalRecord);
+        console.log("[create-client-legacy] Email:", email?.slice(0, 5) + '***');
+        console.log("[create-client-legacy] Country:", legacyPayload.shipping?.countryCode || 'not set');
         
-        logInfo("Creating client with transformed legacy payload", {
+        logInfo("Creating client with LEGACY payload format (direct)", {
           hasApiKey: !!Deno.env.get("DRGREEN_API_KEY"),
           hasPrivateKey: !!Deno.env.get("DRGREEN_PRIVATE_KEY"),
-          email: dappPayload.user_identity.email?.slice(0, 5) + '***',
-          countryCode: dappPayload.eligibility_results.country_code,
+          email: email?.slice(0, 5) + '***',
+          countryCode: legacyPayload.shipping?.countryCode,
+          payloadKeys: Object.keys(legacyPayload),
         });
         
-        // Call API with detailed logging enabled
-        response = await drGreenRequestBody("/dapp/clients", "POST", dappPayload, true);
+        // CRITICAL FIX: Send the legacyPayload directly - it's already in the correct format
+        // The Dr. Green API expects: firstName, lastName, email, shipping{}, medicalRecord{}, etc.
+        // NOT the transformed dApp schema with user_identity, shipping_address, etc.
+        response = await drGreenRequestBody("/dapp/clients", "POST", legacyPayload, true);
         
         // Log response details for debugging
         const clonedResp = response.clone();
