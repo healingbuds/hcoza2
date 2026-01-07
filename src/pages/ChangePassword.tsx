@@ -165,11 +165,15 @@ const ChangePassword = () => {
       }
 
       toast({
-        title: t('changePassword.success'),
-        description: t('changePassword.successDescription'),
+        title: "✓ Password Updated Successfully",
+        description: "Your password has been changed. Redirecting to your dashboard...",
+        duration: 5000,
       });
       
-      navigate('/dashboard');
+      // Small delay for UX before redirect
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1500);
     } catch (error) {
       console.error('Password change error:', error);
       toast({

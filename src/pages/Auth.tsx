@@ -223,7 +223,7 @@ const Auth = () => {
 
     setLoading(true);
 
-    const redirectUrl = `${window.location.origin}/auth`;
+    const redirectUrl = `${window.location.origin}/change-password`;
 
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: redirectUrl,
