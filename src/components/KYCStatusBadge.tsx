@@ -21,7 +21,11 @@ interface StatusConfig {
   href?: string;
 }
 
-export function KYCStatusBadge() {
+interface KYCStatusBadgeProps {
+  compact?: boolean;
+}
+
+export function KYCStatusBadge({ compact = false }: KYCStatusBadgeProps) {
   const { drGreenClient, isLoading } = useShop();
 
   const status: KYCStatus = useMemo(() => {
@@ -84,9 +88,9 @@ export function KYCStatusBadge() {
 
   if (isLoading) {
     return (
-      <Badge variant="outline" className="bg-muted/50 animate-pulse">
-        <Clock className="w-3 h-3 mr-1" />
-        Loading...
+      <Badge variant="outline" className="bg-muted/50 animate-pulse" title="Loading verification status...">
+        <Clock className={cn("w-3 h-3", !compact && "mr-1")} />
+        {!compact && "Loading..."}
       </Badge>
     );
   }
@@ -98,11 +102,13 @@ export function KYCStatusBadge() {
       variant="outline" 
       className={cn(
         'transition-all duration-300 cursor-pointer',
+        compact && 'px-2',
         className
       )}
+      title={label}
     >
-      <Icon className="w-3 h-3 mr-1" />
-      {label}
+      <Icon className={cn("w-3 h-3", !compact && "mr-1")} />
+      {!compact && label}
     </Badge>
   );
 
