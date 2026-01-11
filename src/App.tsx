@@ -65,15 +65,6 @@ const queryClient = new QueryClient();
 const RegionGatedApp = () => {
   const { isGlobal, isPreLaunch } = useRegionGate();
 
-  // Global domains show only the country selector
-  if (isGlobal) {
-    return (
-      <Suspense fallback={<PageLoadingSkeleton variant="hero" />}>
-        <CountrySelector />
-      </Suspense>
-    );
-  }
-
   // Pre-launch regions (UK/PT): Show ONLY the stealth gate - no site access
   if (isPreLaunch) {
     return (
@@ -84,24 +75,24 @@ const RegionGatedApp = () => {
     );
   }
 
-  // Operational regions: Full site access
+  // Global AND Operational regions: Full site access (homepage differs)
   return (
     <>
-      <AnimatedRoutes />
+      <AnimatedRoutes isGlobal={isGlobal} />
       <RegionDevTools />
     </>
   );
 };
 
-const AnimatedRoutes = () => {
+const AnimatedRoutes = ({ isGlobal = false }: { isGlobal?: boolean }) => {
   const location = useLocation();
   
   return (
     <AnimatePresence mode="wait" initial={false}>
       <Suspense fallback={<PageLoadingSkeleton variant="hero" />}>
         <Routes location={location} key={location.pathname}>
-          {/* Core Pages */}
-          <Route path="/" element={<Index />} />
+          {/* Core Pages - Home is conditional based on domain */}
+          <Route path="/" element={isGlobal ? <CountrySelector /> : <Index />} />
           <Route path="/eligibility" element={<Eligibility />} />
           <Route path="/support" element={<Support />} />
           <Route path="/about" element={<AboutUs />} />
