@@ -194,11 +194,25 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
                 <LanguageSwitcher scrolled={scrolled} />
                 <ThemeToggle isDark={isDark} />
                 
-                {/* Wallet Connection Button - dApp Hydration Layer */}
-                <WalletButton className="ml-1" />
+                {/* Wallet Connection Button - Compact on laptop, full on desktop */}
+                <div className="hidden xl:block">
+                  <WalletButton className="ml-1" />
+                </div>
+                <div className="hidden lg:block xl:hidden">
+                  <WalletButton className="ml-1" compact />
+                </div>
 
-                {/* KYC Status Badge - Persistent indicator for logged-in users */}
-                {user && <KYCStatusBadge />}
+                {/* KYC Status Badge - Compact on laptop, full on desktop */}
+                {user && (
+                  <>
+                    <div className="hidden xl:block">
+                      <KYCStatusBadge />
+                    </div>
+                    <div className="hidden lg:block xl:hidden">
+                      <KYCStatusBadge compact />
+                    </div>
+                  </>
+                )}
 
                 <div className="flex items-center gap-2 ml-3">
                   {/* Check Eligibility - Only show for operational regions */}

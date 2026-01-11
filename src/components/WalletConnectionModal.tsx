@@ -237,9 +237,10 @@ export function WalletConnectionModal({ isOpen, onClose }: WalletConnectionModal
  */
 interface WalletButtonProps {
   className?: string;
+  compact?: boolean;
 }
 
-export function WalletButton({ className }: WalletButtonProps) {
+export function WalletButton({ className, compact = false }: WalletButtonProps) {
   const { isConnected, address } = useAccount();
   const [modalOpen, setModalOpen] = useState(false);
   const { hasNFT } = useDrGreenKeyOwnership();
@@ -252,8 +253,10 @@ export function WalletButton({ className }: WalletButtonProps) {
     <>
       <Button
         variant={isConnected ? 'outline' : 'default'}
+        size={compact ? 'icon' : 'default'}
         onClick={() => setModalOpen(true)}
-        className={cn('gap-2', className)}
+        className={cn(compact ? '' : 'gap-2', className)}
+        title={isConnected ? (address ? truncateAddress(address) : 'Connected') : 'Connect Wallet'}
       >
         {isConnected ? (
           <>
@@ -262,13 +265,17 @@ export function WalletButton({ className }: WalletButtonProps) {
             ) : (
               <Wallet className="h-4 w-4" />
             )}
-            <span className="hidden sm:inline">{truncateAddress(address!)}</span>
-            <span className="sm:hidden">Wallet</span>
+            {!compact && (
+              <>
+                <span className="hidden sm:inline">{truncateAddress(address!)}</span>
+                <span className="sm:hidden">Wallet</span>
+              </>
+            )}
           </>
         ) : (
           <>
             <Wallet className="h-4 w-4" />
-            <span>Connect</span>
+            {!compact && <span>Connect</span>}
           </>
         )}
       </Button>
