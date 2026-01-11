@@ -189,8 +189,8 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
               {/* Center Navigation - Desktop */}
               <NavigationMenu scrolled={scrolled} isDark={isDark} />
               
-              {/* Right Actions - Desktop */}
-              <div className="hidden xl:flex items-center gap-3 flex-shrink-0">
+              {/* Right Actions - Desktop (visible from laptop/1024px) */}
+              <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
                 <LanguageSwitcher scrolled={scrolled} />
                 <ThemeToggle isDark={isDark} />
                 
@@ -298,8 +298,8 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
                 </div>
               </div>
 
-              {/* Mobile Menu Button - EXTREME RIGHT */}
-              <div className="xl:hidden flex items-center gap-2">
+              {/* Mobile Menu Button - EXTREME RIGHT (visible below laptop/1024px) */}
+              <div className="lg:hidden flex items-center gap-2">
                 <ThemeToggle isDark={isDark} />
                 <AnimatedMenuButton
                   isOpen={mobileMenuOpen}

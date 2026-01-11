@@ -28,7 +28,7 @@ const NavigationMenu = ({ scrolled, isDark = true }: NavigationMenuProps) => {
   ];
 
   return (
-    <nav className="hidden xl:flex items-center justify-center gap-1">
+    <nav className="hidden lg:flex items-center justify-center gap-1">
       {navItems.map((item) => {
         const active = item.isShop ? isShopActive : isActive(item.path);
         const Icon = item.icon;
@@ -38,8 +38,8 @@ const NavigationMenu = ({ scrolled, isDark = true }: NavigationMenuProps) => {
             key={item.path}
             to={item.path}
             className={cn(
-              "relative px-5 py-2.5 rounded-lg font-medium transition-all duration-300",
-              "text-sm flex items-center gap-2",
+              "relative lg:px-3 lg:py-2 xl:px-5 xl:py-2.5 rounded-lg font-medium transition-all duration-300",
+              "text-sm flex items-center lg:gap-1.5 xl:gap-2",
               "group",
               active
                 ? "text-white bg-white/15 border-b-2 border-[#EAB308]"

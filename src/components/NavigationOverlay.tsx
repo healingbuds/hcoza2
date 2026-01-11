@@ -184,18 +184,18 @@ const NavigationOverlay = ({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop - Premium glassmorphism blur */}
+          {/* Backdrop - Premium glassmorphism blur (hidden from laptop/1024px) */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="xl:hidden fixed inset-0 z-[9998] bg-black/60 backdrop-blur-md"
+            className="lg:hidden fixed inset-0 z-[9998] bg-black/60 backdrop-blur-md"
             onClick={onClose}
             aria-hidden="true"
           />
           
-          {/* Drawer - Premium glassmorphism */}
+          {/* Drawer - Premium glassmorphism (hidden from laptop/1024px) */}
           <motion.div 
             ref={focusTrapRef}
             initial={{ x: '100%' }}
@@ -207,7 +207,7 @@ const NavigationOverlay = ({
               damping: 30,
               mass: 0.8
             }}
-            className="xl:hidden fixed top-0 right-0 bottom-0 w-[85%] max-w-[320px] sm:w-[300px] z-[9999] flex flex-col h-full max-h-screen"
+            className="lg:hidden fixed top-0 right-0 bottom-0 w-[85%] max-w-[320px] sm:w-[300px] z-[9999] flex flex-col h-full max-h-screen"
             style={{ 
               background: 'linear-gradient(180deg, rgba(26, 46, 42, 0.98) 0%, rgba(30, 54, 50, 0.98) 100%)',
               backdropFilter: 'blur(20px)',
